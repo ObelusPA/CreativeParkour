@@ -1,0 +1,76 @@
+main: net.creativeparkour.CreativeParkour
+name: CreativeParkour
+description: Plugin that allows all the players to play and show their skills in fun parkour maps they build or download!
+version: 2.6
+author: Obelus
+load: POSTWORLD
+website: https://creativeparkour.net
+softdepend: [WorldEdit, Vault, ProtocolLib]
+
+commands:
+   creativeparkour:
+     description: Global command of the CreativeParkour plugin, type '/cp help' for full help.
+     aliases: [cp,cpk]
+     permission: creativeparkour.play
+     permission-message: You are not permitted to use CreativeParkour.
+     usage: Type "/cp help" for full help. If you have a problem, please report it (are you using Spigot?)
+   cpd:
+     description: Download a parkour map from creativeparkour.net
+     aliases: [cpdownload]
+     permission: creativeparkour.download
+     permission-message: You are not permitted to download CreativeParkour maps.
+     usage: /cpd <map ID or URL> (find the map ID on creativeparkour.net)
+
+permissions:
+   creativeparkour.*:
+     description: Gives access to all CreativeParkour commands (configuration commands included!).
+     default: op
+     children:
+       creativeparkour.play: true
+       creativeparkour.create: true
+       creativeparkour.infinite: true
+       creativeparkour.worldedit: true
+       creativeparkour.manage: true
+       creativeparkour.share: true
+       creativeparkour.download: true
+       creativeparkour.ghosts.save: true
+       creativeparkour.ghosts.see: true
+       creativeparkour.createSigns: true
+       creativeparkour.spectate: true
+   creativeparkour.play:
+     description: Allows players to play maps.
+     default: true
+   creativeparkour.create:
+     description: Allows players to create maps.
+     default: true
+     children:
+       creativeparkour.play: true
+   creativeparkour.infinite:
+     description: Allows players to create an infinite number of maps. Check out "map creation.maps per player limit" in configuration.yml to configure the limit.
+     default: true
+   creativeparkour.worldedit:
+     description: Allows players to use the WorldEdit wand when creating maps.
+     default: true
+   creativeparkour.manage:
+     description: Allows players to manage maps (edit, delete, pin, invite, remove and ban players). Map creators can still edit and delete their maps.
+     default: op
+   creativeparkour.share:
+     description: Allows players to share their maps on the CreativeParkour website.
+     default: true
+   creativeparkour.download:
+     description: Allows players to play parkour maps from the CreativeParkour website.
+     default: op
+   creativeparkour.ghosts.save:
+     description: Allows players to save the recording of their course when finishing a parkour.
+     default: true
+     children:
+       creativeparkour.ghosts.see: true
+   creativeparkour.ghosts.see:
+     description: Allows players to see ghosts when playing parkour maps.
+     default: true
+   creativeparkour.createSigns:
+     description: Allows players to place "<cp>" lobby signs.
+     default: op
+   creativeparkour.spectate:
+     description: Allows players to use spectator mode when playing maps.
+     default: true
