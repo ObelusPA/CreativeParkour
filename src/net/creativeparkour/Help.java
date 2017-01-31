@@ -49,6 +49,7 @@ class Help
 		h.add(gold + "/cp " + Langues.getMessage("commands.play") + " [" +Langues.getMessage("commands.map name") + "]" + trans + Langues.getMessage("help.play"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.download") + " <map ID>" + trans + Langues.getMessage("help.download"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.create") + trans + Langues.getMessage("help.create"));
+		h.add(gold + "/cp " + Langues.getMessage("commands.test") + trans + Langues.getMessage("help.test"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.invite") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.invite"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.remove") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.remove"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.contributors") + trans + Langues.getMessage("help.contributors"));
@@ -56,7 +57,6 @@ class Help
 		h.add(gold + "/cp " + Langues.getMessage("commands.tp") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.tp"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.spectator") + trans + Langues.getMessage("help.spectator"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.leave") + trans + Langues.getMessage("help.leave"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.test") + trans + Langues.getMessage("help.test"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.publish") + trans + Langues.getMessage("help.publish"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.mapoptions") + trans + Langues.getMessage("help.mapoptions"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.importsel") + trans + Langues.getMessage("help.importsel"));
