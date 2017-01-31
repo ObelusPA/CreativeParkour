@@ -68,11 +68,13 @@ public class CreativeParkourAPI
 	 * <em>Warning: this may take time if there are a lot of players!</em>
 	 * @param parkourMap CreativeParkour map we want players' times.
 	 * @return {@code SortedSet} of all the {@code CPTime}s for the map (from the world record to the longest time).
+	 * @throws UnloadedPluginException If CreativeParkour is not loaded yet.
 	 * @see CPTime
 	 * @since 2.6
 	 */
-	public static SortedSet<CPTime> getTimes(CPMap parkourMap)
+	public static SortedSet<CPTime> getTimes(CPMap parkourMap) throws UnloadedPluginException
 	{
+		check();
 		return new TreeSet<CPTime>(parkourMap.getListeTemps());
 	}
 
@@ -92,10 +94,12 @@ public class CreativeParkourAPI
 	 * Returns the parkour map represented by the given {@code UUID}.
 	 * @param mapUUID {@code UUID} of the wanted CreativeParkour map.
 	 * @return Corresponding {@code CPMap}.
+	 * @throws UnloadedPluginException If CreativeParkour is not loaded yet.
 	 * @since 2.6
 	 */
-	public static CPMap getParkourMap(UUID mapUUID)
+	public static CPMap getParkourMap(UUID mapUUID) throws UnloadedPluginException
 	{
+		check();
 		return GameManager.getMap(mapUUID);
 	}
 
