@@ -400,7 +400,7 @@ class InventaireSelection
 							s1 = "Unknown";
 						if (s2 == null)
 							s2 = "Unknown";
-						return triCroissant * s1.compareTo(s2);
+						return triCroissant * s1.toLowerCase().compareTo(s2.toLowerCase());
 					} 
 				};
 				trier();
