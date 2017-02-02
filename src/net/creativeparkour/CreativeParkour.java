@@ -18,6 +18,7 @@
 package net.creativeparkour;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -176,11 +177,8 @@ public class CreativeParkour extends JavaPlugin implements Listener
 
 	static boolean auMoins1_9()
 	{
-		return Bukkit.getServer().getBukkitVersion().startsWith("1.9")
-				|| Bukkit.getServer().getBukkitVersion().startsWith("1.10")
-				|| Bukkit.getServer().getBukkitVersion().startsWith("1.11")
-				|| Bukkit.getServer().getBukkitVersion().startsWith("1.12")
-				|| Bukkit.getServer().getBukkitVersion().startsWith("1.13");
+		String v = Bukkit.getServer().getBukkitVersion();
+		return Integer.valueOf(v.substring(2, v.indexOf(".", 2))) >= 9;
 	}
 
 	static Stats stats()
