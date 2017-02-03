@@ -140,7 +140,6 @@ class Langues
 		trads.add(new Traduction("en", "commands.download wait 2", "Building \"%map\" (it can take time)...", "2.2"));
 		trads.add(new Traduction("en", "commands.download error build", "Something went wrong while building this map. Maybe it has been built in a newer Minecraft or CreativeParkour version.", "2.3"));
 		trads.add(new Traduction("en", "commands.download error ID", "You have to type the numerical ID of the map you want to download or its URL : \"/cpd <ID or URL>\". Visit " + CreativeParkour.lienSiteCourt() + " to find parkour maps or type \"/cp play\".", "2.4.6.5"));
-		trads.add(new Traduction("en", "commands.download error existing map", "This map already exists on this server.", "2.0"));
 		trads.add(new Traduction("en", "commands.download error disabled", "Map downloading is not enabled on this server. If you are an admin, type \"/cp config sharing\".", "2.0"));
 		trads.add(new Traduction("en", "commands.edit", "edit", "1.2"));
 		trads.add(new Traduction("en", "commands.edit message", "Edit this map", "1.2"));
@@ -590,7 +589,6 @@ class Langues
 		trads.add(new Traduction("fr", "commands.download wait 2", "Construction de \"%map\" (cela peut prendre du temps)...", "2.4.2.1"));
 		trads.add(new Traduction("fr", "commands.download error build", "Un problème est survenu lors de la construction de la map. Elle a peut-être été faite dans une version plus récente de Minecraft ou CreativeParkour.", "2.3"));
 		trads.add(new Traduction("fr", "commands.download error ID", "Vous devez indiquer l'identifiant numérique ou l'URL de la map que vous souhaitez télécharger : \"/cpd <identifiant ou URL>\". Vous pouvez le trouver dans la liste des maps sur " + CreativeParkour.lienSiteCourt() + ". Vous pouvez aussi utiliser la commande \"/cp play\".", "2.4.6.5"));
-		trads.add(new Traduction("fr", "commands.download error existing map", "Cette map est déjà présente sur ce serveur.", "2.0"));
 		trads.add(new Traduction("fr", "commands.download error disabled", "Le téléchargement de maps n'est pas activé sur ce serveur. Si vous êtes un opérateur, tapez \"/cp config sharing\".", "2.0"));
 		trads.add(new Traduction("fr", "commands.edit", "modifier", "1.2"));
 		trads.add(new Traduction("fr", "commands.edit message", "Modifier cette map", "1.2"));

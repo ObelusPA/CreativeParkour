@@ -1134,7 +1134,7 @@ class GameManager implements Listener
 				{
 					if (mapExistante(jsData.get("uuidMap").getAsString()))
 					{
-						p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error existing map"));
+						jouer(p, getMap(UUID.fromString(jsData.get("uuidMap").getAsString())), false, true);
 						Joueur j = getJoueur(p);
 						if (j != null)
 							j.permettreTelechargement(1000 * 20); // Dans 20 secondes
