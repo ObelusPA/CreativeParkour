@@ -443,11 +443,6 @@ public class CPUtils
 	}
 	
 	/**
-	 * Divides the text in several lines by splitting it at some spaces.<br>
-	 * This is supposed to be used to make long texts readable in {@code ItemStack} lore.
-	 * @param text Text to split.
-	 * @param color Text's color (or {@code null} to not set any color).
-	 * @return Paragraph lines in a list.
 	 * @see net.creativeparkour.CPUtils#divideText(String, ChatColor)
 	 */
 	@Deprecated
