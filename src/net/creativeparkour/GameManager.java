@@ -1312,7 +1312,7 @@ class GameManager implements Listener
 							type.addProperty("d", 6);
 							break;
 						case "BEETROOT_BLOCK":
-							mat = Material.POTATO;
+							mat = Material.CARROT;
 							break;
 						case "MAGMA":
 							mat = Material.NETHERRACK;
@@ -1323,6 +1323,12 @@ class GameManager implements Listener
 							break;
 						case "BONE_BLOCK":
 							mat = Material.QUARTZ_BLOCK;
+							break;
+						case "STRUCTURE_BLOCK":
+							mat = Material.OBSIDIAN;
+							break;
+						case "STRUCTURE_VOID":
+							mat = Material.AIR;
 							break;
 						case "WHITE_SHULKER_BOX":
 							mat = Material.STAINED_CLAY;
