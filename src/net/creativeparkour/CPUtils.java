@@ -412,7 +412,7 @@ public class CPUtils
 	 * @param color Text's color (or {@code null} to not set any color).
 	 * @return Paragraph lines in a list.
 	 */
-	public static List<String> diviserTexte(String text, ChatColor color)
+	public static List<String> divideText(String text, ChatColor color)
 	{
 		StringBuffer s = new StringBuffer(text.trim());
 		List<String> l = new ArrayList<String>();
@@ -440,5 +440,37 @@ public class CPUtils
 		}
 
 		return l;
+	}
+	
+	/**
+	 * Divides the text in several lines by splitting it at some spaces.<br>
+	 * This is supposed to be used to make long texts readable in {@code ItemStack} lore.
+	 * @param text Text to split.
+	 * @param color Text's color (or {@code null} to not set any color).
+	 * @return Paragraph lines in a list.
+	 * @see net.creativeparkour.CPUtils#divideText(String, ChatColor)
+	 */
+	@Deprecated
+	public static List<String> diviserTexte(String text, ChatColor color)
+	{
+		return divideText(text, color);
+	}
+	
+	/**
+	 * Returns all the {@code String}s in the {@code List} in one single {@code String}, with line breaks between lines.
+	 * @param lines {@code List} of paragraph's lines.
+	 * @return A {@code String} containing all the lines.
+	 */
+	public static String dividedTextToString(List<String> lines)
+	{
+		StringBuffer s = new StringBuffer();
+		for (String l : lines)
+		{
+			s.append(l).append("\n");
+		}
+		// Removing the last "\n"
+		if (s.length() > 0)
+			s.deleteCharAt(s.length() - 1);
+		return s.toString();
 	}
 }

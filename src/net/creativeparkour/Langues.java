@@ -139,12 +139,13 @@ class Langues
 		trads.add(new Traduction("en", "commands.download wait", "Please wait a few minutes before downloading a map again.", "2.0"));
 		trads.add(new Traduction("en", "commands.download wait 2", "Building \"%map\" (it can take time)...", "2.2"));
 		trads.add(new Traduction("en", "commands.download error build", "Something went wrong while building this map. Maybe it has been built in a newer Minecraft or CreativeParkour version.", "2.3"));
+		trads.add(new Traduction("en", "commands.download error incompatible", "This map is not compatible with your Minecraft version because it contains the following elements: %elements", "2.7"));
 		trads.add(new Traduction("en", "commands.download error ID", "You have to type the numerical ID of the map you want to download or its URL : \"/cpd <ID or URL>\". Visit " + CreativeParkour.lienSiteCourt() + " to find parkour maps or type \"/cp play\".", "2.4.6.5"));
 		trads.add(new Traduction("en", "commands.download error disabled", "Map downloading is not enabled on this server. If you are an admin, type \"/cp config sharing\".", "2.0"));
 		trads.add(new Traduction("en", "commands.edit", "edit", "1.2"));
 		trads.add(new Traduction("en", "commands.edit message", "Edit this map", "1.2"));
 		trads.add(new Traduction("en", "commands.edit question", "Are you sure you want to edit %map?", "1.2"));
-		trads.add(new Traduction("en", "commands.edit info", "You will no longer be able to edit your last edited map until you publish %map again.\nIf you change a block, the leaderboard of this map will be deleted.", "1.2.2"));
+		trads.add(new Traduction("en", "commands.edit info", "You will no longer be able to edit your last edited map until you publish %map again. If you change a block, the leaderboard of this map will be deleted.", "2.7"));
 		trads.add(new Traduction("en", "commands.edit canceled", "Map edition canceled.", "1.2"));
 		trads.add(new Traduction("en", "commands.delete", "delete", "1.1.3.2"));
 		trads.add(new Traduction("en", "commands.delete message", "Delete this map", "1.1.3.2"));
@@ -389,6 +390,8 @@ class Langues
 		trads.add(new Traduction("en", "play.downloaded", "Downloaded", "2.0"));
 		trads.add(new Traduction("en", "play.downloadable", "Downloadable (right-click for info)", "2.0.1"));
 		trads.add(new Traduction("en", "play.download map info", "%LClick here%L to read this map's description on " + CreativeParkour.lienSiteCourt() + " (screenshot, description, leaderboard...).", "2.4.3"));
+		trads.add(new Traduction("en", "play.download conversion", "This map is incompatible with your Minecraft version, but CreativeParkour can automatically change some blocks to equivalents to make it compatible if you download it.", "2.7"));
+		trads.add(new Traduction("en", "play.download converted", "This map contains incompatible blocks that are changed to equivalents.", "2.7"));
 		trads.add(new Traduction("en", "play.maps", "maps", "1.1.3.2"));
 		trads.add(new Traduction("en", "play.welcome", "You are playing %map, a CreativeParkour map by %creator.", "2.6"));
 		trads.add(new Traduction("en", "play.time", "Time", "1.1.3.2"));
@@ -588,12 +591,13 @@ class Langues
 		trads.add(new Traduction("fr", "commands.download wait", "Veuillez attendre quelques minutes avant de retélécharger une map.", "2.0"));
 		trads.add(new Traduction("fr", "commands.download wait 2", "Construction de \"%map\" (cela peut prendre du temps)...", "2.4.2.1"));
 		trads.add(new Traduction("fr", "commands.download error build", "Un problème est survenu lors de la construction de la map. Elle a peut-être été faite dans une version plus récente de Minecraft ou CreativeParkour.", "2.3"));
+		trads.add(new Traduction("fr", "commands.download error incompatible", "Cette map n'est pas compatible avec votre version de Minecraft car elle contient les éléments suivants : %elements", "2.7"));
 		trads.add(new Traduction("fr", "commands.download error ID", "Vous devez indiquer l'identifiant numérique ou l'URL de la map que vous souhaitez télécharger : \"/cpd <identifiant ou URL>\". Vous pouvez le trouver dans la liste des maps sur " + CreativeParkour.lienSiteCourt() + ". Vous pouvez aussi utiliser la commande \"/cp play\".", "2.4.6.5"));
 		trads.add(new Traduction("fr", "commands.download error disabled", "Le téléchargement de maps n'est pas activé sur ce serveur. Si vous êtes un opérateur, tapez \"/cp config sharing\".", "2.0"));
 		trads.add(new Traduction("fr", "commands.edit", "modifier", "1.2"));
 		trads.add(new Traduction("fr", "commands.edit message", "Modifier cette map", "1.2"));
 		trads.add(new Traduction("fr", "commands.edit question", "Êtes-vous sûr(e) de vouloir modifier %map ?", "1.2"));
-		trads.add(new Traduction("fr", "commands.edit info", "Vous ne pourrez plus modifier votre dernière map modifiée avant de publier %map de nouveau.\nSi vous modifiez un bloc, le classement des joueurs de cette map sera supprimé.", "1.2.2"));
+		trads.add(new Traduction("fr", "commands.edit info", "Vous ne pourrez plus modifier votre dernière map modifiée avant de publier %map de nouveau. Si vous modifiez un bloc, le classement des joueurs de cette map sera supprimé.", "2.7"));
 		trads.add(new Traduction("fr", "commands.edit canceled", "Modification de la map annulée.", "1.2"));
 		trads.add(new Traduction("fr", "commands.delete", "supprimer", "1.2"));
 		trads.add(new Traduction("fr", "commands.delete message", "Supprimer cette map", "1.2"));
@@ -837,6 +841,8 @@ class Langues
 		trads.add(new Traduction("fr", "play.downloaded", "Téléchargée", "2.0"));
 		trads.add(new Traduction("fr", "play.downloadable", "Téléchargeable (clic droit pour plus d'infos)", "2.0.1"));
 		trads.add(new Traduction("fr", "play.download map info", "%LCliquez ici%L pour voir la description de cette map sur " + CreativeParkour.lienSiteCourt() + " (capture d'écran, description, classement...).", "2.4.3"));
+		trads.add(new Traduction("fr", "play.download conversion", "Cette map n'est pas compatible avec votre version de Minecraft, mais si vous la téléchargez, CreativeParkour pourra automatiquement remplacer les blocs problématiques par des équivalents pour la rendre compatible.", "2.7"));
+		trads.add(new Traduction("fr", "play.download converted", "Cette map contient des blocs incompatibles qui sont remplacés par des équivalents.", "2.7"));
 		trads.add(new Traduction("fr", "play.maps", "maps", "1.2"));
 		trads.add(new Traduction("fr", "play.welcome", "Vous jouez sur %map, une map de CreativeParkour par %creator.", "2.6"));
 		trads.add(new Traduction("fr", "play.time", "Temps", "1.2"));

@@ -782,9 +782,15 @@ class MainListener implements Listener
 						n = "unnamed";
 					}
 					if (Config.online() && m.getCreator().equals(p.getUniqueId()))
-						p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.share message")).color(ChatColor.AQUA).bold(true).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("commands.share info").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET)).create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour share")).create());
-					p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.edit message")).color(ChatColor.LIGHT_PURPLE).bold(true).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("commands.edit info").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET)).create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour edit")).create());
-					p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.delete message")).color(ChatColor.RED).bold(true).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("commands.cannot be undone")).color(ChatColor.RED).create())).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour delete")).create());
+						p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.share message")).color(ChatColor.AQUA).bold(true)
+								.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(CPUtils.dividedTextToString(CPUtils.divideText(Langues.getMessage("commands.share info").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET), null))).create()))
+								.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour share")).create());
+					p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.edit message")).color(ChatColor.LIGHT_PURPLE).bold(true)
+							.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(CPUtils.dividedTextToString(CPUtils.divideText(Langues.getMessage("commands.edit info").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET), null))).create()))
+							.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour edit")).create());
+					p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.delete message")).color(ChatColor.RED).bold(true)
+							.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("commands.cannot be undone")).color(ChatColor.RED).create()))
+							.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour delete")).create());
 				}
 				else if (m != null && m.isPlayable() && objetMain.getItemMeta().getDisplayName().contains(Langues.getMessage("play.items.ghosts")))
 				{

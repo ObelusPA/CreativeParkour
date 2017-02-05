@@ -57,7 +57,7 @@ class InventaireCreation
 		List<String> lore = null;
 		if (autreMap != null)
 		{
-			lore = CPUtils.diviserTexte(Langues.getMessage("creation.new map warn"), ChatColor.RED);
+			lore = CPUtils.divideText(Langues.getMessage("creation.new map warn"), ChatColor.RED);
 		}
 		setObjet(11, Material.EMPTY_MAP, ChatColor.GREEN + Langues.getMessage("creation.new map"), lore, ActionInv.NOUVELLE_MAP);
 

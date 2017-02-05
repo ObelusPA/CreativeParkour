@@ -92,7 +92,7 @@ public class CPMap
 	private boolean epingle = false;
 	private List<Player> testeurs = new ArrayList<Player>();
 	private SortedSet<CPTime> temps;
-	private Map<String, String> donneesWeb = null; // Pour les maps pouvant être téléchargées
+	private Map<String, Object> webData = null; // For maps that can be downloaded
 	private RemplisseurBlocs remplisseur = null;
 	boolean sneakAutorise = true;
 	boolean mortLave = false;
@@ -263,16 +263,27 @@ public class CPMap
 			sauvegarder();
 	}
 
-	CPMap (String id, String createur, String nom, float difficulte) // Pour les maps pouvant être téléchargées
+	/**
+	 * Constructor used for map that can be downloaded.
+	 * @param id Map's id.
+	 * @param creator Creator name.
+	 * @param name Map's name.
+	 * @param difficulty Map's difficulty.
+	 * @param minVer Map's miminum compatible version (without conversion).
+	 * @param conversionVer Map's minimum compatible version (after changing some incompatible blocks).
+	 */
+	CPMap (String id, String creator, String name, float difficulty, int minVer, int conversionVer)
 	{
 		this.id = Integer.MAX_VALUE;
 		this.etat = null;
-		this.nom = nom;
-		this.difficulte = difficulte;
-		this.donneesWeb = new HashMap<String, String>();
-		donneesWeb.put("id", id);
-		donneesWeb.put("createur", createur);
-		donneesWeb.put("nom", nom);
+		this.nom = name;
+		this.difficulte = difficulty;
+		this.webData = new HashMap<String, Object>();
+		webData.put("id", id);
+		webData.put("createur", creator);
+		webData.put("nom", name);
+		webData.put("minVer", minVer);
+		webData.put("conversionVer", conversionVer);
 	}
 
 	private void creerScoreboardC()
@@ -798,9 +809,9 @@ public class CPMap
 		return scoreboardCreation;
 	}
 
-	Map<String, String> getDonneesWeb()
+	Map<String, Object> getWebData()
 	{
-		return donneesWeb;
+		return webData;
 	}
 
 	void setValide(boolean v)

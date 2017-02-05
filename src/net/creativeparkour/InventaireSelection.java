@@ -100,10 +100,10 @@ class InventaireSelection
 
 	void setPage(int page)
 	{
-//		long nano = System.nanoTime();
+		//		long nano = System.nanoTime();
 		this.page = page;
 		final int nbMaps = mapsAffichees.size();
-//		nano = Util.debugNanoTime("IS1", nano);
+		//		nano = Util.debugNanoTime("IS1", nano);
 
 		// Calcul du nombre de pages
 		int nbPages = (int) (Math.ceil((double)nbMaps/45));
@@ -116,7 +116,7 @@ class InventaireSelection
 
 		if (inv == null)
 			inv = Bukkit.createInventory(p, tailleInv, Langues.getMessage("play.title"));
-//		nano = Util.debugNanoTime("IS2", nano);
+		//		nano = Util.debugNanoTime("IS2", nano);
 
 		final Map<Integer, ItemStack> itemsAMettre = new HashMap<Integer, ItemStack>();
 		final int pageF = page;
@@ -127,7 +127,7 @@ class InventaireSelection
 				int nbItems = 0;
 				elements.clear();
 				speciaux.clear();
-//				nano = Util.debugNanoTime("IS3", nano);
+				//				nano = Util.debugNanoTime("IS3", nano);
 				int slot = 0;
 				//		long nano2 = System.nanoTime();
 				for (int i=limiteMin; continuer && i < nbMaps; i++)
@@ -160,10 +160,10 @@ class InventaireSelection
 						lore.add(ChatColor.WHITE + Langues.getMessage("play.difficulty") + ": " + couleur + difficulteS + "/5");
 					}
 					String nomCreateur = null;
-					if (m.getDonneesWeb() == null) // Si est une map locale
+					if (m.getWebData() == null) // Si est une map locale
 						nomCreateur = NameManager.getNomAvecUUID(m.getCreator());
 					else // Si c'est une map téléchargeable
-						nomCreateur = m.getDonneesWeb().get("createur");
+						nomCreateur = (String) m.getWebData().get("createur");
 					if (nomCreateur == null)
 						nomCreateur = "Unknown";
 					lore.add(ChatColor.LIGHT_PURPLE + nomCreateur);
@@ -172,7 +172,7 @@ class InventaireSelection
 					{
 						lore.add(ChatColor.DARK_PURPLE + NameManager.getNomAvecUUID(u));
 					}
-					if (m.getDonneesWeb() == null)
+					if (m.getWebData() == null)
 					{
 						//				nano2 = Util.debugNanoTime("IS4c", nano2);
 						// Recherche du record du joueur
@@ -205,7 +205,14 @@ class InventaireSelection
 						//				nano2 = Util.debugNanoTime("IS4f", nano2);
 					}
 					else
+					{
 						lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + Langues.getMessage("play.downloadable"));
+						// Incompatible maps info:
+						if ((int) m.getWebData().get("minVer") > CreativeParkour.getServVersion() && (int) m.getWebData().get("conversionVer") <= CreativeParkour.getServVersion())
+						{
+							lore.addAll(CPUtils.divideText(Langues.getMessage("play.download conversion"), ChatColor.RED));
+						}
+					}
 					meta.setLore(lore);
 					item.setItemMeta(meta);
 					itemsAMettre.put(slot, item);
@@ -217,7 +224,7 @@ class InventaireSelection
 						continuer = false;
 					//			nano2 = Util.debugNanoTime("IS4g", nano2);
 				}
-//				nano = Util.debugNanoTime("IS4", nano);
+				//				nano = Util.debugNanoTime("IS4", nano);
 
 				if (pageF > 1)
 				{
@@ -325,8 +332,8 @@ class InventaireSelection
 					itemsAMettre.put(tailleInv - 2, item);
 					speciaux.put(tailleInv - 2, ActionInv.TRI_DIFFICULTE);
 				}
-//				nano = Util.debugNanoTime("IS5", nano);
-				
+				//				nano = Util.debugNanoTime("IS5", nano);
+
 				// Remplissage de l'inventaire avec les objets
 				Bukkit.getScheduler().scheduleSyncDelayedTask(CreativeParkour.getPlugin(), new Runnable() {
 					public void run() {
@@ -352,15 +359,15 @@ class InventaireSelection
 		ActionInv action = speciaux.get(slot);
 		if (m != null)
 		{
-			if (m.getDonneesWeb() == null)
+			if (m.getWebData() == null)
 				GameManager.jouer(p, m, false, true);
 			else
 			{
 				p.closeInventory();
 				if (clickType == ClickType.RIGHT)
-					CPUtils.sendClickableMsg(p, Langues.getMessage("play.download map info"), null, CreativeParkour.lienSite() + "/map.php?id=" + m.getDonneesWeb().get("id"), "%L", ChatColor.YELLOW);
+					CPUtils.sendClickableMsg(p, Langues.getMessage("play.download map info"), null, CreativeParkour.lienSite() + "/map.php?id=" + m.getWebData().get("id"), "%L", ChatColor.YELLOW);
 				else
-					GameManager.telechargerMap(p, m.getDonneesWeb().get("id"));
+					GameManager.telechargerMap(p, (String) m.getWebData().get("id"));
 			}
 		}
 		else if (action != null)
@@ -387,13 +394,13 @@ class InventaireSelection
 					{
 						String s1;
 						String s2;
-						if (m1.getDonneesWeb() != null)
-							s1 = m1.getDonneesWeb().get("createur");
+						if (m1.getWebData() != null)
+							s1 = (String) m1.getWebData().get("createur");
 						else
 							s1 = NameManager.getNomAvecUUID(m1.getCreator());
 
-						if (m2.getDonneesWeb() != null)
-							s2 = m2.getDonneesWeb().get("createur");
+						if (m2.getWebData() != null)
+							s2 = (String) m2.getWebData().get("createur");
 						else
 							s2 = NameManager.getNomAvecUUID(m2.getCreator());
 						if (s1 == null)

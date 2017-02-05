@@ -55,13 +55,13 @@ class InventaireAutresMaps
 			{
 				String s1;
 				String s2;
-				if (m1.getDonneesWeb() != null)
-					s1 = m1.getDonneesWeb().get("createur");
+				if (m1.getWebData() != null)
+					s1 = (String) m1.getWebData().get("createur");
 				else
 					s1 = NameManager.getNomAvecUUID(m1.getCreator());
 
-				if (m2.getDonneesWeb() != null)
-					s2 = m2.getDonneesWeb().get("createur");
+				if (m2.getWebData() != null)
+					s2 = (String) m2.getWebData().get("createur");
 				else
 					s2 = NameManager.getNomAvecUUID(m2.getCreator());
 				if (s1 == null)

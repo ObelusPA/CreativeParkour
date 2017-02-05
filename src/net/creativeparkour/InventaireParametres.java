@@ -71,7 +71,7 @@ class InventaireParametres
 		else if (tm == TypeMessage.NONE)
 			name = ChatColor.RED + Langues.getMessage("commands.settings checkpoint msg none");
 		meta.setDisplayName(name);
-		meta.setLore(CPUtils.diviserTexte(Langues.getMessage("commands.settings checkpoint msg click"), ChatColor.YELLOW));
+		meta.setLore(CPUtils.divideText(Langues.getMessage("commands.settings checkpoint msg click"), ChatColor.YELLOW));
 		item.setItemMeta(meta);
 		inv.setItem(39, item);
 		objets.put(39, PlayerSetting.MESSAGES_CP);
@@ -89,7 +89,7 @@ class InventaireParametres
 		ItemStack item = new ItemStack(mat, 1, data);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(ChatColor.WHITE + nom);
-		meta.setLore(CPUtils.diviserTexte(descr, null));
+		meta.setLore(CPUtils.divideText(descr, null));
 		item.setItemMeta(meta);
 		inv.setItem(posInv, item);
 	}

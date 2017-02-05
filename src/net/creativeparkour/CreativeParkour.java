@@ -173,11 +173,20 @@ public class CreativeParkour extends JavaPlugin implements Listener
 	{
 		return protocollib;
 	}
+	
+	/**
+	 * Returns server's Minecraft version without "1.".
+	 * @return Server's version (eg: if the server is in 1.11, it returns 11).
+	 */
+	static int getServVersion()
+	{
+		String v = Bukkit.getServer().getBukkitVersion();
+		return Integer.valueOf(v.substring(2, v.indexOf(".", 2)));
+	}
 
 	static boolean auMoins1_9()
 	{
-		String v = Bukkit.getServer().getBukkitVersion();
-		return Integer.valueOf(v.substring(2, v.indexOf(".", 2))) >= 9;
+		return getServVersion() >= 9;
 	}
 
 	static Stats stats()

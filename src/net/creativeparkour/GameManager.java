@@ -496,7 +496,7 @@ class GameManager implements Listener
 		}
 	}
 
-	
+
 	/**
 	 * <em>Third-party plugins cannot use this method through CreativeParkour's API (it will throw an {@code InvalidQueryResponseException}).</em><br>
 	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
@@ -520,7 +520,8 @@ class GameManager implements Listener
 					for (JsonElement m : liste)
 					{
 						JsonObject map = m.getAsJsonObject();
-						mapsTelechargeables.add(new CPMap(map.get("id").getAsString(), map.get("createur").getAsString(), map.get("nom").getAsString(), map.get("difficulte").getAsFloat()));
+						if (map.get("verConversion").getAsInt() <= CreativeParkour.getServVersion()) // We only want compatible maps
+							mapsTelechargeables.add(new CPMap(map.get("id").getAsString(), map.get("createur").getAsString(), map.get("nom").getAsString(), map.get("difficulte").getAsFloat(), map.get("versionMin").getAsInt(), map.get("verConversion").getAsInt()));
 					}
 
 					// Mise à jour des inventaires de sélection de maps des joueurs qui l'ont ouvert
@@ -710,7 +711,7 @@ class GameManager implements Listener
 		}
 	}
 
-	
+
 	/**
 	 * <em>Third-party plugins cannot use this method through CreativeParkour's API (it will throw an {@code InvalidQueryResponseException}).</em><br>
 	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
@@ -1037,32 +1038,6 @@ class GameManager implements Listener
 		}
 	}
 
-	static void telechargerMap(Player p, String arg) throws NoSuchMethodException, SecurityException
-	{
-		if (!Config.online())
-			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error disabled"));
-		else if (!NumberUtils.isNumber(arg) && !arg.toLowerCase().contains("?id=") /*&& !idMap.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")*/) // Si ce n'est ni un nombre, ni un URL, ni un UUID
-			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error ID"));
-		else
-		{
-			Joueur j = getJoueur(p);
-			if (j == null)
-			{
-				j = new Joueur(p, false);
-				addJoueur(j);
-			}
-			if (j.peutTelecharger())
-			{
-				HashMap<String, String> params = new HashMap<String, String>();
-				params.put("ipJoueur", p.getAddress().getHostName());
-				params.put("uuidJoueur", p.getUniqueId().toString());
-				params.put("idMap", arg);
-				CPRequest.effectuerRequete("download.php", params, null, GameManager.class.getMethod("reponseTelecharger", JsonObject.class, String.class, Player.class), p);
-				p.sendMessage(Config.prefix() + ChatColor.ITALIC + Langues.getMessage("commands.download loading"));
-			}
-		}
-	}
-
 	private static Map<Vector, MaterialData> genererContours(World world, int xMap, int yMap, int zMap, int xMaxMap, int yMaxMap, int zMaxMap)
 	{
 		Map<Vector, MaterialData> listeBlocs = new HashMap<Vector, MaterialData>();
@@ -1104,7 +1079,33 @@ class GameManager implements Listener
 		return listeBlocs;
 	}
 
-	
+	static void telechargerMap(Player p, String arg) throws NoSuchMethodException, SecurityException
+	{
+		if (!Config.online())
+			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error disabled"));
+		else if (!NumberUtils.isNumber(arg) && !arg.toLowerCase().contains("?id=") /*&& !idMap.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")*/) // Si ce n'est ni un nombre, ni un URL, ni un UUID
+			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error ID"));
+		else
+		{
+			Joueur j = getJoueur(p);
+			if (j == null)
+			{
+				j = new Joueur(p, false);
+				addJoueur(j);
+			}
+			if (j.peutTelecharger())
+			{
+				HashMap<String, String> params = new HashMap<String, String>();
+				params.put("ipJoueur", p.getAddress().getHostName());
+				params.put("uuidJoueur", p.getUniqueId().toString());
+				params.put("idMap", arg);
+				params.put("versionServ", String.valueOf(CreativeParkour.getServVersion()));
+				CPRequest.effectuerRequete("download.php", params, null, GameManager.class.getMethod("reponseTelecharger", JsonObject.class, String.class, Player.class), p);
+				p.sendMessage(Config.prefix() + ChatColor.ITALIC + Langues.getMessage("commands.download loading"));
+			}
+		}
+	}
+
 	/**
 	 * <em>Third-party plugins cannot use this method through CreativeParkour's API (it will throw an {@code InvalidQueryResponseException}).</em><br>
 	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
@@ -1130,44 +1131,48 @@ class GameManager implements Listener
 				{
 					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.share unknown server"));
 				}
+				else if (mapExistante(jsData.get("uuidMap").getAsString()))
+				{
+					jouer(p, getMap(UUID.fromString(jsData.get("uuidMap").getAsString())), false, true);
+					Joueur j = getJoueur(p);
+					if (j != null)
+						j.permettreTelechargement(1000 * 20); // Dans 20 secondes
+				}
+				else if (jsData.get("verConversion").getAsInt() > CreativeParkour.getServVersion())
+				{
+					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error incompatible").replace("%elements", jsData.get("detailsCompat").getAsString().replace(";", ", ")));
+					Joueur j = getJoueur(p);
+					if (j != null)
+						j.permettreTelechargement(1000 * 5); // Dans 5 secondes
+				}
 				else
 				{
-					if (mapExistante(jsData.get("uuidMap").getAsString()))
+					p.sendMessage(Config.prefix() + ChatColor.GRAY + "" + ChatColor.ITALIC + Langues.getMessage("commands.download wait 2").replace("%map", jsData.get("nomMap").getAsString()));
+					final CPMap map = construireMapTelechargee(jsData, CPMapState.DOWNLOADED, p);
+					final Joueur j = getJoueur(p);
+
+					if (map == null)
 					{
-						jouer(p, getMap(UUID.fromString(jsData.get("uuidMap").getAsString())), false, true);
-						Joueur j = getJoueur(p);
+						p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error build"));
 						if (j != null)
 							j.permettreTelechargement(1000 * 20); // Dans 20 secondes
 					}
 					else
 					{
-						p.sendMessage(Config.prefix() + ChatColor.GRAY + "" + ChatColor.ITALIC + Langues.getMessage("commands.download wait 2").replace("%map", jsData.get("nomMap").getAsString()));
-						final CPMap map = construireMapTelechargee(jsData, CPMapState.DOWNLOADED, p);
-						final Joueur j = getJoueur(p);
-
-						if (map == null)
-						{
-							p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error build"));
-							if (j != null)
-								j.permettreTelechargement(1000 * 20); // Dans 20 secondes
-						}
-						else
-						{
-							// Après le remplissage de la map, le joueur peut jouer
-							final Player p1 = p;
-							Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
-								public void run() {
-									Joueur j1 = j;
-									if (j1 == null || j1.getMap() == null)
-										j1 = sauvInventaire(p1, "play");
-									if (j1 != null)
-									{
-										j1.setMap(map.getUUID());
-										map.jouer(j1);
-									}
+						// Après le remplissage de la map, le joueur peut jouer
+						final Player p1 = p;
+						Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
+							public void run() {
+								Joueur j1 = j;
+								if (j1 == null || j1.getMap() == null)
+									j1 = sauvInventaire(p1, "play");
+								if (j1 != null)
+								{
+									j1.setMap(map.getUUID());
+									map.jouer(j1);
 								}
-							}, map.getDelaiRemplissage());
-						}
+							}
+						}, map.getDelaiRemplissage());
 					}
 				}
 			}
@@ -1274,11 +1279,125 @@ class GameManager implements Listener
 				}
 				JsonArray blocs = jsContenu.get("blocs").getAsJsonArray();
 				List<JsonObject> autresBlocs = new ArrayList<JsonObject>();
+				boolean blocsConvertis = false;
 				for (JsonElement jsB : blocs)
 				{
 					JsonObject jsO = jsB.getAsJsonObject();
-					final JsonObject type = types.get(jsO.get("i").getAsInt());
-					final Material mat = Material.getMaterial(type.get("t").getAsString());
+					JsonObject type = types.get(jsO.get("i").getAsInt());
+					Material mat = null;
+					try {
+						mat = Material.getMaterial(type.get("t").getAsString());
+					} catch (NoSuchFieldError e) {
+						// Nothing, see below
+					}
+					if (mat == null)
+					{
+						// Trying to replace the unknown Material with a compatible one
+						switch (type.get("t").getAsString()) {
+						case "END_BRICKS":
+							mat = Material.SANDSTONE;
+							type.addProperty("d", 2);
+							break;
+						case "PURPUR_BLOCK":
+						case "PURPUR_PILLAR":
+						case "PURPUR_DOUBLE_SLAB":
+						case "RED_NETHER_BRICK":
+							mat = Material.NETHER_BRICK;
+							break;
+						case "PURPUR_STAIRS":
+							mat = Material.NETHER_BRICK_STAIRS;
+							break;
+						case "PURPUR_SLAB":
+							mat = Material.STEP;
+							type.addProperty("d", 6);
+							break;
+						case "BEETROOT_BLOCK":
+							mat = Material.POTATO;
+							break;
+						case "MAGMA":
+							mat = Material.NETHERRACK;
+							break;
+						case "NETHER_WART_BLOCK":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 14);
+							break;
+						case "BONE_BLOCK":
+							mat = Material.QUARTZ_BLOCK;
+							break;
+						case "WHITE_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 0);
+							break;
+						case "ORANGE_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 1);
+							break;
+						case "MAGENTA_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 2);
+							break;
+						case "LIGHT_BLUE_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 3);
+							break;
+						case "YELLOW_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 4);
+							break;
+						case "LIME_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 5);
+							break;
+						case "PINK_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 6);
+							break;
+						case "GRAY_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 7);
+							break;
+						case "SILVER_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 8);
+							break;
+						case "CYAN_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 9);
+							break;
+						case "PURPLE_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 10);
+							break;
+						case "BLUE_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 11);
+							break;
+						case "BROWN_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 12);
+							break;
+						case "GREEN_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 13);
+							break;
+						case "RED_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 14);
+							break;
+						case "BLACK_SHULKER_BOX":
+							mat = Material.STAINED_CLAY;
+							type.addProperty("d", 15);
+							break;
+						}
+
+						// If mat was changed, we warn the player that some blocks are changed
+						// And we also change the Json because it is reused after
+						if (mat != null)
+						{
+							blocsConvertis = true;
+							type.addProperty("t", mat.toString());
+						}
+					}
 					if (mat == null)
 						throw new UnknownMaterialException("material \"" + type.get("t").getAsString() + "\" does not exist in your Minecraft version.");
 					if (mat == Material.SIGN_POST || 
@@ -1375,8 +1494,12 @@ class GameManager implements Listener
 									{
 										Skull sk = (Skull) b.getState();
 										JsonObject oTete = type.get("donnees-tete").getAsJsonObject();
-										sk.setSkullType(SkullType.valueOf(oTete.get("skullType").getAsString()));
 										sk.setRotation(BlockFace.valueOf(oTete.get("rotation").getAsString()));
+										try {
+											sk.setSkullType(SkullType.valueOf(oTete.get("skullType").getAsString()));
+										} catch (IllegalArgumentException e) {
+											// Nothing, dragons' heads are replaces by skeleton skulls in 1.8.
+										}
 										sk.update();
 									}
 									else if (b.getType() == Material.BEACON && uuid.equalsIgnoreCase("e7d54103-66ec-42a1-9895-560c77e2cdf1")) // Dans Beacon Barrage, on ajoute des blocs sous les balises...
@@ -1522,11 +1645,13 @@ class GameManager implements Listener
 
 				map.setRemplisseur(remplisseur);
 
+				if (blocsConvertis)
+					p.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("play.download converted"));
+
 				return map;
 
 			} catch (Exception | Error e) {
-				if (!(e instanceof UnknownMaterialException) && !(e instanceof NoSuchFieldError))
-					CreativeParkour.erreur("TELECHARGER/IMPORTER-" + uuid, e, true);
+				CreativeParkour.erreur("TELECHARGER/IMPORTER-" + uuid, e, true);
 				if (remplisseur != null)
 					remplisseur.cancel();
 				File f = getFichierMap(id);

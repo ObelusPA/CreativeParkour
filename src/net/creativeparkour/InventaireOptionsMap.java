@@ -76,7 +76,7 @@ class InventaireOptionsMap
 		ItemStack item = new ItemStack(mat);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(ChatColor.WHITE + nom);
-		meta.setLore(CPUtils.diviserTexte(descr, null));
+		meta.setLore(CPUtils.divideText(descr, null));
 		item.setItemMeta(meta);
 		inv.setItem(posInv, item);
 	}
