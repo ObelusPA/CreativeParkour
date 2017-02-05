@@ -88,7 +88,7 @@ public class CPRequest implements Runnable
 			tasks.get(i).cancel();
 		}
 	}
-	
+
 	/**
 	 * Vérifie que la requête correspondant à la méthode de retour donnée ait bien été effectuée plus tôt.
 	 * @param nom Nom de la méthode
@@ -203,13 +203,18 @@ public class CPRequest implements Runnable
 					reader.close();
 					ok = true;
 				} catch (Exception e) {
-					adresse = adresse.replace("https://", "http://");
-					connection = (HttpURLConnection) new URL(adresse).openConnection();
-					tentatives++;
-					if (tentatives == 2)
+					if (repCode != 503)
 					{
-						e.printStackTrace();
+						adresse = adresse.replace("https://", "http://");
+						connection = (HttpURLConnection) new URL(adresse).openConnection();
+						tentatives++;
+						if (tentatives == 2)
+						{
+							e.printStackTrace();
+						}
 					}
+					else
+						ok = true;
 				}
 			}
 
