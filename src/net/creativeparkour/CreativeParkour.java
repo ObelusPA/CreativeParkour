@@ -20,6 +20,8 @@ package net.creativeparkour;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.Bukkit;
@@ -180,8 +182,12 @@ public class CreativeParkour extends JavaPlugin implements Listener
 	 */
 	static int getServVersion()
 	{
-		String v = Bukkit.getServer().getBukkitVersion();
-		return Integer.valueOf(v.substring(2, v.indexOf(".", 2)));
+		Pattern r = Pattern.compile("\\(MC:\\s1\\.(\\d+).*\\)");
+		Matcher m = r.matcher(Bukkit.getServer().getVersion());
+		if (m.find())
+			return Integer.valueOf(m.group(1));
+		else
+			return 0;
 	}
 
 	static boolean auMoins1_9()
