@@ -68,6 +68,7 @@ class Config implements Listener
 	private static List<String> parametresManquants = new ArrayList<String>();
 	private static World monde;
 	private static boolean pluginDesactive;
+	static List<Player> joueursConfiguration = new ArrayList<Player>(); // Joueurs en train de configurer le plugin avec "/cp config"
 
 	static void enable(boolean reload)
 	{
@@ -82,15 +83,15 @@ class Config implements Listener
 		configGenerale.options().header("CreativeParkour's configuration\nFull documentation here: " + CreativeParkour.lienSite() + "/doc/configuration.php");
 
 		String path = new String();
-		
+
 		// On reprend le petit préfixe des anciennes versions s'il était activé :
-		String defPrefix = configGenerale.getBoolean("small tag", false) ? (ChatColor.YELLOW + "[" + ChatColor.GOLD + "CP" + ChatColor.YELLOW + "]") : (ChatColor.YELLOW + "[" + ChatColor.GOLD + "CreativeParkour" + ChatColor.YELLOW + "]");
+		String defPrefix = configGenerale.getBoolean("small tag", false) ? (ChatColor.YELLOW + "[" + ChatColor.GOLD + "CP" + ChatColor.YELLOW + "]") : (ChatColor.YELLOW + "[" + ChatColor.GOLD + "CreativeParkour" + ChatColor.YELLOW + "]");		
 
 		// Fichier configuration.yml
 		path = "plugin enabled"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "enable auto updater"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "enable data collection"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
-		path = "language"; if(!configGenerale.contains(path)) { configGenerale.set(path, System.getProperty("user.language").equalsIgnoreCase("fr") ? "fr" : "en"); }
+		path = "language"; if(!configGenerale.contains(path)) { configGenerale.set(path, "enUS"); }
 		path = "prefix"; if(!configGenerale.contains(path)) { configGenerale.set(path, defPrefix ); }
 		path = "sign brackets"; if(!configGenerale.contains(path)) { configGenerale.set(path, "triangle"); }
 		path = "debug"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
@@ -185,6 +186,9 @@ class Config implements Listener
 			configGenerale.set("game.fetch ghosts skins", false);
 		}
 
+		// Mise à jour des anciens types de langues
+		configGenerale.set(path, Langues.transformerCodeLangue(configGenerale.getString(path)));
+
 
 		// Config joueurs
 		dossier_joueurs = new File(plugin.getDataFolder(), "/Players");
@@ -222,8 +226,7 @@ class Config implements Listener
 		dossier_joueurs.mkdirs();
 
 
-		Langues.enable(configGenerale.getString("language"));
-		Help.enable();
+		Langues.load(null);
 
 		if (parametresManquants.size() > 0)
 		{
@@ -299,13 +302,9 @@ class Config implements Listener
 		return configGenerale;
 	}
 
-	static String getLangage()
+	static String getLanguage()
 	{
-		if (configGenerale.get("language") != null)
-		{
-			return configGenerale.getString("language");
-		}
-		return "en";
+		return configGenerale.getString("language", "enUS");
 	}
 
 	static World getMonde()
@@ -393,7 +392,7 @@ class Config implements Listener
 	{
 		return new Location(Bukkit.getWorld(configGenerale.getString("game.exit location.world")), configGenerale.getDouble("game.exit location.x"), configGenerale.getDouble("game.exit location.y"), configGenerale.getDouble("game.exit location.z"));
 	}
-	
+
 	static Material getWorldEditItem()
 	{
 		Material m = null;
@@ -456,7 +455,7 @@ class Config implements Listener
 	{
 		configsJoueurs.put(uuid, conf);
 	}
-	
+
 	static void supprConfJoueur(String uuid)
 	{
 		configsJoueurs.remove(uuid);
@@ -523,13 +522,52 @@ class Config implements Listener
 		{
 			p.sendMessage(head);
 			p.sendMessage(ChatColor.GREEN + Langues.getMessage("config.end"));
+			joueursConfiguration.remove(p);
 		}
 		else
 		{
+			joueursConfiguration.add(p);
 			// Début
 			p.sendMessage(head);
-			p.sendMessage(Langues.getMessage("config.start"));
-			p.spigot().sendMessage(boutonNext(EtapeConfig.STORAGE));
+			p.sendMessage("Welcome to CreativeParkour! We will help you to quickly configure the plugin to start having fun in parkour maps with your friends."); // No translation here (language selection is after anyway)
+			p.sendMessage("First, click your language below:");
+
+			String info = "Click to set CreativeParkour to %lang";
+			ComponentBuilder cb = new ComponentBuilder("English").bold(true).color(ChatColor.AQUA)
+					.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language enUS"))
+					.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "English")).create()));
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
+			cb.append("Français").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language frFR"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "French")).create()));
+			if (System.getProperty("user.language").equalsIgnoreCase("fr"))
+				cb.bold(true);
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
+			cb.append("Deutsch").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language deDE"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "German")).create()));
+			if (System.getProperty("user.language").equalsIgnoreCase("de"))
+				cb.bold(true);
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
+			cb.append("Polski").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language plPL"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Polish")).create()));
+			if (System.getProperty("user.language").equalsIgnoreCase("pl"))
+				cb.bold(true);
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
+			cb.append("Русский").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language ruRU"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Russian")).create()));
+			if (System.getProperty("user.language").equalsIgnoreCase("ru"))
+				cb.bold(true);
+
+			p.spigot().sendMessage(cb.create());
+
+			p.sendMessage(ChatColor.GRAY + "Some languages are translated by the community, you can help them by reviewing translations, translating missing phrases, or translating the plugin to another language at https://dev.bukkit.org/projects/creativeparkour/localization");
 		}
 	}
 
@@ -579,7 +617,7 @@ class Config implements Listener
 		{
 			updateConfig("map storage.use plugin world", false);
 			p.sendMessage(ChatColor.GREEN + Langues.getMessage("config.storage.no default world"));
-			p.sendMessage(ChatColor.ITALIC + Langues.getMessage("config.storage.no default world doc") + " " + Langues.getMessage("documentation link"));
+			p.sendMessage(ChatColor.ITALIC + Langues.getMessage("config.storage.no default world doc") + " https://creativeparkour.net/doc/configuration.php#map%20storage");
 			p.sendMessage(ChatColor.GRAY + Langues.getMessage("config.storage.no default world back"));
 		}
 		p.spigot().sendMessage(boutonNext(EtapeConfig.DEPENDENCIES));
@@ -604,7 +642,8 @@ class Config implements Listener
 		{
 			configGenerale.set("online.enabled", false);
 			p.sendMessage(ChatColor.YELLOW + Langues.getMessage("config.sharing.disabled"));
-			p.spigot().sendMessage(boutonNext(EtapeConfig.END));
+			if (joueursConfiguration.contains(p))
+				p.spigot().sendMessage(boutonNext(EtapeConfig.END));
 		}
 		save();
 	}
@@ -627,10 +666,13 @@ class Config implements Listener
 				CPUtils.sendClickableMsg(p, Langues.getMessage("config.sharing.new server"), null, CreativeParkour.lienSite() + "/user/server.php?c=" + json.get("data").getAsJsonObject().get("cle").getAsString(), "%L", ChatColor.YELLOW);
 			}
 		}
-		p.sendMessage(Langues.getMessage("config.sharing.done"));
-		p.spigot().sendMessage(boutonNext(EtapeConfig.END));
+		if (joueursConfiguration.contains(p))
+		{
+			p.sendMessage(Langues.getMessage("config.sharing.done"));
+			p.spigot().sendMessage(boutonNext(EtapeConfig.END));
+		}
 	}
-	
+
 	static void setMemoryDumpInterval(int minutes)
 	{
 		configGenerale.set("memory dump interval", 0);
@@ -647,5 +689,15 @@ class Config implements Listener
 			return configGenerale.getString("prefix") + ChatColor.RESET + " ";
 		else
 			return "[CreativeParkour] ";
+	}
+
+	/**
+	 * Changes CreativeParkour's language. This only changes the configuration, the language can be loaded after with {@link net.creativeparkour.Langues#load()}.
+	 * @param lang Language code (like "deDE", not "de")
+	 */
+	static void setLanguage(String lang)
+	{
+		configGenerale.set("language", lang);
+		save();
 	}
 }

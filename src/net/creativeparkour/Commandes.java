@@ -763,7 +763,7 @@ class Commandes implements CommandExecutor
 								p.sendMessage(CreativeParkour.getPlugin().getDescription().getFullName());
 								return true;
 							}
-							else if (args[0].equalsIgnoreCase("configure") || args[0].equalsIgnoreCase("config"))
+							else if (args[0].equalsIgnoreCase("configure") || args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase(Langues.getMessage("commands.config")))
 							{
 								Stats.ajouterCommandeStats("config");
 								if (p.hasPermission("creativeparkour.*"))
@@ -778,6 +778,39 @@ class Commandes implements CommandExecutor
 										}
 									}
 									Config.configurer(p, EtapeConfig.START); // Si le return d'avant n'est pas passé
+								}
+								else {
+									p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));
+								}
+								return true;
+							}
+							else if (args[0].equalsIgnoreCase("language") || args[0].equalsIgnoreCase(Langues.getMessage("commands.language")))
+							{
+								Stats.ajouterCommandeStats("language");
+								if (p.hasPermission("creativeparkour.*"))
+								{
+									if (args.length >= 2)
+									{
+										String l = Langues.transformerCodeLangue(args[1]);
+										if (!l.equals(Config.getLanguage()))
+										{
+											Config.setLanguage(l);
+											Langues.load(p);
+											
+											// Mise à jour des inventaires des joueurs qui sont dans des maps
+											for (Joueur j : GameManager.joueurs)
+											{
+												GameManager.reintegrerMapOuQuitter(j.getPlayer(), false);
+											}
+										}
+										else if (!Config.joueursConfiguration.contains(p))
+											p.sendMessage(Config.prefix() + Langues.getMessage("commands.language unchanged").replace("%language", Config.getLanguage()));
+
+										if (Config.joueursConfiguration.contains(p))
+											Config.configurer(p, EtapeConfig.STORAGE);
+										return true;
+									}
+									p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.language error"));
 								}
 								else {
 									p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));

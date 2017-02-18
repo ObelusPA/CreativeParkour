@@ -1622,7 +1622,9 @@ public class CPMap
 			{
 				if (f.getName().startsWith(uuid.toString())) // Si c'est bien un temps de cette map
 				{
-					temps.add(getTempsAvecFichier(f));
+					CPTime t = getTempsAvecFichier(f);
+					if (t != null)
+						temps.add(t);
 				}
 			}
 		}
@@ -1669,9 +1671,8 @@ public class CPMap
 
 	CPTime getTempsAvecFichier(File fichier)
 	{
-		YamlConfiguration yml = CPUtils.getYML(fichier);
-		if (yml != null)
-		{
+		try {
+			YamlConfiguration yml = CPUtils.getYML(fichier);
 			CPTime t = new CPTime(UUID.fromString(yml.getString("player uuid")), this, yml.getInt("ticks"));
 			t.ajouterCheckpoints(yml.get("checkpoints"));
 			t.ajouterPositions(yml.get("ghost"));
@@ -1680,8 +1681,9 @@ public class CPMap
 				t.etat = EtatTemps.valueOf(yml.getString("state"));
 			t.realMilliseconds = yml.getLong("real milliseconds");
 			return t;
+		} catch (NullPointerException e) {
+			return null;
 		}
-		return null;
 	}
 
 	/**

@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -176,7 +177,7 @@ class Joueur
 		boolean continuer = true;
 		for (int i=1; continuer; i++)
 		{
-			String p = Langues.getMessage("creation.help book.p" + i, false);
+			String p = Langues.getMessage("creation.help book.p" + i);
 			if (p != null)
 			{
 				pages.add(p);
@@ -670,7 +671,17 @@ class Joueur
 							conf.set("feedback 1", true);
 							saveConf();
 						}
-					}, 40);
+					}, 50);
+				}
+				else if (!Config.getLanguage().equals("enUS") && !Config.getLanguage().equals("frFR") && new Random().nextInt(conf.getInt("languages info chance", 15)) == 0) // Une chance sur 15, ou plus si le message a déjà été affiché
+				{
+					Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
+						public void run() {
+							player.sendMessage(Config.prefix() + ChatColor.AQUA + Langues.getMessage("languages info"));
+							conf.set("languages info chance", conf.getInt("languages info chance", 15) * 2);
+							saveConf();
+						}
+					}, 50);
 				}
 			}
 		}

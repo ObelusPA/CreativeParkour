@@ -76,6 +76,7 @@ class Help
 		h.add(gold + "/cp " + Langues.getMessage("commands.removetime") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.removetime"));
 		
 		hop.add(yellow + "/cp config" + trans + Langues.getMessage("help.config"));
+		hop.add(yellow + "/cp language <language code>" + trans + Langues.getMessage("help.language"));
 		hop.add(yellow + "/cp enable" + trans + Langues.getMessage("help.enable"));
 		hop.add(yellow + "/cp disable" + trans + Langues.getMessage("help.disable"));
 	}

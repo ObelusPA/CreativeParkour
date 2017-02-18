@@ -97,24 +97,24 @@ class Stats implements Runnable, Listener
 			paramsPost.put("parkoursTentes", String.valueOf(parkoursTentes));
 			paramsPost.put("parkoursReussis", String.valueOf(parkoursReussis));
 			paramsPost.put("nbSauts", String.valueOf(nbSauts));
-			paramsPost.put("langue", Config.getLangage());
+			paramsPost.put("langue", Config.getLanguage());
 			paramsPost.put("onlineMode", String.valueOf(Bukkit.getOnlineMode()));
 			paramsPost.put("infosPlugin", plugin.getDescription().getFullName());
 			paramsPost.put("versionServeur", plugin.getServer().getVersion());
 			if (plugins != null)
 				paramsPost.put("plugins", plugins);
 			paramsPost.put("commandes", commandesToString());
-			if (!Langues.modifsAnglais.isEmpty())
+			if (!Langues.anciennesTraductions.isEmpty())
 			{
 				StringBuffer modifsAng = new StringBuffer();
-				for (Entry<String, String> e : Langues.modifsAnglais.entrySet())
+				for (Entry<String, String> e : Langues.anciennesTraductions.entrySet())
 				{
 					modifsAng.append(e.getKey() + ":" + e.getValue() + ";");
 				}
 				if (modifsAng.length() > 0)
 					modifsAng.deleteCharAt(modifsAng.length() - 1);
-				paramsPost.put("modifsAnglais", modifsAng.toString());
-				Langues.modifsAnglais.clear(); // Pour ne pas le refaire
+				paramsPost.put("anciennesTraductions", modifsAng.toString());
+				Langues.anciennesTraductions.clear(); // Pour ne pas le refaire
 			}
 			try {
 				CPRequest.effectuerRequete("stats.php", paramsPost, this, null, null);
