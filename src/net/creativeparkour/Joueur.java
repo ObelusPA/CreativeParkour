@@ -86,6 +86,7 @@ class Joueur
 	private List<Fantome> fantomesVus = new ArrayList<Fantome>();
 	private boolean elytres;
 	private boolean perles;
+	private boolean fusees;
 	private Map<PlayerSetting, Object> options = new HashMap<PlayerSetting, Object>(); // Object : boolean ou String (paramètres spéciaux)
 	private boolean infoDesactiverNotifications;
 	private boolean infoDesactiverMessages;
@@ -258,6 +259,7 @@ class Joueur
 		checkpoints.clear();
 		elytres = false;
 		perles = false;
+		fusees = false;
 		infoCheckpointsAdjacents = false;
 		infoMortLave = false;
 		infoMortEau = false;
@@ -596,6 +598,7 @@ class Joueur
 			checkpoints.clear();
 			elytres = false;
 			perles = false;
+			fusees = false;
 			BlocEffet.supprimerEffets(player);
 
 			// Ejection de ceux qui sont sur lui en spectateur
@@ -972,6 +975,12 @@ class Joueur
 		perles = false;
 	}
 
+	void retirerFusees()
+	{
+		player.getInventory().remove(Material.FIREWORK);
+		fusees = false;
+	}
+
 	void donnerElytres()
 	{
 		ItemStack[] armorContents = { null, null, new ItemStack(Material.ELYTRA), null };
@@ -985,6 +994,12 @@ class Joueur
 		perles = true;
 	}
 
+	void donnerFusees()
+	{
+		player.getInventory().setItem(3, new ItemStack(Material.FIREWORK, 64));
+		fusees = true;
+	}
+
 	boolean aElytres()
 	{
 		return elytres;
@@ -993,6 +1008,11 @@ class Joueur
 	boolean aPerles()
 	{
 		return perles;
+	}
+
+	boolean aFusees()
+	{
+		return fusees;
 	}
 
 	void addCheckpoint(BlocCheckpoint b)

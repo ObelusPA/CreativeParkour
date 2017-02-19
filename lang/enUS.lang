@@ -442,3 +442,4 @@ commands.language_incomplete=CreativeParkour is %percentage % translated in the 
 commands.language_error=Invalid language, type "/cp language <language_code>".
 commands.language_unchanged=%language already is CreativeParkour's language.
 help.language=Change plugin's language.
+play.firework_error=Firework rockets can only be used as a boost when flying with Elytra.

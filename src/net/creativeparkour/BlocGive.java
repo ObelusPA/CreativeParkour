@@ -20,7 +20,7 @@ package net.creativeparkour;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
-enum TypeGive { ELYTRA, ENDER_PEARL };
+enum TypeGive { ELYTRA, ENDER_PEARL, FIREWORK };
 
 class BlocGive extends BlocSpecial
 {
@@ -32,6 +32,8 @@ class BlocGive extends BlocSpecial
 		super(bloc);
 		if (type.toLowerCase().contains("elytra"))
 			this.type = TypeGive.ELYTRA;
+		else if (type.toLowerCase().contains("firework"))
+			this.type = TypeGive.FIREWORK;
 		else
 			this.type = TypeGive.ENDER_PEARL;
 		if (donner.toLowerCase().contains("take") || donner.toLowerCase().contains("remove"))
@@ -58,6 +60,13 @@ class BlocGive extends BlocSpecial
 						CPUtils.sendInfoMessage(j.getPlayer(), Langues.getMessage("play.elytra removed"));
 					j.retirerElytres();
 				}
+			}
+			else if (type == TypeGive.FIREWORK)
+			{
+				if (donner)
+					j.donnerFusees();
+				else
+					j.retirerFusees();
 			}
 			else
 			{

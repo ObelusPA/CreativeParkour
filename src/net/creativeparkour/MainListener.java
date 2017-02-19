@@ -728,7 +728,23 @@ class MainListener implements Listener
 		else
 		{
 			ItemStack objetMain = CPUtils.itemInHand(p);
-			if (m != null && !CPUtils.itemStackIsEmpty(objetMain) && objetMain.getItemMeta() != null && objetMain.getItemMeta().getDisplayName() != null && (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) && (j.getEtat() == EtatJoueur.JEU || j.getEtat() == EtatJoueur.SPECTATEUR))
+			if (m != null && j.aFusees() && !CPUtils.itemStackIsEmpty(objetMain) && objetMain.getType() == Material.FIREWORK)
+			{
+				boolean gliding = false;
+				try {
+					gliding = j.getPlayer().isGliding();
+				} catch (NoSuchMethodError err) {
+					// Nothing
+				}
+				if (!gliding)
+				{
+					j.getPlayer().sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("play.firework error"));
+					e.setCancelled(true);
+				}
+				else
+					j.donnerFusees();
+			}
+			else if (m != null && !CPUtils.itemStackIsEmpty(objetMain) && objetMain.getItemMeta() != null && objetMain.getItemMeta().getDisplayName() != null && (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) && (j.getEtat() == EtatJoueur.JEU || j.getEtat() == EtatJoueur.SPECTATEUR))
 			{
 				e.setCancelled(true);
 				if (objetMain.getItemMeta().getDisplayName().contains(Langues.getMessage("play.items.return start")))
