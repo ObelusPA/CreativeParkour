@@ -78,14 +78,15 @@ class Langues
 			}
 			else if (messages.size() < messagesEN.size())
 			{
-				Bukkit.getLogger().info(Config.prefix(false) + Langues.getMessage("commands.language incomplete"));
+				String msg = Langues.getMessage("commands.language incomplete").replace("%percentage", String.valueOf(Math.round((float) messages.size() / messagesEN.size() * 100)));
+				Bukkit.getLogger().info(Config.prefix(false) + msg);
 				if (p != null)
-					p.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("commands.language incomplete"));
+					p.sendMessage(Config.prefix() + ChatColor.YELLOW + msg);
 			}
 			else if (p != null)
 				p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.language loaded").replace("%language", Config.getLanguage()));
 		}
-		
+
 		// (Re)loading help with the selected language
 		Help.enable();
 
