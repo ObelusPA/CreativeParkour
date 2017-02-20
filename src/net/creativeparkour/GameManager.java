@@ -1415,6 +1415,8 @@ class GameManager implements Listener
 							mat == Material.SKULL ||
 							mat == Material.BEACON ||
 							mat == Material.REDSTONE_WIRE ||
+							mat == Material.CARPET ||
+							mat == Material.SNOW ||
 							mat.name().contains("TORCH") ||
 							mat.name().contains("_PLATE") ||
 							mat.name().contains("STAIR") ||
