@@ -1,0 +1,16 @@
+ban=No tienes permitido el uso de CreativeParkour.
+commands.click=clickear
+commands.contributors=contribuidores
+commands.ban=banear
+commands.claim=reclamar
+ban_error_1=Este jugador ya ha sido baneado.
+ban_error_3=Este jugador no ha sido baneado.
+commands.click_to_answer=Clickea para responder %answer
+commands.contributors_info=Escribe "/cp contributors" para ver la lista de los jugadores que has permitido construir el mapa contigo.
+commands.contributors_empty=No has invitado a nadie para construir tu mapa contigo.
+commands.contributors_invite=Escribe "/cp invite <jugador>" para invitar un jugador.
+commands.cannot_be_undone=Esto no puede ser desecho
+commands.claim_error=Debes abandonar CreativeParkour para reclamar tus recompenzas (escribe "/cp leave")
+commands.claim_error_2=No tienes recompensas para reclamar.
+commands.claim_error_3=No puedes reclamar recompensas en este mundo. Si eres un administrador, revisa la configuración de CreativeParkour.
+commands.config=configurar

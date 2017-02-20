@@ -78,7 +78,8 @@ class Langues
 			}
 			else if (messages.size() < messagesEN.size())
 			{
-				String msg = Langues.getMessage("commands.language incomplete").replace("%percentage", String.valueOf(Math.round((float) messages.size() / messagesEN.size() * 100)));
+				int pourcent = Math.round(Math.min(99, (float) messages.size() / messagesEN.size() * 100)); // Rounded, but not to 100 %
+				String msg = Langues.getMessage("commands.language incomplete").replace("%percentage", String.valueOf(pourcent));
 				Bukkit.getLogger().info(Config.prefix(false) + msg);
 				if (p != null)
 					p.sendMessage(Config.prefix() + ChatColor.YELLOW + msg);

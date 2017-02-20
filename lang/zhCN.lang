@@ -1,0 +1,5 @@
+ban=你不能用CreativeParkour.
+commands.ban=禁止
+ban_error_1=这个人已被禁止
+ban_error_3=这个人不被禁止
+commands.cannot_be_undone=这不能被撤消

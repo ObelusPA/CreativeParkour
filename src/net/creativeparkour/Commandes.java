@@ -554,7 +554,7 @@ class Commandes implements CommandExecutor
 										}
 										else
 										{
-											if (Config.getConfig().getList("banned players").contains(p1.getUniqueId().toString()))
+											if (!Config.peutJouer(p1))
 											{
 												p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("ban error 1"));
 											}

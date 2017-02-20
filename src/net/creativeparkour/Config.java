@@ -564,6 +564,20 @@ class Config implements Listener
 			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Russian")).create()));
 			if (System.getProperty("user.language").equalsIgnoreCase("ru"))
 				cb.bold(true);
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
+			cb.append("简体中文").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language zhCN"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Simplified Chinese")).create()));
+			if (System.getProperty("user.language").equalsIgnoreCase("zh"))
+				cb.bold(true);
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
+			cb.append("Español").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language esES"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Spanish")).create()));
+			if (System.getProperty("user.language").equalsIgnoreCase("es"))
+				cb.bold(true);
 
 			p.spigot().sendMessage(cb.create());
 
