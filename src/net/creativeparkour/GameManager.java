@@ -569,8 +569,7 @@ class GameManager implements Listener
 						String nom2 = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
 						if (nom2 == null || nom2.isEmpty()) // Il ne faut pas mettre à jour les joueurs qui sont sur ce serveur
 						{
-							Config.getConfJoueur(uuid).set("name", nom);
-							Config.saveConfJoueur(uuid);
+							NameManager.enregistrerNomJoueur(uuid, nom);
 						}
 					}
 				}
@@ -734,6 +733,10 @@ class GameManager implements Listener
 					for (JsonElement e : liste)
 					{
 						JsonObject obj = e.getAsJsonObject();
+						// Enregistrement du profil, direct
+						PlayerProfiles.ajouterTextures(UUID.fromString(obj.get("uuidJoueur").getAsString()), obj.get("texturesProfil").getAsString(), obj.get("signatureProfil").getAsString(), true);
+						
+						// Traitement du temps
 						CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
 						if (m != null)
 						{

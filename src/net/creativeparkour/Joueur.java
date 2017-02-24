@@ -1484,7 +1484,7 @@ class Joueur
 
 		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 			public void run() {
-				PlayerProfiles.chargerProfils(tempsFantomesChoisis);
+				PlayerProfiles.chargerProfils(tempsFantomesChoisis, true); // ça ne fera pas de requête si on les a déjà
 			}
 		}, delaiProfils); // Petit délai pour ne pas avoir plein de requêtes en même temps
 	}

@@ -75,6 +75,13 @@ public class CreativeParkour extends JavaPlugin implements Listener
 		getServer().getPluginManager().registerEvents(new RewardManager(), this);
 
 
+		// Vérification de ProtocolLib en premier car on a besoin de savoir pendant l'initialisation
+		protocollib = Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
+		if (!protocollib && Config.fantomesPasInterdits())
+		{
+			Bukkit.getLogger().info(Config.prefix(false) + "ProtocolLib plugin not detected on this server. You must install it to enable player visibility and ghost-related features in CreativeParkour.");
+		}
+
 		Config.enable(false);
 
 		getCommand("creativeparkour").setExecutor(new Commandes());
@@ -109,12 +116,6 @@ public class CreativeParkour extends JavaPlugin implements Listener
 			stats = new Stats(this);
 			getServer().getScheduler().runTaskTimer(this, stats, 20 * 60 * 10, 20 * 60 * 60 * 7); // Délai de 10 minutes, puis intervalle de 7 heures
 			getServer().getPluginManager().registerEvents(stats, this);
-		}
-
-		protocollib = Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
-		if (!protocollib && Config.fantomesPasInterdits())
-		{
-			Bukkit.getLogger().info(Config.prefix(false) + "ProtocolLib plugin not detected on this server. You must install it to enable player visibility and ghost-related features in CreativeParkour.");
 		}
 
 		debug("INIT", "Debug is enabled in " + getNom() + ", you can disable it in configuration.yml");
