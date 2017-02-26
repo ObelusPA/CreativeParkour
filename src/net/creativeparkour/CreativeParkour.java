@@ -119,6 +119,8 @@ public class CreativeParkour extends JavaPlugin implements Listener
 		}
 
 		debug("INIT", "Debug is enabled in " + getNom() + ", you can disable it in configuration.yml");
+		
+		Config.updateConfig("previous version", getVersion());
 	}
 
 	@Override
@@ -194,6 +196,11 @@ public class CreativeParkour extends JavaPlugin implements Listener
 	static boolean auMoins1_9()
 	{
 		return getServVersion() >= 9;
+	}
+	
+	static String getVersion()
+	{
+		return getPlugin().getDescription().getVersion();
 	}
 
 	static Stats stats()

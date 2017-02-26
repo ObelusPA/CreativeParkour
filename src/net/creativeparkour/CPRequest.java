@@ -57,13 +57,13 @@ public class CPRequest implements Runnable
 
 	static void effectuerRequete(String adresse, Map<String, String> paramsPost2, Object objetAppelant, Method methodeRetour, Player joueurConcerne)
 	{
-		paramsPost2.put("versionPlugin", CreativeParkour.getPlugin().getDescription().getVersion());
+		paramsPost2.put("versionPlugin", CreativeParkour.getVersion());
 		paramsPost2.put("uuidServ", Config.getServUUID());
 		// ***********************************************************************************************************************************************************************************************************
 		// NEVER TRY TO ACCESS THIS URL YOURSELF. Just don't try.
 		// This adress is used for remote features and statistics. Everything is detailed on the plugin page: https://dev.bukkit.org/projects/creativeparkour#title-7-3
 		// ***********************************************************************************************************************************************************************************************************
-		CPRequest r = new CPRequest("https://creativeparkour.net/api/" + CreativeParkour.getPlugin().getDescription().getVersion() + "/" + adresse, paramsPost2, objetAppelant, methodeRetour, joueurConcerne);
+		CPRequest r = new CPRequest("https://creativeparkour.net/api/" + CreativeParkour.getVersion() + "/" + adresse, paramsPost2, objetAppelant, methodeRetour, joueurConcerne);
 		// ***********************************************************************************************************************************************************************************************************
 		// NEVER TRY TO ACCESS THIS URL YOURSELF
 		// ***********************************************************************************************************************************************************************************************************

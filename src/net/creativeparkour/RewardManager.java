@@ -153,8 +153,11 @@ class RewardManager implements Listener
 			}
 		}
 
-		if (ok)
+		if (ok && !j.infoClaim)
+		{
 			CPUtils.sendInfoMessage(j.getPlayer(), Langues.getMessage("rewards.claim"));
+			j.infoClaim = true;
+		}
 	}
 
 	private static String recompenseToString(ConfigurationSection recomp) throws Exception

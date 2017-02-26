@@ -142,6 +142,28 @@ class InventaireSelection
 					meta.setDisplayName(ChatColor.AQUA + gras + m.getName());
 
 					List<String> lore = new ArrayList<String>();
+					int qualiteInf = (int) m.getQuality();
+					if (qualiteInf > 0)
+					{
+						int qualiteRound = Math.round(m.getQuality());
+						StringBuffer qualiteS = new StringBuffer(ChatColor.GOLD + "");
+						// Gold stars (yellow if decimal...)
+						for (int j=1; j <= qualiteRound; j++)
+						{
+							if (qualiteInf != qualiteRound && j == qualiteRound)
+								qualiteS.append(ChatColor.YELLOW + "");
+							qualiteS.append("✮");
+						}
+						// Gray stars
+						qualiteS.append(ChatColor.GRAY + "");
+						for (int j=5; j > qualiteRound; j--)
+						{
+							if (qualiteInf != qualiteRound && j == qualiteRound)
+								qualiteS.append(ChatColor.YELLOW + "");
+							qualiteS.append("✮");
+						}
+						lore.add(qualiteS.toString());
+					}
 					float difficulte = m.getDifficulty();
 					if (Config.getConfig().getBoolean("game.enable map rating") && difficulte > 0)
 					{

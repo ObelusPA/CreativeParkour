@@ -109,6 +109,7 @@ class Joueur
 	boolean damage = false;
 	boolean infoMortLave = false;
 	boolean infoMortEau = false;
+	boolean infoClaim = false;
 
 	/**
 	 * @param p Player
@@ -883,15 +884,34 @@ class Joueur
 					Config.saveConfJoueur(uuid.toString());
 				}
 
-				if (Config.getConfig().getBoolean("game.enable map rating") && !m.aVote(uuid.toString()))
+				if (Config.getConfig().getBoolean("game.enable map rating"))
 				{
-					player.spigot().sendMessage(new ComponentBuilder(Langues.getMessage("play.difficulty question")).color(ChatColor.GOLD).bold(true).append("\n").bold(false)
-							.append(" ➥ ").color(ChatColor.YELLOW)
-							.append("[" + Langues.getMessage("play.difficulty very easy") + "]").color(ChatColor.WHITE).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 1")).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("play.difficulty click")).color(ChatColor.YELLOW).create())).append(" ")
-							.append("[" + Langues.getMessage("play.difficulty easy") + "]").color(ChatColor.GREEN).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 2")).append(" ")
-							.append("[" + Langues.getMessage("play.difficulty medium") + "]").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 3")).append(" ")
-							.append("[" + Langues.getMessage("play.difficulty hard") + "]").color(ChatColor.RED).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 4")).append(" ")
-							.append("[" + Langues.getMessage("play.difficulty extreme") + "]").color(ChatColor.DARK_RED).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 5")).create());
+					boolean voterDifficulte = player.hasPermission("creativeparkour.rate.difficulty") && !m.aVoteDifficulte(uuid.toString());
+					boolean voterQualite = player.hasPermission("creativeparkour.rate.quality") && !m.aVoteQualite(uuid.toString());
+
+					if (voterDifficulte || voterQualite)
+					{
+						player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + Langues.getMessage("play.difficulty question"));
+
+						if (voterDifficulte)
+						{
+							player.spigot().sendMessage(new ComponentBuilder(Langues.getMessage("play.difficulty") + ": ").italic(true).color(ChatColor.YELLOW)
+									.append("[" + Langues.getMessage("play.difficulty very easy") + "]").italic(false).color(ChatColor.WHITE).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 1")).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("play.difficulty click")).color(ChatColor.YELLOW).create())).append(" ")
+									.append("[" + Langues.getMessage("play.difficulty easy") + "]").color(ChatColor.GREEN).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 2")).append(" ")
+									.append("[" + Langues.getMessage("play.difficulty medium") + "]").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 3")).append(" ")
+									.append("[" + Langues.getMessage("play.difficulty hard") + "]").color(ChatColor.RED).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 4")).append(" ")
+									.append("[" + Langues.getMessage("play.difficulty extreme") + "]").color(ChatColor.DARK_RED).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour difficulty 5")).create());
+						}
+						if (voterQualite)
+						{
+							player.spigot().sendMessage(new ComponentBuilder(Langues.getMessage("play.quality") + ": ").italic(true).color(ChatColor.YELLOW)
+									.append(ChatColor.GOLD + "✮" + ChatColor.GRAY + "✮✮✮✮").italic(false).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 1")).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("play.difficulty click")).color(ChatColor.YELLOW).create())).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(ChatColor.GOLD + "✮✮" + ChatColor.GRAY + "✮✮✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 2")).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(ChatColor.GOLD + "✮✮✮" + ChatColor.GRAY + "✮✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 3")).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(ChatColor.GOLD + "✮✮✮✮" + ChatColor.GRAY + "✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 4")).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(ChatColor.GOLD + "✮✮✮✮✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 5")).create());
+						}
+					}
 				}
 			}
 			m.updateTemps(this);

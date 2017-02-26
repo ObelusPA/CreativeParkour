@@ -1,7 +1,7 @@
 main: net.creativeparkour.CreativeParkour
 name: CreativeParkour
 description: Plugin that allows all the players to play and show their skills in fun parkour maps they build or download!
-version: 2.8.1.1
+version: 2.9-SNAPSHOT
 author: Obelus
 load: POSTWORLD
 website: https://creativeparkour.net
@@ -37,6 +37,8 @@ permissions:
        creativeparkour.ghosts.see: true
        creativeparkour.createSigns: true
        creativeparkour.spectate: true
+       creativeparkour.rate.difficulty: true
+       creativeparkour.rate.quality: true
    creativeparkour.play:
      description: Allows players to play maps.
      default: true
@@ -73,4 +75,10 @@ permissions:
      default: op
    creativeparkour.spectate:
      description: Allows players to use spectator mode when playing maps.
+     default: true
+   creativeparkour.rate.difficulty:
+     description: Allows players to rate maps' difficulty.
+     default: true
+   creativeparkour.rate.quality:
+     description: Allows players to rate maps' quality.
      default: true

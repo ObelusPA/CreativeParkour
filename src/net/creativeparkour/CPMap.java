@@ -82,7 +82,8 @@ public class CPMap
 	private Set<UUID> contributeurs = new HashSet<UUID>();
 	private List<Player> invites = new ArrayList<Player>();
 	private float difficulte = -1;
-	private Map<String, Integer> votes = new HashMap<String, Integer>();
+	private float qualite = -1;
+	private Map<String, Vote> votes = new HashMap<String, Vote>();
 	private String nom;
 	private BlocSpawn spawn;
 	private List<BlocSpecial> blocsSpeciaux = new ArrayList<BlocSpecial>();
@@ -100,7 +101,7 @@ public class CPMap
 	boolean interactionsAutorisees;
 
 
-	CPMap (int id, String uuid, CPMapState etat, World monde, Block locMin, Block locMax, String nom, UUID createur, Set<UUID> contributeurs, boolean epingle, BlocSpawn spawn, List<BlocSpecial> blocsSpeciaux, int hauteurMort, boolean sneakAutorise, boolean mortLave, boolean mortEau, boolean interactionsAutorisees, List<String> listeVotes, float difficulte)
+	CPMap (int id, String uuid, CPMapState etat, World monde, Block locMin, Block locMax, String nom, UUID createur, Set<UUID> contributeurs, boolean epingle, BlocSpawn spawn, List<BlocSpecial> blocsSpeciaux, int hauteurMort, boolean sneakAutorise, boolean mortLave, boolean mortEau, boolean interactionsAutorisees, List<String> listeVotes, float difficulte, float qualite)
 	{
 		boolean saveConf = false;
 
@@ -141,16 +142,31 @@ public class CPMap
 
 			// Votes
 			this.difficulte = difficulte;
-			if (etat != CPMapState.DOWNLOADED) // Si les votes sont en ligne, la liste des votes sera rempli avec les gens qui ont voté sur le site pour savoir ceux qui ont déjà voté
+			this.qualite = qualite;
+			if (etat == CPMapState.DOWNLOADED && !Config.getConfig().contains("previous version")) // If it is the 2.9 update, we get rid of previous ratings for downloaded maps
+			{
+				saveConf = true;
+			}
+			else
 			{
 				if (listeVotes != null)
 				{
 					for (String v : listeVotes)
 					{
 						String[] va = v.split(":", 2);
-						votes.put(va[0], Integer.valueOf(va[1]));
+						String[] notes = va[1].split(",", 2);
+						int d = -1;
+						int q = -1;
+						try {
+							d = Integer.valueOf(notes[0]);
+							q = Integer.valueOf(notes[1]);
+						} catch (Exception e) {
+							// Rien
+						}
+						if (d > 0 || q > 0)
+							votes.put(va[0], new Vote(d, q));
 					}
-					calculerMoyenne();
+					calculerNotes();
 				}
 			}
 		}
@@ -248,9 +264,9 @@ public class CPMap
 					for (String v : listeVotes)
 					{
 						String[] va = v.split(":", 2);
-						votes.put(va[0], Integer.valueOf(va[1]));
+						votes.put(va[0], new Vote(Integer.valueOf(va[1]), -1));
 					}
-					calculerMoyenne();
+					calculerNotes();
 				}
 			}
 			else
@@ -269,15 +285,17 @@ public class CPMap
 	 * @param creator Creator name.
 	 * @param name Map's name.
 	 * @param difficulty Map's difficulty.
+	 * @param quality Map's quality.
 	 * @param minVer Map's miminum compatible version (without conversion).
 	 * @param conversionVer Map's minimum compatible version (after changing some incompatible blocks).
 	 */
-	CPMap (String id, String creator, String name, float difficulty, int minVer, int conversionVer)
+	CPMap (String id, String creator, String name, float difficulty, float quality, int minVer, int conversionVer)
 	{
 		this.id = Integer.MAX_VALUE;
 		this.etat = null;
 		this.nom = name;
 		this.difficulte = difficulty;
+		this.qualite = quality;
 		this.webData = new HashMap<String, Object>();
 		webData.put("id", id);
 		webData.put("createur", creator);
@@ -536,11 +554,11 @@ public class CPMap
 		{
 			if (traiterPanneaux(p, true))
 			{
-
 				nom = n;
 				createur = p.getUniqueId();
 				testeurs.clear();
 				difficulte = -1;
+				qualite = -1;
 				etat = CPMapState.PUBLISHED;
 				sauvegarder();
 
@@ -888,10 +906,11 @@ public class CPMap
 		while (it.hasNext())
 		{
 			String cle = it.next();
-			listeVotes.add(cle + ":" + votes.get(cle));
+			listeVotes.add(cle + ":" + votes.get(cle).toConfigString());
 		}
 		config.set("ratings", listeVotes);
 		config.set("difficulty", String.valueOf(difficulte));
+		config.set("quality", String.valueOf(qualite));
 		config.set("pinned", epingle);
 		if (spawn != null)
 		{
@@ -1086,84 +1105,79 @@ public class CPMap
 		}
 	}
 
-	boolean aVote(String uuid)
+	boolean aVoteDifficulte(String uuid)
 	{
-		return votes.containsKey(uuid);
+		Vote v = votes.get(uuid);
+		return v != null && v.getDifficulty() >= 1;
 	}
 
-	void ajouterVote(Player p, int difficulte) throws NoSuchMethodException, SecurityException
+	boolean aVoteQualite(String uuid)
 	{
-		String uuidP = p.getUniqueId().toString();
-		if (!aVote(uuidP))
+		Vote v = votes.get(uuid);
+		return v != null && v.getQuality() >= 0;
+	}
+
+	void voteDifficulte(Player p, int difficulte)
+	{
+		if (votes.containsKey(p.getUniqueId().toString()))
 		{
-			if (etat != CPMapState.DOWNLOADED)
-			{
-				votes.put(uuidP, difficulte);
-				p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("play.difficulty ok"));
-			}
-			else if (Config.online())
-			{
-				HashMap<String, String> params = new HashMap<String, String>();
-				params.put("ipJoueur", p.getAddress().getHostName());
-				params.put("uuidJoueur", p.getUniqueId().toString());
-				params.put("nomJoueur", p.getName());
-				params.put("uuidMap", uuid.toString());
-				params.put("difficulte", String.valueOf(difficulte));
-				CPRequest.effectuerRequete("ratings.php", params, this, this.getClass().getMethod("reponseVote", JsonObject.class, String.class, Player.class), p);
-				p.sendMessage(Config.prefix() + ChatColor.AQUA + Langues.getMessage("play.difficulty wait"));
-			}
+			votes.get(p.getUniqueId().toString()).setDifficulty(difficulte);
 		}
+		else
+		{
+			votes.put(p.getUniqueId().toString(), new Vote(difficulte, -1));
+		}
+		p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("play.difficulty ok"));
 	}
 
+	void voteQualite(Player p, int qualite)
+	{
+		if (votes.containsKey(p.getUniqueId().toString()))
+		{
+			votes.get(p.getUniqueId().toString()).setQuality(qualite);
+		}
+		else
+		{
+			votes.put(p.getUniqueId().toString(), new Vote(-1, qualite));
+		}
+		p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("play.difficulty ok"));
+	}
+
+	void ajouterVotant(String uuid, int difficulte, int qualite)
+	{
+		votes.put(uuid, new Vote(difficulte, qualite));
+	}
 
 	/**
-	 * <em>Third-party plugins cannot use this method through CreativeParkour's API (it will throw an {@code InvalidQueryResponseException}).</em><br>
-	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
-	 * @param json
-	 * @param rep
-	 * @param p
-	 * @throws InvalidQueryResponseException If the {@code Request} has not been registered before.
+	 * Calculates average map's difficulty and quality ratings (only if it is not downloaded, because downloaded maps get these numbers from creativeparkour.net).
 	 */
-	public void reponseVote(JsonObject json, String rep, Player p) throws InvalidQueryResponseException
+	void calculerNotes()
 	{
-		if (CPRequest.verifMethode("reponseVote") && !CreativeParkour.erreurRequete(json, p))
+		if (etat != CPMapState.DOWNLOADED)
 		{
-			if (json.get("data").getAsJsonObject().has("dejaVote"))
+			float sommeD = 0;
+			float sommeQ = 0;
+			int nombreD = 0;
+			int nombreQ = 0;
+			Set<String> uuids = votes.keySet();
+			Iterator<String> it = uuids.iterator();
+			while (it.hasNext())
 			{
-				p.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("play.difficulty error"));
-				votes.put(p.getUniqueId().toString(), -1);
+				Vote vote = votes.get(it.next());
+				if (vote.getDifficulty() >= 1 && vote.getDifficulty() <= 5)
+				{
+					sommeD += vote.getDifficulty();
+					nombreD++;
+				}
+				if (vote.getQuality() >= 1 && vote.getQuality() <= 5)
+				{
+					sommeQ += vote.getQuality();
+					nombreQ++;
+				}
 			}
-			else if (json.get("data").getAsJsonObject().has("enregistre"))
-				p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("play.difficulty ok"));
-			else if (json.get("data").getAsJsonObject().has("cle"))
-				CPUtils.sendClickableMsg(p, Langues.getMessage("play.difficulty confirm"), null, CreativeParkour.lienSite() + "/user/rating.php?c=" + json.get("data").getAsJsonObject().get("cle").getAsString(), "%L", ChatColor.YELLOW);
+			this.difficulte = sommeD / nombreD;
+			this.qualite = sommeQ / nombreQ;
 		}
-	}
-
-	void ajouterVotant(String uuid)
-	{
-		if (!aVote(uuid))
-		{
-			votes.put(uuid, -1);
-		}
-	}
-
-	void calculerMoyenne()
-	{
-		float somme = 0;
-		int nombre = 0;
-		Set<String> uuids = votes.keySet();
-		Iterator<String> it = uuids.iterator();
-		while (it.hasNext())
-		{
-			int note = votes.get(it.next());
-			if (note >= 1 && note <= 5)
-			{
-				somme += note;
-				nombre++;
-			}
-		}
-		this.difficulte = somme / nombre;
 	}
 
 	/**
@@ -1175,9 +1189,28 @@ public class CPMap
 		return difficulte;
 	}
 
-	void setDifficulte(float diff)
+	void setDifficulty(float diff)
 	{
 		difficulte = diff;
+	}
+
+	/**
+	 * Returns the quality of this parkour map, calculated with players' votes.
+	 * @return {@code int} value between 1 and 5 (1 = bad, 5 = very good).
+	 */
+	public float getQuality()
+	{
+		return qualite;
+	}
+
+	void setQuality(float qual)
+	{
+		qualite = qual;
+	}
+
+	Map<String, Vote> getVotes()
+	{
+		return votes;
 	}
 
 	/**
@@ -1191,9 +1224,10 @@ public class CPMap
 		nom = "";
 		contributeurs = new HashSet<UUID>();
 		invites = new ArrayList<Player>();
-		votes = new HashMap<String, Integer>();
+		votes = new HashMap<String, Vote>();
 		blocsSpeciaux = new ArrayList<BlocSpecial>();
 		difficulte = -1;
+		qualite = -1;
 		temps = null;
 		valide = false;
 		epingle = false;
@@ -1518,6 +1552,7 @@ public class CPMap
 				params.put("uuidMap", uuid.toString());
 				params.put("nomMap", nom);
 				params.put("difficulte", String.valueOf(difficulte));
+				params.put("qualite", String.valueOf(qualite));
 				params.put("createur", createur.toString() + ":" + NameManager.getNomAvecUUID(createur));
 				StringBuffer contributeurs = new StringBuffer();
 				for (UUID c : this.contributeurs) {
@@ -1580,6 +1615,7 @@ public class CPMap
 			objet.addProperty("nomMap", nom);
 			objet.addProperty("taille", getSize());
 			objet.addProperty("difficulte", difficulte);
+			objet.addProperty("qualite", qualite);
 			objet.addProperty("createur", createur.toString() + ":" + NameManager.getNomAvecUUID(createur));
 			StringBuffer contributeurs = new StringBuffer();
 			for (UUID c : this.contributeurs) {

@@ -198,6 +198,14 @@ class GameManager implements Listener
 				}
 
 				int id = yml.getInt("id");
+				float difficulty = -1;
+				float quality = -1;
+				try {
+					difficulty = Float.valueOf(yml.getString("difficulty"));
+					quality = Float.valueOf(yml.getString("quality"));
+				} catch (Exception e) {
+					// Rien
+				}
 				CPMap m = new CPMap (id, 
 						yml.getString("uuid"), 
 						CPMapState.valueOf(yml.getString("state").toUpperCase()), 
@@ -216,7 +224,8 @@ class GameManager implements Listener
 						yml.getBoolean("deadly water", false),
 						yml.getBoolean("interactions allowed", true),
 						yml.getStringList("ratings"),
-						Float.valueOf(yml.getString("difficulty")));
+						difficulty,
+						quality);
 				maps.put(id, m);
 
 				// Régénération du contour s'il n'est pas là aux coordonnées min
@@ -509,185 +518,201 @@ class GameManager implements Listener
 	{
 		if (CPRequest.verifMethode("reponseListe") && !CreativeParkour.erreurRequete(json, p) && json.get("data") != null)
 		{
-			mapsTelechargeables.clear();
-			// Liste des maps téléchargeables
-			if (json.get("data").isJsonObject())
-			{
-				JsonElement o = json.get("data").getAsJsonObject().get("maps");
-				if (o != null && o.isJsonArray())
-				{
-					JsonArray liste = o.getAsJsonArray();
-					for (JsonElement m : liste)
+			Bukkit.getScheduler().runTaskAsynchronously(CreativeParkour.getPlugin(), new Runnable() {
+				public void run() {
+					mapsTelechargeables.clear();
+					// Liste des maps téléchargeables
+					if (json.get("data").isJsonObject())
 					{
-						JsonObject map = m.getAsJsonObject();
-						if (map.get("verConversion").getAsInt() <= CreativeParkour.getServVersion()) // We only want compatible maps
-							mapsTelechargeables.add(new CPMap(map.get("id").getAsString(), map.get("createur").getAsString(), map.get("nom").getAsString(), map.get("difficulte").getAsFloat(), map.get("versionMin").getAsInt(), map.get("verConversion").getAsInt()));
-					}
-
-					// Mise à jour des inventaires de sélection de maps des joueurs qui l'ont ouvert
-					if (!mapsTelechargeables.isEmpty())
-					{
-						for (Joueur j : joueurs)
+						JsonElement o = json.get("data").getAsJsonObject().get("maps");
+						if (o != null && o.isJsonArray())
 						{
-							if (j.invSelection != null && j.getPlayer().hasPermission("creativeparkour.download"))
-								j.invSelection.mettreAJourTelechargeables();
-						}
-					}
-				}
-
-				o = json.get("data").getAsJsonObject().get("votes");
-				if (o != null && o.isJsonArray())
-				{
-					JsonArray liste = o.getAsJsonArray();
-					for (JsonElement e : liste)
-					{
-						JsonObject obj = e.getAsJsonObject();
-						CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
-						if (m != null)
-						{
-							m.setDifficulte(obj.get("difficulte").getAsFloat());
-							JsonArray votants = obj.get("uuidsJoueurs").getAsJsonArray();
-							for (JsonElement v : votants)
+							JsonArray liste = o.getAsJsonArray();
+							for (JsonElement m : liste)
 							{
-								m.ajouterVotant(v.getAsString());
+								JsonObject map = m.getAsJsonObject();
+								if (map.get("verConversion").getAsInt() <= CreativeParkour.getServVersion()) // We only want compatible maps
+									mapsTelechargeables.add(new CPMap(map.get("id").getAsString(), map.get("createur").getAsString(), map.get("nom").getAsString(), map.get("difficulte").getAsFloat(), map.get("qualite").getAsFloat(), map.get("versionMin").getAsInt(), map.get("verConversion").getAsInt()));
 							}
-							m.sauvegarder();
-						}
-					}
-				}
 
-				// Mise à jour des noms des joueurs
-				o = json.get("data").getAsJsonObject().get("nomsChanges");
-				if (o != null && o.isJsonArray())
-				{
-					JsonArray liste = o.getAsJsonArray();
-					for (JsonElement e : liste)
-					{
-						JsonObject obj = e.getAsJsonObject();
-						String uuid = obj.get("uuid").getAsString();
-						String nom = obj.get("nom").getAsString();
-						String nom2 = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
-						if (nom2 == null || nom2.isEmpty()) // Il ne faut pas mettre à jour les joueurs qui sont sur ce serveur
-						{
-							NameManager.enregistrerNomJoueur(uuid, nom);
-						}
-					}
-				}
-
-				List<CPMap> mapsAMettreAJour = new ArrayList<CPMap>();
-				// Suppression des fantômes à supprimer
-				o = json.get("data").getAsJsonObject().get("fantomesASupprimer");
-				if (o != null && o.isJsonArray())
-				{
-					JsonArray liste = o.getAsJsonArray();
-					for (JsonElement e : liste)
-					{
-						String nomFantome = e.getAsString();
-						UUID uuidMap = UUID.fromString(nomFantome.split("_")[0]);
-						CPMap map = getMap(uuidMap);
-						if (map != null)
-						{
-							File f = getFichierTemps(nomFantome);
-							if (f != null)
+							// Mise à jour des inventaires de sélection de maps des joueurs qui l'ont ouvert
+							if (!mapsTelechargeables.isEmpty())
 							{
-								CPTime t = map.getTempsAvecFichier(f);
-								if (t != null && t.etat != EtatTemps.LOCAL)
+								Bukkit.getScheduler().scheduleSyncDelayedTask(CreativeParkour.getPlugin(), new Runnable() {
+									public void run() {
+										for (Joueur j : joueurs)
+										{
+											if (j.invSelection != null && j.getPlayer().hasPermission("creativeparkour.download"))
+												j.invSelection.mettreAJourTelechargeables();
+										}
+									}
+								});
+							}
+						}
+
+						// Mise à jour des votes, et remplissage d'une liste pour envoyer les votes locaux
+						StringBuffer notesAEnvoyer = new StringBuffer();
+						o = json.get("data").getAsJsonObject().get("notes");
+						if (o != null && o.isJsonArray())
+						{
+							JsonArray liste = o.getAsJsonArray();
+							for (JsonElement e : liste)
+							{
+								JsonObject obj = e.getAsJsonObject();
+								CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
+								if (m != null && m.getState() == CPMapState.DOWNLOADED)
 								{
-									supprimerFichiersTemps(t.playerUUID, uuidMap, false);
-									mapsAMettreAJour.add(map);
+									m.setDifficulty(obj.get("d").getAsFloat());
+									m.setQuality(obj.get("q").getAsFloat());
+									m.sauvegarder();
+
+									// Votes à envoyer
+									for (Entry<String, Vote> entry : m.getVotes().entrySet())
+									{
+										if (entry.getValue().getDifficulty() > 0 || entry.getValue().getQuality() > 0)
+											notesAEnvoyer.append(m.getUUID().toString()).append('_').append(entry.getKey()).append(':').append(entry.getValue().toConfigString()).append(";");
+									}
 								}
 							}
 						}
-					}
-				}
+						if (notesAEnvoyer.length() > 0)
+							notesAEnvoyer.deleteCharAt(notesAEnvoyer.length() - 1);
 
-				// Enregistrement des fantômes envoyés (en partie) par le site
-				if (Config.getConfig().getBoolean("online.download ghosts"))
-				{
-					o = json.get("data").getAsJsonObject().get("fantomesATelecharger");
-					if (o != null && o.isJsonArray())
-					{
-						JsonArray liste = o.getAsJsonArray();
-						for (JsonElement e : liste)
+						// Mise à jour des noms des joueurs
+						o = json.get("data").getAsJsonObject().get("nomsChanges");
+						if (o != null && o.isJsonArray())
 						{
-							JsonObject obj = e.getAsJsonObject();
-							CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
-							if (m != null)
+							JsonArray liste = o.getAsJsonArray();
+							for (JsonElement e : liste)
 							{
-								CPTime t = new CPTime(UUID.fromString(obj.get("uuidJoueur").getAsString()), m, obj.get("ticks").getAsInt());
-								t.etat = EtatTemps.TO_DOWNLOAD;
-								t.realMilliseconds = obj.get("millisecondes").getAsLong();
-								t.sauvegarder(new Date(obj.get("date").getAsLong()));
-								mapsAMettreAJour.add(m);
-
-								NameManager.enregistrerNomJoueur(obj.get("uuidJoueur").getAsString(), obj.get("nomJoueur").getAsString());
+								JsonObject obj = e.getAsJsonObject();
+								String uuid = obj.get("uuid").getAsString();
+								String nom = obj.get("nom").getAsString();
+								String nom2 = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
+								if (nom2 == null || nom2.isEmpty()) // Il ne faut pas mettre à jour les joueurs qui sont sur ce serveur
+								{
+									NameManager.enregistrerNomJoueur(uuid, nom);
+								}
 							}
 						}
-					}
-				}
 
-				// Mise à jour des temps dans les maps
-				for (CPMap m : mapsAMettreAJour)
-				{
-					m.getListeTemps(true);
-					Panneau.majClassements(m);
-					// Mise à jour des leaderboard des joueurs
-					for (Joueur j : getJoueurs(m.getUUID()))
-					{
-						j.calculerScoreboard();
-						j.choixFantomesPreferes();
-						j.majTeteFantomes();
-					}
-				}
-
-				// Traitement des fantômes à envoyer
-				o = json.get("data").getAsJsonObject().get("fantomesAEnvoyer");
-				if (o != null && o.isJsonArray())
-				{
-					JsonArray liste = o.getAsJsonArray();
-					List<CPTime> fantomesAEnvoyer = new ArrayList<CPTime>();
-					for (JsonElement e : liste)
-					{
-						String nomFantome = e.getAsString();
-						CPMap m = getMap(CPUtils.timeFileUUIDs(nomFantome).get("map"));
-						if (m != null)
+						List<CPMap> mapsAMettreAJour = new ArrayList<CPMap>();
+						// Suppression des fantômes à supprimer
+						o = json.get("data").getAsJsonObject().get("fantomesASupprimer");
+						if (o != null && o.isJsonArray())
 						{
-							fantomesAEnvoyer.add(m.getTempsAvecFichier(getFichierTemps(nomFantome)));
+							JsonArray liste = o.getAsJsonArray();
+							for (JsonElement e : liste)
+							{
+								String nomFantome = e.getAsString();
+								UUID uuidMap = UUID.fromString(nomFantome.split("_")[0]);
+								CPMap map = getMap(uuidMap);
+								if (map != null)
+								{
+									File f = getFichierTemps(nomFantome);
+									if (f != null)
+									{
+										CPTime t = map.getTempsAvecFichier(f);
+										if (t != null && t.etat != EtatTemps.LOCAL)
+										{
+											supprimerFichiersTemps(t.playerUUID, uuidMap, false);
+											mapsAMettreAJour.add(map);
+										}
+									}
+								}
+							}
 						}
+
+						// Enregistrement des fantômes envoyés (en partie) par le site
+						if (Config.getConfig().getBoolean("online.download ghosts"))
+						{
+							o = json.get("data").getAsJsonObject().get("fantomesATelecharger");
+							if (o != null && o.isJsonArray())
+							{
+								JsonArray liste = o.getAsJsonArray();
+								for (JsonElement e : liste)
+								{
+									JsonObject obj = e.getAsJsonObject();
+									CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
+									if (m != null)
+									{
+										CPTime t = new CPTime(UUID.fromString(obj.get("uuidJoueur").getAsString()), m, obj.get("ticks").getAsInt());
+										t.etat = EtatTemps.TO_DOWNLOAD;
+										t.realMilliseconds = obj.get("millisecondes").getAsLong();
+										t.sauvegarder(new Date(obj.get("date").getAsLong()));
+										mapsAMettreAJour.add(m);
+
+										NameManager.enregistrerNomJoueur(obj.get("uuidJoueur").getAsString(), obj.get("nomJoueur").getAsString());
+									}
+								}
+							}
+						}
+
+						// Mise à jour des temps dans les maps
+
+						Bukkit.getScheduler().scheduleSyncDelayedTask(CreativeParkour.getPlugin(), new Runnable() {
+							public void run() {
+								for (CPMap m : mapsAMettreAJour)
+								{
+									m.getListeTemps(true);
+									Panneau.majClassements(m);
+									// Mise à jour des leaderboard des joueurs
+									for (Joueur j : getJoueurs(m.getUUID()))
+									{
+										j.calculerScoreboard();
+										j.choixFantomesPreferes();
+										j.majTeteFantomes();
+									}
+								}
+							}
+						});
+
+
+						// Envoi des notes et des fantômes
+						Map<String, String> paramsPost = new HashMap<String, String>();
+						if (notesAEnvoyer.length() > 0)
+							paramsPost.put("notes", notesAEnvoyer.toString());
+
+						// Traitement des fantômes à envoyer
+						Map<String, Boolean> autorisationsJoueurs = new HashMap<String, Boolean>();
+						o = json.get("data").getAsJsonObject().get("fantomesAEnvoyer");
+						if (o != null && o.isJsonArray() && Config.getConfig().getBoolean("online.upload ghosts"))
+						{
+							JsonArray liste = o.getAsJsonArray();
+							int i = 0;
+							for (JsonElement e : liste)
+							{
+								String nomFantome = e.getAsString();
+								CPMap m = getMap(CPUtils.timeFileUUIDs(nomFantome).get("map"));
+								if (m != null)
+								{
+									CPTime t = m.getTempsAvecFichier(getFichierTemps(nomFantome));
+									String uuidJoueur = t.playerUUID.toString();
+									if (!autorisationsJoueurs.containsKey(uuidJoueur))
+										autorisationsJoueurs.put(uuidJoueur, Config.getConfJoueur(uuidJoueur).getBoolean(PlayerSetting.ENVOYER_FANTOMES.path()));
+									if (autorisationsJoueurs.get(uuidJoueur)) // Si le joueur a autorisé l'envoi de fantômes
+										paramsPost.put("fantome-" + i, t.getJson().toString());
+									i++;
+								}
+							}
+						}
+
+						if (paramsPost.size() > 0)
+						{
+							try {
+								CPRequest.effectuerRequete("data.php", paramsPost, null, null, null);
+							} catch (SecurityException e) {
+								CreativeParkour.erreur("DATA", e, true);
+							}
+						}
+
+						vidangeMemoire();
 					}
-					if (!fantomesAEnvoyer.isEmpty())
-						envoyerFantomes(fantomesAEnvoyer);
+
+					if (p != null)
+						p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.sync done"));
 				}
-
-				vidangeMemoire();
-			}
-
-			if (p != null)
-				p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.sync done"));
-		}
-	}
-
-	private static void envoyerFantomes(List<CPTime> fantomesAEnvoyer)
-	{
-		if (Config.online() && Config.getConfig().getBoolean("online.upload ghosts"))
-		{
-			Map<String, String> paramsPost = new HashMap<String, String>();
-			Map<String, Boolean> autorisationsJoueurs = new HashMap<String, Boolean>();
-
-			for (int i=0; i < fantomesAEnvoyer.size(); i++)
-			{
-				String uuidJoueur = fantomesAEnvoyer.get(i).playerUUID.toString();
-				if (!autorisationsJoueurs.containsKey(uuidJoueur))
-					autorisationsJoueurs.put(uuidJoueur, Config.getConfJoueur(uuidJoueur).getBoolean(PlayerSetting.ENVOYER_FANTOMES.path()));
-				if (autorisationsJoueurs.get(uuidJoueur)) // Si le joueur a autorisé l'envoi de fantômes
-					paramsPost.put("fantome-" + i, fantomesAEnvoyer.get(i).getJson().toString());
-			}
-
-			try {
-				CPRequest.effectuerRequete("ghosts.php", paramsPost, null, null, null);
-			} catch (SecurityException e) {
-				CreativeParkour.erreur("GHOSTS", e, true);
-			}
+			});
 		}
 	}
 
@@ -735,7 +760,7 @@ class GameManager implements Listener
 						JsonObject obj = e.getAsJsonObject();
 						// Enregistrement du profil, direct
 						PlayerProfiles.ajouterTextures(UUID.fromString(obj.get("uuidJoueur").getAsString()), obj.get("texturesProfil").getAsString(), obj.get("signatureProfil").getAsString(), true);
-						
+
 						// Traitement du temps
 						CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
 						if (m != null)
@@ -1143,7 +1168,13 @@ class GameManager implements Listener
 				}
 				else if (jsData.get("verConversion").getAsInt() > CreativeParkour.getServVersion())
 				{
-					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error incompatible").replace("%elements", jsData.get("detailsCompat").getAsString().replace(";", ", ")));
+					String details = "NULL";
+					try {
+						details = jsData.get("detailsCompat").getAsString().replace(";", ", ");
+					} catch (Exception e) {
+						// Rien
+					}
+					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error incompatible").replace("%elements", details));
 					Joueur j = getJoueur(p);
 					if (j != null)
 						j.permettreTelechargement(1000 * 5); // Dans 5 secondes
@@ -1650,7 +1681,7 @@ class GameManager implements Listener
 						(jsContenu.has("mortLave") ? jsContenu.get("mortLave").getAsBoolean() : false),
 						(jsContenu.has("mortEau") ? jsContenu.get("mortEau").getAsBoolean() : false),
 						(jsContenu.has("interactionsAutorisees") ? jsContenu.get("interactionsAutorisees").getAsBoolean() : true),
-						null, jsData.get("difficulte").getAsFloat());
+						null, jsData.get("difficulte").getAsFloat(), jsData.get("qualite").getAsFloat());
 				maps.put(id, map);
 				map.sauvegarder();
 
@@ -1814,7 +1845,7 @@ class GameManager implements Listener
 
 				CPMap map = new CPMap(id, uuid, CPMapState.CREATION, m, 
 						blocMin, m.getBlockAt(xMax, yMax, zMax), 
-						new String(), p.getUniqueId(), new HashSet<UUID>(), false, new BlocSpawn(spawn, (byte) 0), new ArrayList<BlocSpecial>(), 0, true, false, false, true, null, -1);
+						new String(), p.getUniqueId(), new HashSet<UUID>(), false, new BlocSpawn(spawn, (byte) 0), new ArrayList<BlocSpecial>(), 0, true, false, false, true, null, -1, -1);
 
 				maps.put(id, map);
 				map.sauvegarder();
@@ -2352,7 +2383,7 @@ class GameManager implements Listener
 		}
 	}
 
-	static void voteDifficulte(Player p, int diff) throws NoSuchMethodException, SecurityException
+	static void voteDifficulte(Player p, int diff)
 	{
 		Joueur j = getJoueur(p);
 		if (j != null)
@@ -2360,8 +2391,23 @@ class GameManager implements Listener
 			CPMap m = getMap(j.getMap());
 			if (m != null)
 			{
-				m.ajouterVote(p, diff);
-				m.calculerMoyenne();
+				m.voteDifficulte(p, diff);
+				m.calculerNotes();
+				m.sauvegarder();
+			}
+		}
+	}
+
+	static void voteQualite(Player p, int qualite)
+	{
+		Joueur j = getJoueur(p);
+		if (j != null)
+		{
+			CPMap m = getMap(j.getMap());
+			if (m != null)
+			{
+				m.voteQualite(p, qualite);
+				m.calculerNotes();
 				m.sauvegarder();
 			}
 		}

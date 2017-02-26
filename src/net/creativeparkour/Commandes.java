@@ -457,12 +457,27 @@ class Commandes implements CommandExecutor
 							else if (args[0].equalsIgnoreCase("difficulty"))
 							{
 								Stats.ajouterCommandeStats("difficulty");
-								if (Config.getConfig().getBoolean("game.enable map rating") && args.length > 1)
+								if (Config.getConfig().getBoolean("game.enable map rating") && args.length > 1 && p.hasPermission("creativeparkour.rate.difficulty"))
 								{
 									try {
 										int nb = Integer.valueOf(args[1]);
 										if (nb >= 1 && nb <= 5)
 											GameManager.voteDifficulte(p, nb);
+									} catch (NumberFormatException e) {
+										// Rien
+									}
+								}
+								return true;
+							}
+							else if (args[0].equalsIgnoreCase("quality"))
+							{
+								Stats.ajouterCommandeStats("quality");
+								if (Config.getConfig().getBoolean("game.enable map rating") && args.length > 1 && p.hasPermission("creativeparkour.rate.quality"))
+								{
+									try {
+										int nb = Integer.valueOf(args[1]);
+										if (nb >= 1 && nb <= 5)
+											GameManager.voteQualite(p, nb);
 									} catch (NumberFormatException e) {
 										// Rien
 									}
@@ -794,7 +809,7 @@ class Commandes implements CommandExecutor
 										String l = Langues.transformerCodeLangue(args[1]);
 										if (!l.equals(Config.getLanguage()))
 										{
-											Config.setLanguage(l);
+											Config.updateConfig("language", l);
 											Langues.load(p);
 											
 											// Mise à jour des inventaires des joueurs qui sont dans des maps

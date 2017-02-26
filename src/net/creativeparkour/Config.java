@@ -95,7 +95,7 @@ class Config implements Listener
 		path = "prefix"; if(!configGenerale.contains(path)) { configGenerale.set(path, defPrefix ); }
 		path = "sign brackets"; if(!configGenerale.contains(path)) { configGenerale.set(path, "triangle"); }
 		path = "debug"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
-		path = "languages version"; if(!configGenerale.contains(path)) { configGenerale.set(path, null); }
+		path = "previous version"; if(!configGenerale.contains(path)) { configGenerale.set(path, null); }
 		path = "memory dump interval"; if(!configGenerale.contains(path)) { configGenerale.set(path, 90); }
 		path = "dont use cp"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "installation date"; if(!configGenerale.contains(path)) { configGenerale.set(path, new Date().getTime()); }
@@ -687,12 +687,6 @@ class Config implements Listener
 		}
 	}
 
-	static void setMemoryDumpInterval(int minutes)
-	{
-		configGenerale.set("memory dump interval", 0);
-		save();
-	}
-
 	static String prefix()
 	{
 		return prefix(true);
@@ -703,15 +697,5 @@ class Config implements Listener
 			return configGenerale.getString("prefix") + ChatColor.RESET + " ";
 		else
 			return "[CreativeParkour] ";
-	}
-
-	/**
-	 * Changes CreativeParkour's language. This only changes the configuration, the language can be loaded after with {@link net.creativeparkour.Langues#load()}.
-	 * @param lang Language code (like "deDE", not "de")
-	 */
-	static void setLanguage(String lang)
-	{
-		configGenerale.set("language", lang);
-		save();
 	}
 }
