@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -67,10 +68,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import com.google.common.io.Files;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import net.creativeparkour.CPRequest.InvalidQueryResponseException;
 import net.md_5.bungee.api.ChatColor;
@@ -550,6 +553,15 @@ class GameManager implements Listener
 							}
 						}
 
+						// Liste des maps partagées par le serveur, pour la suite...
+						o = json.get("data").getAsJsonObject().get("mapsPartagees");
+						List<String> mapsPartagees = new ArrayList<String>();
+						if (o != null && o.isJsonArray())
+						{
+							Type listType = new TypeToken<List<String>>() {}.getType();
+							mapsPartagees = new Gson().fromJson(o, listType);
+						}
+
 						// Mise à jour des votes, et remplissage d'une liste pour envoyer les votes locaux
 						StringBuffer notesAEnvoyer = new StringBuffer();
 						o = json.get("data").getAsJsonObject().get("notes");
@@ -560,7 +572,7 @@ class GameManager implements Listener
 							{
 								JsonObject obj = e.getAsJsonObject();
 								CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
-								if (m != null && m.getState() == CPMapState.DOWNLOADED)
+								if (m != null && (m.getState() == CPMapState.DOWNLOADED || mapsPartagees.contains(m.getUUID().toString())))
 								{
 									m.setDifficulty(obj.get("d").getAsFloat());
 									m.setQuality(obj.get("q").getAsFloat());

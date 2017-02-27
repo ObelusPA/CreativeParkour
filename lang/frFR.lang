@@ -443,3 +443,4 @@ commands.language_error=Langue invalide, tapez "/cp langue <code_langue>".
 commands.language_unchanged=CreativeParkour est déjà en %language.
 help.language=Changer la langue du plugin.
 play.firework_error=Les fusées de feu d'artifice ne peuvent être utilisées que comme accélérateur lors d'un vol avec élytres.
+play.quality=Qualité

@@ -25,7 +25,7 @@ enum PlayerSetting {
 	MESSAGES_CP_SPEC ("checkpoints info spec", true),
 	NOTIFICATIONS ("notifications", true),
 	MSG_ELYTRES ("elytra message", true),
-	MSG_REWARD ("reward.messages", true),
+	MSG_REWARD ("rewards.messages", true),
 	VISIBILITE_JOUEURS ("players visibility", VisibiliteJoueurs.VISIBLE),
 	ENVOYER_FANTOMES ("ghosts.upload", true),
 	CHOISIR_MEILLEUR_FANTOME ("ghosts.select best", true),

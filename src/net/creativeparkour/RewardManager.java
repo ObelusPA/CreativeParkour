@@ -287,7 +287,7 @@ class RewardManager implements Listener
 	void onPlayerTeleport(final PlayerTeleportEvent e)
 	{
 		World w = e.getTo().getWorld();
-		if (!w.equals(e.getFrom().getWorld()) && !w.getName().equalsIgnoreCase("CreativeParkourMaps") && estUnMondeAutorise(w) && Config.getConfJoueur(e.getPlayer().getUniqueId().toString()).getBoolean("rewards.messages", true)) // Si changement de monde et messages activés
+		if (!w.equals(e.getFrom().getWorld()) && !w.getName().equalsIgnoreCase("CreativeParkourMaps") && estUnMondeAutorise(w) && Config.getConfJoueur(e.getPlayer().getUniqueId().toString()).getBoolean(PlayerSetting.MSG_REWARD.path(), true)) // Si changement de monde et messages activés
 		{
 			final List<String> liste = Config.getConfJoueur(e.getPlayer().getUniqueId().toString()).getStringList("rewards.waiting");
 			if (!liste.isEmpty())
