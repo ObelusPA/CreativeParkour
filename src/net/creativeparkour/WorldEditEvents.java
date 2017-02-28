@@ -38,7 +38,7 @@ class WorldEditEvents {
 	static Map<CPMap, Date> majMaps = new HashMap<CPMap, Date>();
 
 	@Subscribe
-	void wrapForLogging(EditSessionEvent event) {
+	public void wrapForLogging(EditSessionEvent event) {
 		Actor actor = event.getActor();
 
 		// An actor should be generally available for every case where
@@ -84,7 +84,6 @@ class WorldEditLogger extends AbstractLoggingExtent {
 		final Joueur j = GameManager.getJoueur(Bukkit.getPlayer(actor.getName()));
 		if (j != null)
 		{
-
 			final CPMap m = j.getMapObjet();
 			if (j.getEtat() == EtatJoueur.CREATION && m != null)
 			{
