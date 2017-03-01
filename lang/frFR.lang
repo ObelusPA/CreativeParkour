@@ -95,7 +95,6 @@ config.sharing.enabled=Le partage en ligne des maps est activé. Veuillez patien
 config.sharing.disabled=Ok... Le partage en ligne des maps est désactivé, dommage. Tapez "/cp config sharing" à nouveau si vous changez d'avis.
 config.sharing.done=Quand vous avez fini, cliquez sur "suivant" pour terminer la configuration.
 config.end=Voilà, CreativeParkour est installé sur votre serveur ! Vous pouvez commencer la construction de votre première map de parcours avec "/cp créer", ou importer des parcours déjà existants avec "/cp importersel", ou télécharger et jouer sur des maps avec "/cp jouer". CreativeParkour a plein d'autres fonctionnalités que vous pouvez découvrir dans la documentation officielle sur https://creativeparkour.net/doc\nMerci d'avoir téléchargé le plugin, amusez-vous bien !
-config.missing=Il manque les paramètres suivants dans le fichier 'configuration.yml'
 config.enable=CreativeParkour est activé.
 config.disable=CreativeParkour est désactivé.
 creation.title=Création
