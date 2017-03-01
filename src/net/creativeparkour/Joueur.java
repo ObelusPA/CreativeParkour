@@ -791,8 +791,8 @@ class Joueur
 		score.setScore(0);
 		temps = new CPTime(uuid, m, 0);
 		dateFin = null;
-		if (estArrive && CreativeParkour.stats() != null) // Incrémentation des parkours tentés si le joueur est déjà arrivé (on incérmente aussi quand il se pointe dans la map)
-			CreativeParkour.stats().parkoursTentes++;
+		if (estArrive)
+			m.addAttempt(uuid);
 		estArrive = false;
 		BlocEffet.supprimerEffets(player);
 		task = new Timer(this).runTaskTimer(CreativeParkour.getPlugin(), 1, 1);

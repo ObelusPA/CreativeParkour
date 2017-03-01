@@ -1002,8 +1002,7 @@ class GameManager implements Listener
 				j.setMap(map.getUUID());
 				map.jouer(j, teleporter);
 
-				if (CreativeParkour.stats() != null)
-					CreativeParkour.stats().parkoursTentes++;
+				map.addAttempt(p.getUniqueId());
 			}
 		}
 	}

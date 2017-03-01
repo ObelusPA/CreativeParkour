@@ -114,7 +114,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 			}
 
 			stats = new Stats(this);
-			getServer().getScheduler().runTaskTimer(this, stats, 20 * 60 * 10, 20 * 60 * 60 * 7); // Délai de 10 minutes, puis intervalle de 7 heures
+			getServer().getScheduler().runTaskTimer(this, stats, 20 * 60 * 10, 20 * 60 * 60 * 6); // Délai de 10 minutes, puis intervalle de 6 heures
 			getServer().getPluginManager().registerEvents(stats, this);
 		}
 

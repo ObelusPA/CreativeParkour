@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
 
 import org.bukkit.Bukkit;
@@ -84,6 +85,7 @@ public class CPMap
 	private float difficulte = -1;
 	private float qualite = -1;
 	private Map<String, Vote> votes = new HashMap<String, Vote>();
+	private Map<UUID, AtomicInteger> attempts = new HashMap<UUID, AtomicInteger>();
 	private String nom;
 	private BlocSpawn spawn;
 	private List<BlocSpecial> blocsSpeciaux = new ArrayList<BlocSpecial>();
@@ -1231,6 +1233,7 @@ public class CPMap
 		temps = null;
 		valide = false;
 		epingle = false;
+		attempts.clear();
 		sauvegarder();
 		Panneau.supprimerMap(id);
 		RewardManager.supprimerMap(id);
@@ -1751,5 +1754,39 @@ public class CPMap
 		j.invOptionsMaps = new InventaireOptionsMap(this, j);
 		j.invOptionsMaps.remplir();
 		j.getPlayer().openInventory(j.invOptionsMaps.getInventaire());
+	}
+	
+	/**
+	 * Increments attempt number for the specified player.
+	 * @param player Player's {@code UUID}.
+	 */
+	void addAttempt(UUID player)
+	{
+		AtomicInteger nb = attempts.get(player);
+		if (nb != null)
+			nb.incrementAndGet();
+		else
+			attempts.put(player, new AtomicInteger(1));
+		
+		// Incrementing general attempt count
+		if (CreativeParkour.stats() != null)
+			CreativeParkour.stats().parkoursTentes++;
+	}
+
+	/**
+	 * Returns number of attempts per player in this map.
+	 * @return Nuber of attempts ({@code AtomicInteger}) associated with player's {@code UUID}.
+	 */
+	Map<UUID, AtomicInteger> getAttempts()
+	{
+		return attempts;
+	}
+	
+	/**
+	 * Reset number of attempts per player.
+	 */
+	void resetAttempts()
+	{
+		attempts.clear();
 	}
 }

@@ -103,7 +103,7 @@ class Stats implements Runnable, Listener
 			paramsPost.put("versionServeur", plugin.getServer().getVersion());
 			if (plugins != null)
 				paramsPost.put("plugins", plugins);
-			paramsPost.put("commandes", commandesToString());
+			paramsPost.put("commandes", intMapToString(commandes));
 			if (!Langues.anciennesTraductions.isEmpty())
 			{
 				StringBuffer modifsAng = new StringBuffer();
@@ -115,6 +115,16 @@ class Stats implements Runnable, Listener
 					modifsAng.deleteCharAt(modifsAng.length() - 1);
 				paramsPost.put("anciennesTraductions", modifsAng.toString());
 				Langues.anciennesTraductions.clear(); // Pour ne pas le refaire
+			}
+			// Tentatives des maps
+			for (Entry<Integer, CPMap> e : GameManager.maps.entrySet())
+			{
+				CPMap m = e.getValue();
+				if (!m.getAttempts().isEmpty())
+				{
+					paramsPost.put("tentatives-" + m.getUUID().toString(), intMapToString(m.getAttempts()));
+					m.resetAttempts();
+				}
 			}
 			try {
 				CPRequest.effectuerRequete("stats.php", paramsPost, this, null, null);
@@ -171,14 +181,14 @@ class Stats implements Runnable, Listener
 			CreativeParkour.stats().ajouterCommande(commande);
 	}
 
-	private String commandesToString()
+	private String intMapToString(Map<?, AtomicInteger> map)
 	{
 		StringBuffer str = new StringBuffer();
-		for (Iterator<String> it = commandes.keySet().iterator(); it.hasNext();)
+		for (Iterator<?> it = map.keySet().iterator(); it.hasNext();)
 		{
-			String commande = it.next();
-			int nb = commandes.get(commande).get();
-			str.append(commande + ":" + nb + ";");
+			Object k = it.next();
+			int nb = map.get(k).get();
+			str.append(k.toString() + ":" + nb + ";");
 		}
 		// Suppression du dernier point-virgule
 		if (str.length() > 0)
