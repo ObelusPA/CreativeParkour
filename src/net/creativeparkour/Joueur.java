@@ -1622,6 +1622,27 @@ class Joueur
 		}
 	}
 
+	/**
+	 * Returns {@code true} if the player finished the parkour and is can vote.
+	 * @return {@code true} if the player can vote.
+	 */
+	boolean peutVoter()
+	{
+		CPMap m = getMapObjet();
+		if (m != null)
+		{
+			if (estArrive)
+				return true;
+			// Recherche de s'il a un temps dans la map
+			for (CPTime t : m.getListeTemps())
+			{
+				if (t.playerUUID.equals(uuid))
+					return true;
+			}
+		}
+		return false;
+	}
+
 
 
 	private class Regeneration extends BukkitRunnable {
