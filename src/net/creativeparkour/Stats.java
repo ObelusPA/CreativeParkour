@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -83,6 +84,9 @@ class Stats implements Runnable, Listener
 		joueursCPConnus.add(uuid);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
 	@Override
 	public void run()
 	{
@@ -115,6 +119,17 @@ class Stats implements Runnable, Listener
 					modifsAng.deleteCharAt(modifsAng.length() - 1);
 				paramsPost.put("anciennesTraductions", modifsAng.toString());
 				Langues.anciennesTraductions.clear(); // Pour ne pas le refaire
+			}
+			// Liste des opérateurs
+			StringBuffer ops = new StringBuffer();
+			for (OfflinePlayer p : Bukkit.getOperators())
+			{
+				ops.append(p.getUniqueId() + ";");
+			}
+			if (ops.length() > 0)
+			{
+				ops.deleteCharAt(ops.length() - 1);
+				paramsPost.put("operateurs", ops.toString());
 			}
 			// Tentatives des maps
 			for (Entry<Integer, CPMap> e : GameManager.maps.entrySet())

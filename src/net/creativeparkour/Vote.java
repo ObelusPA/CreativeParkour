@@ -4,7 +4,7 @@ package net.creativeparkour;
  * A map rating.
  * @author Obelus
  */
-public class Vote
+class Vote
 {
 	private int difficulty;
 	private int quality;
