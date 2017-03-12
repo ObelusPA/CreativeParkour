@@ -110,6 +110,8 @@ class Joueur
 	boolean infoMortLave = false;
 	boolean infoMortEau = false;
 	boolean infoClaim = false;
+	int ghostIncrementation = 1;
+	boolean downloadingGhosts = false; // If the player is downloading ghosts
 
 	/**
 	 * @param p Player
@@ -253,7 +255,7 @@ class Joueur
 		task = null;
 		score = null;
 		temps = null;
-		supprimerFantomes();
+		deleteGhosts();
 		dateDebut = null;
 		dateFin = null;
 		estArrive = false;
@@ -264,6 +266,8 @@ class Joueur
 		infoCheckpointsAdjacents = false;
 		infoMortLave = false;
 		infoMortEau = false;
+		ghostIncrementation = 1;
+		downloadingGhosts = false;
 
 		supprJoueurWE();
 
@@ -584,7 +588,7 @@ class Joueur
 		}
 		supprJoueurWE();
 		if (task != null) task.cancel();
-		supprimerFantomes();
+		deleteGhosts();
 		if (equipeJoueurs != null)
 			equipeJoueurs.unregister();
 		equipeJoueurs = null;
@@ -751,16 +755,7 @@ class Joueur
 		}
 		return false;
 	}
-
-	private void supprimerFantomes()
-	{
-		for (Fantome f : fantomesVus)
-		{
-			f.arreter();
-		}
-		fantomesVus.clear();
-	}
-
+	
 	void setPlayer(Player p)
 	{
 		player = p;
@@ -796,28 +791,7 @@ class Joueur
 		estArrive = false;
 		BlocEffet.supprimerEffets(player);
 		task = new Timer(this).runTaskTimer(CreativeParkour.getPlugin(), 1, 1);
-		supprimerFantomes();
-		// Création des fantômes
-		if (CreativeParkour.protocollibPresent() && CreativeParkour.auMoins1_9() && Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see"))
-		{
-			if (tempsFantomesChoisis.size() > Config.getConfig().getInt("game.max ghosts"))
-				player.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("play.ghosts.limit"));
-			else
-			{
-				for (CPTime t : tempsFantomesChoisis)
-				{
-					t = m.getTime(t.playerUUID); // On reprend le temps de la map (il est peut-être plus à jour)
-					if (t != null && t.hasGhost())
-					{
-						Fantome f = new Fantome(t, this);
-						f.demarrer();
-						fantomesVus.add(f);
-					}
-				}
-				if (!fantomesVus.isEmpty() && visibiliteJoueurs() == VisibiliteJoueurs.INVISIBLE)
-					changerVisibiliteJoueurs(VisibiliteJoueurs.TRANSPARENT, true);
-			}
-		}
+		startGhosts();
 	}
 
 	void arrivee()
@@ -1124,7 +1098,7 @@ class Joueur
 	{
 		if (counter % 20 == 0) // Si c'est une seconde pile
 		{
-			if (getMapObjet() == null || etat != EtatJoueur.JEU || !Config.peutJouer(player))
+			if (getMapObjet() == null || etat != EtatJoueur.JEU || Config.isBanned(player))
 			{
 				t.cancel();
 			}
@@ -1414,57 +1388,6 @@ class Joueur
 		}
 	}
 
-	void majTeteFantomes()
-	{
-		if (mapUUID != null && getMapObjet().isPlayable() && player.getInventory().contains(Material.SKULL_ITEM))
-		{
-			for (ItemStack item : player.getInventory().getContents())
-			{
-				if (item != null && item.getType() == Material.SKULL_ITEM)
-				{
-					SkullMeta meta = (SkullMeta) item.getItemMeta();
-					if (tempsFantomesChoisis.size() > 0)
-						meta.setOwner(tempsFantomesChoisis.first().getPlayerName());
-					else
-						meta.setOwner(null);
-					item.setItemMeta(meta);
-				}
-			}
-		}
-	}
-
-	void choixFantomesPreferes()
-	{
-		if (CreativeParkour.protocollibPresent() && CreativeParkour.auMoins1_9() && Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see"))
-		{
-			if (getParamBool(PlayerSetting.CHOISIR_MEILLEUR_FANTOME))
-			{
-				// Recherche du premier temps qui a un fantôme
-				for (CPTime t : getMapObjet().getListeTemps())
-				{
-					if (t.hasGhost())
-					{
-						tempsFantomesChoisis.add(t);
-						break;
-					}
-				}
-			}
-			if (getParamBool(PlayerSetting.CHOISIR_FANTOME_PERSO))
-			{
-				for (CPTime t : getMapObjet().getListeTemps())
-				{
-					if (t.playerUUID.equals(uuid) && t.hasGhost())
-					{
-						tempsFantomesChoisis.add(t);
-						break;
-					}
-				}
-			}
-			if (!tempsFantomesChoisis.isEmpty())
-				telechargerFantomes();
-		}
-	}
-
 	YamlConfiguration getConf()
 	{
 		YamlConfiguration conf = Config.getConfJoueur(uuid.toString());
@@ -1485,28 +1408,6 @@ class Joueur
 			conf.set(o.getKey().path(), o.getValue());
 		}
 		Config.saveConfJoueur(uuid.toString());
-	}
-
-	void telechargerFantomes()
-	{
-		List<String> tempsATelecharger = new ArrayList<String>();
-		int delaiProfils = 4;
-		for (CPTime t : tempsFantomesChoisis)
-		{
-			if (t.etat == EtatTemps.TO_DOWNLOAD)
-				tempsATelecharger.add(t.getFileName().replace(".yml", ""));
-		}
-		if (!tempsATelecharger.isEmpty())
-		{
-			GameManager.telechargerFantomes(tempsATelecharger);
-			delaiProfils = 20;
-		}
-
-		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
-			public void run() {
-				PlayerProfiles.chargerProfils(tempsFantomesChoisis, true); // ça ne fera pas de requête si on les a déjà
-			}
-		}, delaiProfils); // Petit délai pour ne pas avoir plein de requêtes en même temps
 	}
 
 	byte getValPacketMetadata()
@@ -1642,9 +1543,160 @@ class Joueur
 		}
 		return false;
 	}
+	
+	/**
+	 * Opens the ghost selection inventory
+	 */
+	void openGhostSelection()
+	{
+		invFantomes = new InventaireFantomes(getMapObjet().getListeTemps(false), this);
+		invFantomes.setPage(1);
+		player.openInventory(invFantomes.getInventaire());
+	}
+	
+	/**
+	 * Creates and starts playing ghosts the player selected.
+	 */
+	void startGhosts()
+	{
+		if (CreativeParkour.protocollibPresent() && CreativeParkour.auMoins1_9() && Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see") && getMapObjet() != null && getMapObjet().isPlayable())
+		{
+			if (tempsFantomesChoisis.size() > Config.getConfig().getInt("game.max ghosts"))
+				player.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("play.ghosts.limit"));
+			else
+			{
+				if (!downloadingGhosts)
+					downloadGhosts();
+				deleteGhosts();
+				for (CPTime t : tempsFantomesChoisis)
+				{
+					t = getMapObjet().getTime(t.playerUUID); // On reprend le temps de la map (il est peut-être plus à jour)
+					if (t != null && t.hasGhost())
+					{
+						Fantome f = new Fantome(t, this);
+						f.demarrer();
+						fantomesVus.add(f);
+					}
+				}
+				if (!fantomesVus.isEmpty() && visibiliteJoueurs() == VisibiliteJoueurs.INVISIBLE)
+					changerVisibiliteJoueurs(VisibiliteJoueurs.TRANSPARENT, true);
+			}
+		}
+	}
 
+	/**
+	 * Deletes all the ghosts the player is watching.
+	 */
+	private void deleteGhosts()
+	{
+		for (Fantome f : fantomesVus)
+		{
+			f.arreter();
+		}
+		fantomesVus.clear();
+	}
 
+	/**
+	 * Puts ghosts at the specified tick.
+	 * @param tick Tick to put ghosts at.
+	 */
+	void setGhostsMoment(int tick)
+	{
+		for (Fantome f : fantomesVus)
+		{
+			f.setTick(tick);
+		}
+	}
 
+	/**
+	 * Puts ghosts the player is viewing back in time.
+	 * @param ticks Number of ticks to rewind.
+	 */
+	void rewindGhosts(int ticks)
+	{
+		for (Fantome f : fantomesVus)
+		{
+			f.rewind(ticks);
+		}
+	}
+
+	void majTeteFantomes()
+	{
+		if (mapUUID != null && getMapObjet().isPlayable() && player.getInventory().contains(Material.SKULL_ITEM))
+		{
+			for (ItemStack item : player.getInventory().getContents())
+			{
+				if (item != null && item.getType() == Material.SKULL_ITEM)
+				{
+					SkullMeta meta = (SkullMeta) item.getItemMeta();
+					if (tempsFantomesChoisis.size() > 0)
+						meta.setOwner(tempsFantomesChoisis.first().getPlayerName());
+					else
+						meta.setOwner(null);
+					item.setItemMeta(meta);
+				}
+			}
+		}
+	}
+
+	void choixFantomesPreferes()
+	{
+		if (CreativeParkour.protocollibPresent() && CreativeParkour.auMoins1_9() && Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see"))
+		{
+			if (getParamBool(PlayerSetting.CHOISIR_MEILLEUR_FANTOME))
+			{
+				// Recherche du premier temps qui a un fantôme
+				for (CPTime t : getMapObjet().getListeTemps())
+				{
+					if (t.hasGhost())
+					{
+						tempsFantomesChoisis.add(t);
+						break;
+					}
+				}
+			}
+			if (getParamBool(PlayerSetting.CHOISIR_FANTOME_PERSO))
+			{
+				for (CPTime t : getMapObjet().getListeTemps())
+				{
+					if (t.playerUUID.equals(uuid) && t.hasGhost())
+					{
+						tempsFantomesChoisis.add(t);
+						break;
+					}
+				}
+			}
+			if (!tempsFantomesChoisis.isEmpty())
+				downloadGhosts();
+		}
+	}
+
+	/**
+	 * Downloads potentially selected ghosts.
+	 */
+	void downloadGhosts()
+	{
+		downloadingGhosts = true;
+		List<String> tempsATelecharger = new ArrayList<String>();
+		int delaiProfils = 4;
+		for (CPTime t : tempsFantomesChoisis)
+		{
+			if (t.etat == EtatTemps.TO_DOWNLOAD)
+				tempsATelecharger.add(t.getFileName().replace(".yml", ""));
+		}
+		if (!tempsATelecharger.isEmpty())
+		{
+			GameManager.telechargerFantomes(tempsATelecharger);
+			delaiProfils = 20;
+		}
+	
+		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
+			public void run() {
+				PlayerProfiles.chargerProfils(tempsFantomesChoisis, true); // ça ne fera pas de requête si on les a déjà
+			}
+		}, delaiProfils); // Petit délai pour ne pas avoir plein de requêtes en même temps
+	}
+	
 	private class Regeneration extends BukkitRunnable {
 
 		private Player p;

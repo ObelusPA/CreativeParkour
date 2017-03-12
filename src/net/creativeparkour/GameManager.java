@@ -753,10 +753,10 @@ class GameManager implements Listener
 	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
 	 * @param json
 	 * @param rep
-	 * @param inutile
+	 * @param p
 	 * @throws InvalidQueryResponseException If the {@code Request} has not been registered before.
 	 */
-	public static void reponseTelechargementFantomes(JsonObject json, String rep, Player inutile) throws InvalidQueryResponseException
+	public static void reponseTelechargementFantomes(JsonObject json, String rep, Player p) throws InvalidQueryResponseException
 	{
 		if (CPRequest.verifMethode("reponseTelechargementFantomes") && !CreativeParkour.erreurRequete(json, null) && json.get("data") != null)
 		{
@@ -802,6 +802,10 @@ class GameManager implements Listener
 					}
 				}
 			}
+
+			Joueur j = getJoueur(p);
+			if (j != null)
+				j.downloadingGhosts = false;
 		}
 	}
 
@@ -987,7 +991,7 @@ class GameManager implements Listener
 	static void jouer(Player p, CPMap map, boolean pasSauvegarderInventaire, boolean teleporter)
 	{
 		Joueur j = getJoueur(p);
-		if (!Config.peutJouer(p) || !p.hasPermission("creativeparkour.play"))
+		if (Config.isBanned(p) || !p.hasPermission("creativeparkour.play"))
 		{
 			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("ban"));
 		}
@@ -1050,7 +1054,7 @@ class GameManager implements Listener
 		}
 
 		CreativeParkour.debug("CREATE", p.getName() + " has " + nbMapsPubliees(p) + " published maps. creativeparkour.infinite=" + p.hasPermission("creativeparkour.infinite") + "; map creation.maps per player limit=" + Config.getConfig().getInt("map creation.maps per player limit"));
-		if (!Config.peutJouer(p) || !p.hasPermission("creativeparkour.create"))
+		if (Config.isBanned(p) || !p.hasPermission("creativeparkour.create"))
 		{
 			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));
 		}
@@ -2203,7 +2207,7 @@ class GameManager implements Listener
 			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));
 			return null;
 		}
-		else if (!Config.peutJouer(p))
+		else if (Config.isBanned(p))
 		{
 			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("ban"));
 			return null;
@@ -2641,6 +2645,57 @@ class GameManager implements Listener
 				else
 				{
 					nouvelleMap(p, true, blocs);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Adds a ghost to player's selection.
+	 * @param p The player.
+	 * @param ghostID Ghost's id, found on <a href="https://creativeparkour.net">creativeparkour.net</a>.
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 */
+	static void watchGhost(Player p, String ghostID) throws NoSuchMethodException, SecurityException
+	{
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("ghostID", ghostID);
+		CPRequest.effectuerRequete("ghost-info.php", params, null, GameManager.class.getMethod("reponseWatchGhost", JsonObject.class, String.class, Player.class), p);
+		p.sendMessage(CPRequest.messageAttente());
+	}
+
+	/**
+	 * <em>Third-party plugins cannot use this method through CreativeParkour's API (it will throw an {@code InvalidQueryResponseException}).</em><br>
+	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
+	 * @param json
+	 * @param rep
+	 * @param p
+	 * @throws InvalidQueryResponseException If the {@code Request} has not been registered before.
+	 */
+	public static void reponseWatchGhost(JsonObject json, String rep, Player p) throws InvalidQueryResponseException
+	{
+		if (CPRequest.verifMethode("reponseWatchGhost") && !CreativeParkour.erreurRequete(json, p))
+		{
+			JsonObject data = json.get("data").getAsJsonObject();
+			if (!data.get("trouve").getAsBoolean())
+			{
+				p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost watch error id"));
+			}
+			else
+			{
+				CPMap m = getMap(UUID.fromString(data.get("uuidMap").getAsString()));
+				if (m == null || !m.isPlayable())
+				{
+					int idMap = data.get("idMap").getAsInt();
+					if (idMap > 0) // Si la map est téléchargeable
+						p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost watch error map download").replace("%id", String.valueOf(idMap)));
+					else
+						p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost watch error map nondownloadable"));
+				}
+				else
+				{
+					// TODO
 				}
 			}
 		}

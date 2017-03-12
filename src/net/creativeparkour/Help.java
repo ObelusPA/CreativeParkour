@@ -67,6 +67,12 @@ class Help
 		h.add(gold + "/cp " + Langues.getMessage("commands.export") + trans + Langues.getMessage("help.export"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.edit") + trans + Langues.getMessage("help.edit"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.delete") + trans + Langues.getMessage("help.delete"));
+		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost play") + trans + Langues.getMessage("help.ghost play"));
+		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost speed") + " [" +Langues.getMessage("help.multiplier") + "]" + trans + Langues.getMessage("help.ghost speed"));
+		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost rewind") + " [" +Langues.getMessage("help.seconds") + "]" + trans + Langues.getMessage("help.ghost rewind"));
+		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost moment") + " [" +Langues.getMessage("help.second") + "]" + trans + Langues.getMessage("help.ghost moment"));
+		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost select") + trans + Langues.getMessage("help.ghost select"));
+		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost watch") + " <" +Langues.getMessage("help.ghost id") + ">" + trans + Langues.getMessage("help.ghost watch"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.register") + trans + Langues.getMessage("help.register"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.sync") + trans + Langues.getMessage("help.sync"));
 		h.add(gold + "/cp " + Langues.getMessage("commands.managemaps") + trans + Langues.getMessage("help.managemaps"));
@@ -121,5 +127,12 @@ class Help
 				sender.sendMessage(hop.get(i - h.size()));
 			}
 		}
+	}
+	
+	static List<String> getHelp()
+	{
+		List<String> list = new ArrayList<String>(h);
+		list.addAll(hop);
+		return list;
 	}
 }

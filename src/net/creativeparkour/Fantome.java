@@ -66,6 +66,7 @@ class Fantome
 	private int i;
 	private BukkitTask task;
 	private byte valPreced;
+	private int derniereMajScoreboard;
 
 	Fantome (CPTime temps, Joueur regardeur)
 	{
@@ -79,6 +80,7 @@ class Fantome
 		if (regardeur.getParamBool(PlayerSetting.AFFICHER_FANTOMES_AVANT))
 			this.i += 20; // Avance d'une seconde
 		this.valPreced = 0;
+		this.derniereMajScoreboard = 0;
 	}
 
 	void demarrer()
@@ -206,7 +208,7 @@ class Fantome
 					sneak.sendPacket(player);
 					valPreced = val;
 				}
-				
+
 				if (posActuelle.hasPearl() != nouvellePos.hasPearl())
 				{
 					WrapperPlayServerEntityEquipment equipment = new WrapperPlayServerEntityEquipment();
@@ -221,12 +223,15 @@ class Fantome
 			}
 		}
 
-		if (i >= temps.ticks)
+		if (i >= temps.ticks || i < 0)
 			arreter();
+		else if (nouvellePos == null) // Si pas de position, on attent qu'il y en ait une pour éviter de ne tomber que sur du null en cas de multiplicateur
+			i += Integer.signum(regardeur.ghostIncrementation); // 1 ou -1 selon le signe
 		else
-			i++;
-		if (i % 20 == 0) // Affichage (ou enlevage) des temps des fantômes en direct du scoreboard du regardeur
+			i += regardeur.ghostIncrementation;
+		if (i - derniereMajScoreboard >= 20) // Affichage (ou enlevage) des temps des fantômes en direct du scoreboard du regardeur
 		{
+			derniereMajScoreboard = i;
 			String s = CPUtils.scoreboardName(CPUtils.ucfirst(Langues.getMessage("play.ghosts.ghosts")), ChatColor.BLUE);
 			if (regardeur.getEtat() == EtatJoueur.SPECTATEUR)
 			{
@@ -250,5 +255,18 @@ class Fantome
 		entite.setPitch(l.getPitch());
 		entite.setYaw(l.getYaw());
 		entite.sendPacket(player);
+	}
+
+	void rewind(int ticks)
+	{
+		i -= ticks;
+		i = Math.max(i, 0); // Pour ne pas avoir un nombre négatif
+		derniereMajScoreboard = i;
+	}
+
+	void setTick(int tick)
+	{
+		i = Math.max(tick, 0);
+		derniereMajScoreboard = i;
 	}
 }

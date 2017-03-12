@@ -160,12 +160,6 @@ class Config implements Listener
 		path = "rewards.claim worlds all"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "rewards.claim worlds"; if(!configGenerale.contains(path)) { configGenerale.set(path, new ArrayList<String>(claimWorlds)); }
 
-		path = "banned players";
-		if(!configGenerale.contains(path))
-		{
-			configGenerale.set(path, new ArrayList<UUID>());
-		}
-
 		if (configGenerale.getBoolean("plugin enabled"))
 		{
 			pluginDesactive = false;
@@ -358,16 +352,14 @@ class Config implements Listener
 		return configGenerale.getBoolean("online.enabled");
 	}
 
-	static boolean peutJouer(Player p)
+	static boolean isBanned(Player p)
 	{
-		if (configGenerale.getStringList("banned players").contains(p.getUniqueId().toString()))
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		return isBanned(p.getUniqueId());
+	}
+
+	static boolean isBanned(UUID uuid)
+	{
+		return getConfJoueur(uuid.toString()).getBoolean("banned", false);
 	}
 
 	static String getServUUID()

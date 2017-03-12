@@ -1033,7 +1033,7 @@ public class CPMap
 				if (recordman != null && recordman.ticks > temps.ticks && !recordman.playerUUID.equals(j.getPlayer().getUniqueId()))
 				{
 					Player autreJoueur = Bukkit.getPlayer(recordman.playerUUID);
-					if (autreJoueur != null && Config.peutJouer(autreJoueur)) // Notification à celui qui s'est fait battre son record
+					if (autreJoueur != null && !Config.isBanned(autreJoueur)) // Notification à celui qui s'est fait battre son record
 					{
 						Joueur autreJoueurJ = GameManager.getJoueur(autreJoueur);
 						if (autreJoueurJ == null)

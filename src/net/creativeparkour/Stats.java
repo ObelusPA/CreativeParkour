@@ -84,9 +84,6 @@ class Stats implements Runnable, Listener
 		joueursCPConnus.add(uuid);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
 	@Override
 	public void run()
 	{

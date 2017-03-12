@@ -130,7 +130,7 @@ class MainListener implements Listener
 				j.invCreation = null;
 				j.invAutresMaps = null;
 				if (j.invFantomes != null)
-					j.telechargerFantomes();
+					j.downloadGhosts();
 				j.invFantomes = null;
 				j.invOptionsMaps = null;
 				j.invParametres = null;
@@ -824,9 +824,7 @@ class MainListener implements Listener
 						}
 						else
 						{
-							j.invFantomes = new InventaireFantomes(m.getListeTemps(false), j);
-							j.invFantomes.setPage(1);
-							p.openInventory(j.invFantomes.getInventaire());
+							j.openGhostSelection();
 						}
 					}
 				}
