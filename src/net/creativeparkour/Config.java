@@ -230,7 +230,7 @@ class Config implements Listener
 
 		if (!Bukkit.getOnlineMode())
 		{
-			Bukkit.getLogger().warning(Config.prefix(false) + "Your server is in offline mode. Make sure that players' UUIDs never changes or severe problems can appear.");
+			Bukkit.getLogger().warning(Config.prefix(false) + "Your server is in offline mode. Make sure that players' UUIDs never change or severe problems can occur.");
 		}
 
 		save();

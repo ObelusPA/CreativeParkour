@@ -2695,7 +2695,23 @@ class GameManager implements Listener
 				}
 				else
 				{
-					// TODO
+					Joueur j = getJoueur(p);
+					if (j == null || !m.equals(j.getMapObjet())) // S'il n'est pas dans celle map, on l'y envoie
+					{
+						jouer(p, m, false, true);
+						j = getJoueur(p);
+					}
+					if (j != null)
+					{
+						CPTime t = m.getTime(UUID.fromString(data.get("uuidJoueur").getAsString()));
+						if (t == null || t.ticks != data.get("ticks").getAsInt())
+							p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost watch error id"));
+						else
+						{
+							j.tempsFantomesChoisis.add(t);
+							p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost watch ok").replace("%player", t.getPlayerName()));
+						}
+					}
 				}
 			}
 		}
