@@ -280,87 +280,89 @@ class Joueur
 		// Petit délai avant de faire des trucs pour éviter que les autres plugins fassent chier
 		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 			public void run() {
-				player.setFlying(false);
-				player.setAllowFlight(false);
-				player.setGameMode(GameMode.ADVENTURE);
-
-				player.getInventory().clear();
-				player.getInventory().setArmorContents(null);
-				player.getInventory().setHeldItemSlot(0);
-
-				PlayerInventory inv = player.getInventory();
-				ItemStack item = new ItemStack(Material.INK_SACK, 1, (short) 10);
-				ItemMeta im = item.getItemMeta();
-				im.setDisplayName(ChatColor.GREEN + Langues.getMessage("play.items.return start") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
-				item.setItemMeta(im);
-				inv.setItem(0, item);
-
-				int slot = 8;
-
-				item = new ItemStack(Material.INK_SACK, 1, (short) 1);
-				im = item.getItemMeta();
-				String msg = Langues.getMessage("commands.leave");
-				if (m.contientTesteur(player)) //S'il ne teste pas la map
-					msg = Langues.getMessage("play.items.leave test");
-				im.setDisplayName(ChatColor.RED + CPUtils.ucfirst(msg) + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
-				item.setItemMeta(im);
-				inv.setItem(slot, item);
-				slot--;
-
-				item = new ItemStack(Material.INK_SACK, 1, (short) 11);
-				im = item.getItemMeta();
-				im.setDisplayName(ChatColor.YELLOW + Langues.getMessage("play.items.player visibility") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
-				item.setItemMeta(im);
-				inv.setItem(slot, item);
-				slot--;
-
-				if (!m.contientTesteur(player)) //S'il ne teste pas la map
+				if (getMapObjet() != null && getMapObjet().isPlayable()) // On vérifie quand même qu'il ne se soit pas fait sortir durant les 4 ticks
 				{
-					if (player.hasPermission("creativeparkour.spectate"))
+					player.setFlying(false);
+					player.setAllowFlight(false);
+					player.setGameMode(GameMode.ADVENTURE);
+
+					player.getInventory().clear();
+					player.getInventory().setArmorContents(null);
+					player.getInventory().setHeldItemSlot(0);
+
+					PlayerInventory inv = player.getInventory();
+					ItemStack item = new ItemStack(Material.INK_SACK, 1, (short) 10);
+					ItemMeta im = item.getItemMeta();
+					im.setDisplayName(ChatColor.GREEN + Langues.getMessage("play.items.return start") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
+					item.setItemMeta(im);
+					inv.setItem(0, item);
+
+					int slot = 8;
+
+					item = new ItemStack(Material.INK_SACK, 1, (short) 1);
+					im = item.getItemMeta();
+					String msg = Langues.getMessage("commands.leave");
+					if (m.contientTesteur(player)) //S'il ne teste pas la map
+						msg = Langues.getMessage("play.items.leave test");
+					im.setDisplayName(ChatColor.RED + CPUtils.ucfirst(msg) + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
+					item.setItemMeta(im);
+					inv.setItem(slot, item);
+					slot--;
+
+					item = new ItemStack(Material.INK_SACK, 1, (short) 11);
+					im = item.getItemMeta();
+					im.setDisplayName(ChatColor.YELLOW + Langues.getMessage("play.items.player visibility") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
+					item.setItemMeta(im);
+					inv.setItem(slot, item);
+					slot--;
+
+					if (!m.contientTesteur(player)) //S'il ne teste pas la map
 					{
-						item = new ItemStack(Material.FEATHER, 1);
-						im = item.getItemMeta();
-						im.setDisplayName(ChatColor.WHITE + Langues.getMessage("play.items.spectator") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
-						item.setItemMeta(im);
-						inv.setItem(slot, item);
-						slot--;
+						if (player.hasPermission("creativeparkour.spectate"))
+						{
+							item = new ItemStack(Material.FEATHER, 1);
+							im = item.getItemMeta();
+							im.setDisplayName(ChatColor.WHITE + Langues.getMessage("play.items.spectator") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
+							item.setItemMeta(im);
+							inv.setItem(slot, item);
+							slot--;
+						}
+
+						if (Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see")) // Si les fantomes sont activés ou que le problème est que ProtocolLib n'est pas là
+						{
+							item = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+							im = item.getItemMeta();
+							im.setDisplayName(ChatColor.BLUE + Langues.getMessage("play.items.ghosts") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
+							item.setItemMeta(im);
+							inv.setItem(slot, item);
+							slot--;
+						}
+
+
+						if (m.getCreator().equals(uuid) || player.hasPermission("creativeparkour.manage")) // Si c'est le créateur ou qu'il a la permission, objet options
+						{
+							item = new ItemStack(Material.WORKBENCH, 1);
+							im = item.getItemMeta();
+							im.setDisplayName(ChatColor.AQUA + Langues.getMessage("play.items.map options") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
+							item.setItemMeta(im);
+							inv.setItem(slot, item);
+							slot--;
+						}
+
+						giveMontre();
+
+						YamlConfiguration conf = getConf();
+						if (m.getCreator().equals(uuid) && conf.getBoolean("sharing announcement") != true)
+						{
+							player.sendMessage(Config.prefix() + ChatColor.AQUA + Langues.getMessage("commands.share announcement"));
+							conf.set("sharing announcement", true);
+							saveConf();
+						}
+
+						choixFantomesPreferes();
+						majTeteFantomes();
 					}
-
-					if (Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see")) // Si les fantomes sont activés ou que le problème est que ProtocolLib n'est pas là
-					{
-						item = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-						im = item.getItemMeta();
-						im.setDisplayName(ChatColor.BLUE + Langues.getMessage("play.items.ghosts") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
-						item.setItemMeta(im);
-						inv.setItem(slot, item);
-						slot--;
-					}
-
-
-					if (m.getCreator().equals(uuid) || player.hasPermission("creativeparkour.manage")) // Si c'est le créateur ou qu'il a la permission, objet options
-					{
-						item = new ItemStack(Material.WORKBENCH, 1);
-						im = item.getItemMeta();
-						im.setDisplayName(ChatColor.AQUA + Langues.getMessage("play.items.map options") + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
-						item.setItemMeta(im);
-						inv.setItem(slot, item);
-						slot--;
-					}
-
-					giveMontre();
-
-					YamlConfiguration conf = getConf();
-					if (m.getCreator().equals(uuid) && conf.getBoolean("sharing announcement") != true)
-					{
-						player.sendMessage(Config.prefix() + ChatColor.AQUA + Langues.getMessage("commands.share announcement"));
-						conf.set("sharing announcement", true);
-						saveConf();
-					}
-
-					choixFantomesPreferes();
-					majTeteFantomes();
 				}
-
 			}
 		}, 4);
 
