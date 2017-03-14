@@ -210,16 +210,18 @@ class Joueur
 		// Petit délai avant de filer les objets et de mettre en créatif pour éviter que d'autres plugins ne fassent chier
 		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 			public void run() {
-
-				player.getInventory().clear();
-				player.getInventory().setArmorContents(null);
-				CreativeParkour.debug("INV1", player.getName() + "'s inventory cleared.");
-				player.setGameMode(GameMode.CREATIVE);
-				player.setAllowFlight(true);
-				player.setFlying(true);
-				for (int i=0; i < items.size(); i++)
+				if (etat == EtatJoueur.CREATION) // On vérifie quand même qu'il ne se soit pas fait sortir durant les 4 ticks
 				{
-					player.getInventory().setItem(i, items.get(i));
+					player.getInventory().clear();
+					player.getInventory().setArmorContents(null);
+					CreativeParkour.debug("INV1", player.getName() + "'s inventory cleared.");
+					player.setGameMode(GameMode.CREATIVE);
+					player.setAllowFlight(true);
+					player.setFlying(true);
+					for (int i=0; i < items.size(); i++)
+					{
+						player.getInventory().setItem(i, items.get(i));
+					}
 				}
 			}
 		}, 4);
@@ -755,7 +757,7 @@ class Joueur
 		}
 		return false;
 	}
-	
+
 	void setPlayer(Player p)
 	{
 		player = p;
@@ -1543,7 +1545,7 @@ class Joueur
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Opens the ghost selection inventory
 	 */
@@ -1553,7 +1555,7 @@ class Joueur
 		invFantomes.setPage(1);
 		player.openInventory(invFantomes.getInventaire());
 	}
-	
+
 	/**
 	 * Creates and starts playing ghosts the player selected.
 	 */
@@ -1689,14 +1691,14 @@ class Joueur
 			GameManager.telechargerFantomes(tempsATelecharger);
 			delaiProfils = 20;
 		}
-	
+
 		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 			public void run() {
 				PlayerProfiles.chargerProfils(tempsFantomesChoisis, true); // ça ne fera pas de requête si on les a déjà
 			}
 		}, delaiProfils); // Petit délai pour ne pas avoir plein de requêtes en même temps
 	}
-	
+
 	private class Regeneration extends BukkitRunnable {
 
 		private Player p;
