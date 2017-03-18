@@ -163,7 +163,7 @@ class Commandes implements CommandExecutor
 											p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("player offline"));
 											p.sendMessage(ChatColor.YELLOW + "/cp " + Langues.getMessage("commands.invite") + " <" + Langues.getMessage("commands.playerN") + ">");
 										}
-										else if (!p1.hasPermission("creativeparkour.create") || !Config.isBanned(p1))
+										else if (!p1.hasPermission("creativeparkour.create") || Config.isBanned(p1))
 										{
 											p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.invite error 5"));
 										}
@@ -253,7 +253,7 @@ class Commandes implements CommandExecutor
 											p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("player offline"));
 											p.sendMessage(ChatColor.YELLOW + "/cp " + Langues.getMessage("commands.tp") + " <" + Langues.getMessage("commands.playerN") + ">");
 										}
-										else if (!p.hasPermission("creativeparkour.play") || !Config.isBanned(p))
+										else if (!p.hasPermission("creativeparkour.play") || Config.isBanned(p))
 										{
 											p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ban"));
 										}

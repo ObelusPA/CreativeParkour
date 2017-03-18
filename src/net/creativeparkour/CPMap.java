@@ -546,7 +546,8 @@ public class CPMap
 			j.modeJeu();
 			String c = NameManager.getNomAvecUUID(createur);
 			if (c == null) c = "unknown";
-			if (isPlayable()) j.getPlayer().sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("play.welcome").replace("%map", ChatColor.ITALIC + nom + ChatColor.GREEN).replace("%creator", c));
+			if (isPlayable())
+				j.getPlayer().sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("play.welcome").replace("%map", ChatColor.ITALIC + nom + ChatColor.GREEN).replace("%creator", c));
 		}
 	}
 
@@ -581,16 +582,19 @@ public class CPMap
 				}
 
 				// On met tout ceux qui ont construit la map en mode jeu
-				this.jouer(GameManager.getJoueur(p));
+				Joueur j = GameManager.getJoueur(p);
+				j.stopTimer(); // Au cas où il soit en train de tester
+				this.jouer(j);
 				for (UUID u : contributeurs)
 				{
 					Player p1 = Bukkit.getPlayer(u);
 					if (p1 != null)
 					{
-						Joueur j = GameManager.getJoueur(p1);
-						if (j != null && uuid.equals(j.getMap()))
+						Joueur j1 = GameManager.getJoueur(p1);
+						if (j1 != null && uuid.equals(j1.getMap()))
 						{
-							this.jouer(j);
+							j1.stopTimer(); // Au cas où il soit en train de tester
+							this.jouer(j1);
 						}
 					}
 				}

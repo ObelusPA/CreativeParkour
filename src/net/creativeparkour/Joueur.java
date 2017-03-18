@@ -280,7 +280,7 @@ class Joueur
 		// Petit délai avant de faire des trucs pour éviter que les autres plugins fassent chier
 		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 			public void run() {
-				if (getMapObjet() != null && getMapObjet().isPlayable()) // On vérifie quand même qu'il ne se soit pas fait sortir durant les 4 ticks
+				if (getMapObjet() != null && (getMapObjet().isPlayable() || getMapObjet().contientTesteur(player))) // On vérifie quand même qu'il ne se soit pas fait sortir durant les 4 ticks
 				{
 					player.setFlying(false);
 					player.setAllowFlight(false);
@@ -301,9 +301,7 @@ class Joueur
 
 					item = new ItemStack(Material.INK_SACK, 1, (short) 1);
 					im = item.getItemMeta();
-					String msg = Langues.getMessage("commands.leave");
-					if (m.contientTesteur(player)) //S'il ne teste pas la map
-						msg = Langues.getMessage("play.items.leave test");
+					String msg = m.contientTesteur(player) ? Langues.getMessage("play.items.leave test") : Langues.getMessage("commands.leave");
 					im.setDisplayName(ChatColor.RED + CPUtils.ucfirst(msg) + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
 					item.setItemMeta(im);
 					inv.setItem(slot, item);
@@ -370,9 +368,7 @@ class Joueur
 		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		// Secondes
 		objective = scoreboard.registerNewObjective("cp_time", "dummy");
-		String titre;
-		if (m.isPlayable()) titre = Langues.getMessage("play.leaderboard");
-		else titre = Langues.getMessage("play.time");
+		String titre = m.isPlayable() ? Langues.getMessage("play.leaderboard") : Langues.getMessage("play.time");
 		String s = ChatColor.GOLD + "" + ChatColor.BOLD + titre;
 		if (s.length() > 32) { s = s.substring(0, 32); }
 		objective.setDisplayName(s);

@@ -2352,10 +2352,6 @@ class GameManager implements Listener
 		{
 			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.tp error"));
 		}
-		else if (j1.getMapObjet().getState() == CPMapState.CREATION && (!p.hasPermission("creativeparkour.manage") && !j1.getMapObjet().getCreator().equals(p.getUniqueId()))) // Si le joueur p1 crée une map et que celui qui veut se téléporter n'est pas OP ou le créateur
-		{
-			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.tp error creation"));
-		}
 		else
 		{
 			CPMap m = j1.getMapObjet();
@@ -2380,12 +2376,15 @@ class GameManager implements Listener
 					}, 5);
 				}
 			}
-			else if (p.hasPermission("creativeparkour.manage") || m.getCreator().equals(p.getUniqueId()))
+			else if (p.hasPermission("creativeparkour.manage") || m.getCreator().equals(p.getUniqueId()) || m.getContributeurs().contains(p.getUniqueId()))
 			{
 				m.accepterInvitation(p);
 			}
 			else
-				return; // On n'est pas censé arriver là, mais on bloque au cas où...
+			{
+				p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.tp error creation"));
+				return;
+			}
 
 			// Réactivation du mode fly au tick suivant pour que les autres plugins ferment leurs gueules
 			new BukkitRunnable() {				

@@ -13,32 +13,34 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package net.creativeparkour;
 
 import org.bukkit.scheduler.BukkitRunnable;
- 
+
 class Timer extends BukkitRunnable {
- 
-    private int counter;
-    private Joueur j;
- 
-    Timer(Joueur joueur)
-    {
-        counter = 0;
-        j = joueur;
-    }
- 
-    public void run() {
-        if (counter < 216000) // Au bout de 3 heures, on arrête
-        {
-            counter++;
-        	j.timerMaj(counter, this);
-        } else {
-            this.cancel();
-        	j.quitter(true, false);
-        }
-    }
- 
+
+	private int counter;
+	private Joueur j;
+
+	Timer(Joueur joueur)
+	{
+		counter = 0;
+		j = joueur;
+	}
+
+	public void run() {
+		if (j.getEtat() != EtatJoueur.JEU)
+			this.cancel();
+		else if (counter < 216000) // Au bout de 3 heures, on arrête
+		{
+			counter++;
+			j.timerMaj(counter, this);
+		} else {
+			this.cancel();
+			j.quitter(true, false);
+		}
+	}
+
 }
