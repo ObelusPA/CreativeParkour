@@ -656,7 +656,7 @@ class Joueur
 				}
 				if (!restauration)
 				{
-					if (CreativeParkour.getPlugin().isEnabled()) // Parce que le plugin est désactivé quand le serveur s'éteint et qu'on vire les joueurs
+					if (!Config.getConfig().getBoolean("game.update players before teleporting") && CreativeParkour.getPlugin().isEnabled()) // Parce que le plugin est désactivé quand le serveur s'éteint et qu'on vire les joueurs
 					{
 						Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 							public void run() {
