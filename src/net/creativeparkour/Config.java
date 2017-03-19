@@ -665,7 +665,7 @@ class Config implements Listener
 		{
 			if (json.get("data").getAsJsonObject().get("servDejaExistant") != null && json.get("data").getAsJsonObject().get("servDejaExistant").getAsBoolean() == true)
 			{
-				CPUtils.sendClickableMsg(p, Langues.getMessage("config.sharing.server already registered"), null, CreativeParkour.lienSite() + "/user/server.php?id=" + json.get("data").getAsJsonObject().get("idServ").getAsString(), "%L", ChatColor.YELLOW);
+				CPUtils.sendClickableMsg(p, Langues.getMessage("config.sharing.server already registered"), null, CreativeParkour.lienSite() + "/user/uuid-to-id.php?servUUID=" + getServUUID() + "&page=" + "%2Fuser%2Fserver.php%3Fid%3D", "%L", ChatColor.YELLOW);
 			}
 			else
 			{
