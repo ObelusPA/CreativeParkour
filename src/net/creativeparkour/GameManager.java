@@ -95,6 +95,8 @@ class GameManager implements Listener
 	static final List<Material> exceptionsOPs = new ArrayList<Material>();
 	static final List<CPMap> mapsTelechargeables = new ArrayList<CPMap>();
 	private static boolean taskListe = false; // True si une task périodique est lancée pour mettre à jour la liste de maps téléchargeables
+	static int nbTricheurs = 0;
+	static List<UUID> receveursNotifsTriche;
 
 	static void enable(Plugin plugin)
 	{
@@ -678,6 +680,26 @@ class GameManager implements Listener
 								}
 							}
 						});
+						
+
+						// Enregistrement du nombre de tricheurs
+						o = json.get("data").getAsJsonObject().get("nbTricheurs");
+						if (o != null)
+						{
+							nbTricheurs = o.getAsInt();
+							
+							// Enregistrement des joueurs qui peuvent recevoir des notifications de triche
+							o = json.get("data").getAsJsonObject().get("receveursNotifsTriche");
+							receveursNotifsTriche = new ArrayList<UUID>();
+							if (o != null && o.isJsonArray())
+							{
+								JsonArray liste = o.getAsJsonArray();
+								for (JsonElement e : liste)
+								{
+									receveursNotifsTriche.add(UUID.fromString(e.getAsString()));
+								}
+							}
+						}
 
 
 						// Envoi des notes et des fantômes

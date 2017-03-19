@@ -669,28 +669,30 @@ class Joueur
 				}
 				player.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("leave"));
 
-				// Message d'encouragement au feedback
-				final YamlConfiguration conf = getConf();
-				if (player.hasPermission("creativeparkour.manage") && conf.getBoolean("feedback 1") != true && Config.getDateInstall().getTime() + 1000 * 60 * 60 * 24 * 4  < new Date().getTime()) // Si c'est à plus de 4 jours de l'installation
-				{
-					Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
-						public void run() {
+				// Messages
+				Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
+					public void run() {
+						YamlConfiguration conf = getConf();
+						if (GameManager.nbTricheurs > 0 && GameManager.receveursNotifsTriche.contains(uuid))
+						{
+							CPUtils.sendClickableMsg(player, Langues.getMessage("cheaters.notification").replace("%nb", String.valueOf(GameManager.nbTricheurs)), null, CreativeParkour.lienSite() + "/user/uuid-to-id.php?servUUID=" + Config.getServUUID() + "&page=%2Fuser%2Fcheaters.php%3Fserv%3D", "%L", ChatColor.YELLOW);
+							GameManager.receveursNotifsTriche.clear();
+							GameManager.nbTricheurs = 0;
+						}
+						else if (player.hasPermission("creativeparkour.manage") && conf.getBoolean("feedback 1") != true && Config.getDateInstall().getTime() + 1000 * 60 * 60 * 24 * 4  < new Date().getTime()) // Si c'est à plus de 4 jours de l'installation
+						{
 							CPUtils.sendClickableMsg(player, Langues.getMessage("feedback 1"), null, "https://creativeparkour.net/contact.php", "%L", ChatColor.AQUA);
 							conf.set("feedback 1", true);
 							saveConf();
 						}
-					}, 50);
-				}
-				else if (!Config.getLanguage().equals("enUS") && !Config.getLanguage().equals("frFR") && new Random().nextInt(conf.getInt("languages info chance", 15)) == 0) // Une chance sur 15, ou plus si le message a déjà été affiché
-				{
-					Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
-						public void run() {
+						else if (!Config.getLanguage().equals("enUS") && !Config.getLanguage().equals("frFR") && new Random().nextInt(conf.getInt("languages info chance", 15)) == 0) // Une chance sur 15, ou plus si le message a déjà été affiché
+						{
 							player.sendMessage(Config.prefix() + ChatColor.AQUA + Langues.getMessage("languages info"));
 							conf.set("languages info chance", conf.getInt("languages info chance", 15) * 2);
 							saveConf();
 						}
-					}, 50);
-				}
+					}
+				}, 50);
 			}
 		}
 		etat = null;

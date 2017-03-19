@@ -465,3 +465,4 @@ commands.ghost_watch_error_map_nondownloadable=The map corresponding to the ghos
 commands.ghost_watch_ok=%player's ghost added to your selection, type "/cp ghost p" to start playing it.
 commands.ban_banned=%player (%uuid) banned!
 commands.pardon_pardoned=%player (%uuid) pardoned!
+cheaters.notification=CreativeParkour has detected %nb parkour cheater(s) on your server. %LClick here%L to review them or disable these notifications.
