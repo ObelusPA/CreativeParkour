@@ -494,106 +494,113 @@ class Commandes implements CommandExecutor
 								else if (args[0].startsWith("ghost") || args[0].startsWith(Langues.getMessage("commands.ghost")))
 								{
 									Stats.ajouterCommandeStats("ghost");
-									if (args.length < 2)
+									if (!CreativeParkour.auMoins1_9())
 									{
-										p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("too few arguments"));
-										String h1 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost play");
-										String h2 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost speed");
-										String h3 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost rewind");
-										String h4 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost moment");
-										String h5 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost select");
-										String h6 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost watch");
-										for (String s : Help.getHelp())
-										{
-											if (s.contains(h1) || s.contains(h2) || s.contains(h3) || s.contains(h4) || s.contains(h5) || s.contains(h6))
-											{
-												p.sendMessage(s);
-											}
-										}
+										sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("outdated server").replace("%ver", "1.9"));
 									}
 									else
 									{
+										if (args.length < 2)
+										{
+											p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("too few arguments"));
+											String h1 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost play");
+											String h2 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost speed");
+											String h3 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost rewind");
+											String h4 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost moment");
+											String h5 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost select");
+											String h6 = Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost watch");
+											for (String s : Help.getHelp())
+											{
+												if (s.contains(h1) || s.contains(h2) || s.contains(h3) || s.contains(h4) || s.contains(h5) || s.contains(h6))
+												{
+													p.sendMessage(s);
+												}
+											}
+										}
+										else
+										{
 
-										Joueur j = GameManager.getJoueur(p);
-										if (args[1].equalsIgnoreCase("play") || args[1].equalsIgnoreCase("p") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost play")))
-										{
-											if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
-												p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
-											else
-												j.startGhosts();
-										}
-										else if (args[1].equalsIgnoreCase("speed") || args[1].equalsIgnoreCase("s") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost speed")))
-										{
-											if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
-												p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
-											else
+											Joueur j = GameManager.getJoueur(p);
+											if (args[1].equalsIgnoreCase("play") || args[1].equalsIgnoreCase("p") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost play")))
 											{
-												if (args.length < 3) // Si pas de nombre, on met *2 ou *1 selon ce qui était déjà choisi
-												{
-													int nb = j.ghostIncrementation == 1 ? 2 : 1;
-													j.ghostIncrementation = nb;
-													p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost speed ok").replace("%nb", String.valueOf(nb)));
-												}
+												if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
+													p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
+												else
+													j.startGhosts();
+											}
+											else if (args[1].equalsIgnoreCase("speed") || args[1].equalsIgnoreCase("s") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost speed")))
+											{
+												if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
+													p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
 												else
 												{
-													try {
-														j.ghostIncrementation = Integer.valueOf(args[2]);
-														p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost speed ok").replace("%nb", args[2]));
-													} catch (NumberFormatException e) {
-														p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost speed error"));
+													if (args.length < 3) // Si pas de nombre, on met *2 ou *1 selon ce qui était déjà choisi
+													{
+														int nb = j.ghostIncrementation == 1 ? 2 : 1;
+														j.ghostIncrementation = nb;
+														p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost speed ok").replace("%nb", String.valueOf(nb)));
+													}
+													else
+													{
+														try {
+															j.ghostIncrementation = Integer.valueOf(args[2]);
+															p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost speed ok").replace("%nb", args[2]));
+														} catch (NumberFormatException e) {
+															p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost speed error"));
+														}
 													}
 												}
 											}
-										}
-										else if (args[1].equalsIgnoreCase("moment") || args[1].equalsIgnoreCase("m") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost moment")))
-										{
-											if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
-												p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
-											else
+											else if (args[1].equalsIgnoreCase("moment") || args[1].equalsIgnoreCase("m") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost moment")))
 											{
-												try {
-													j.setGhostsMoment(Math.round(Float.valueOf(args[2]) * 20));
-													p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost moment ok").replace("%moment", args[2]));
-												} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-													p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost moment error"));
-												}
-											}
-										}
-										else if (args[1].equalsIgnoreCase("rewind") || args[1].equalsIgnoreCase("r") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost rewind")))
-										{
-											if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
-												p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
-											else
-											{
-												if (args.length < 3) // Si pas de nombre, 10 secondes
-												{
-													j.rewindGhosts(10 * 20);
-													p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost rewind ok").replace("%seconds", "10"));
-												}
+												if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
+													p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
 												else
 												{
 													try {
-														j.rewindGhosts(Math.round(Float.valueOf(args[2]) * 20));
-														p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost rewind ok").replace("%seconds", args[2]));
-													} catch (NumberFormatException e) {
-														p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost rewind error"));
+														j.setGhostsMoment(Math.round(Float.valueOf(args[2]) * 20));
+														p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost moment ok").replace("%moment", args[2]));
+													} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+														p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost moment error"));
 													}
 												}
 											}
-										}
-										else if (args[1].equalsIgnoreCase("select") || args[1].equalsIgnoreCase("sel") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost select")))
-										{
-											if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
-												p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
-											else
-												j.openGhostSelection();
-										}
-										else if (args[1].equalsIgnoreCase("watch") || args[1].equalsIgnoreCase("w") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost watch")))
-										{
-											if (args.length < 3)
-												p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost watch error id"));
-											else
-												GameManager.watchGhost(p, args[2]);
+											else if (args[1].equalsIgnoreCase("rewind") || args[1].equalsIgnoreCase("r") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost rewind")))
+											{
+												if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
+													p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
+												else
+												{
+													if (args.length < 3) // Si pas de nombre, 10 secondes
+													{
+														j.rewindGhosts(10 * 20);
+														p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost rewind ok").replace("%seconds", "10"));
+													}
+													else
+													{
+														try {
+															j.rewindGhosts(Math.round(Float.valueOf(args[2]) * 20));
+															p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.ghost rewind ok").replace("%seconds", args[2]));
+														} catch (NumberFormatException e) {
+															p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost rewind error"));
+														}
+													}
+												}
+											}
+											else if (args[1].equalsIgnoreCase("select") || args[1].equalsIgnoreCase("sel") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost select")))
+											{
+												if (j == null || j.getMapObjet() == null || !j.getMapObjet().isPlayable())
+													p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
+												else
+													j.openGhostSelection();
+											}
+											else if (args[1].equalsIgnoreCase("watch") || args[1].equalsIgnoreCase("w") || args[1].equalsIgnoreCase(Langues.getMessage("commands.ghost watch")))
+											{
+												if (args.length < 3)
+													p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost watch error id"));
+												else
+													GameManager.watchGhost(p, args[2]);
+											}
 										}
 									}
 									return true;
