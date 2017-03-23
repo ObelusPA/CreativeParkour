@@ -1040,47 +1040,47 @@ class Commandes implements CommandExecutor
 									return true;
 								}
 							}
+						}
 
-							if (args[0].equalsIgnoreCase("enable") && p.hasPermission("creativeparkour.*"))
-							{
-								Stats.ajouterCommandeStats("enable");
-								if (!Config.getConfig().getBoolean("plugin enabled"))
-								{
-									Config.updateConfig("plugin enabled", true);
-									Config.enable(false);
-								}
-								p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("config.enable"));
-								return true;
-							}
-							else if (args[0].equalsIgnoreCase("disable") && p.hasPermission("creativeparkour.*"))
-							{
-								Stats.ajouterCommandeStats("disable");
-								Config.updateConfig("plugin enabled", false);
-								Config.disable();
-								Config.reload();
-								p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("config.disable"));
-								return true;
-							}
-							else if (!Config.pluginActive())
-							{
-								sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("config.plugin disabled"));
-								return true;
-							}
-							p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.unknown") + " " + Langues.getMessage("commands.help"));
-							Stats.ajouterCommandeStats(args[0]);
-							return true;
-						}
-						else
+						if (args[0].equalsIgnoreCase("enable") && p.hasPermission("creativeparkour.*"))
 						{
-							Help.sendHelp(p, 1);
+							Stats.ajouterCommandeStats("enable");
+							if (!Config.getConfig().getBoolean("plugin enabled"))
+							{
+								Config.updateConfig("plugin enabled", true);
+								Config.enable(false);
+							}
+							p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("config.enable"));
 							return true;
 						}
+						else if (args[0].equalsIgnoreCase("disable") && p.hasPermission("creativeparkour.*"))
+						{
+							Stats.ajouterCommandeStats("disable");
+							Config.updateConfig("plugin enabled", false);
+							Config.disable();
+							Config.reload();
+							p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("config.disable"));
+							return true;
+						}
+						else if (!Config.pluginActive())
+						{
+							sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("config.plugin disabled"));
+							return true;
+						}
+						p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.unknown") + " " + Langues.getMessage("commands.help"));
+						Stats.ajouterCommandeStats(args[0]);
+						return true;
 					}
 					else
 					{
-						sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.player"));
+						Help.sendHelp(p, 1);
 						return true;
 					}
+				}
+				else
+				{
+					sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.player"));
+					return true;
 				}
 			} catch (Exception e) {
 				sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error"));
