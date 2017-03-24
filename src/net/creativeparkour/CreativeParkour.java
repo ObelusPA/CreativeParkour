@@ -119,7 +119,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 		}
 
 		debug("INIT", "Debug is enabled in " + getNom() + ", you can disable it in configuration.yml");
-		
+
 		Config.updateConfig("previous version", getVersion());
 	}
 
@@ -178,7 +178,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 	{
 		return protocollib;
 	}
-	
+
 	/**
 	 * Returns server's Minecraft version without "1.".
 	 * @return Server's version (eg: if the server is in 1.11, it returns 11).
@@ -197,7 +197,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 	{
 		return getServVersion() >= 9;
 	}
-	
+
 	static String getVersion()
 	{
 		return getPlugin().getDescription().getVersion();

@@ -66,7 +66,7 @@ class InventaireOptionsMap
 
 		setObjetInfo(14, Material.WATER_BUCKET, Langues.getMessage("commands.mapoptions water"), Langues.getMessage("commands.mapoptions water info"));
 		setObjetSelection(23, map.mortEau, ActionInv.INVERSER_EAU);
-		
+
 		setObjetInfo(16, Material.WOOD_DOOR, Langues.getMessage("commands.mapoptions interactions"), Langues.getMessage("commands.mapoptions interactions info"));
 		setObjetSelection(25, map.interactionsAutorisees, ActionInv.INVERSER_INTERACTIONS);
 	}

@@ -20,6 +20,8 @@ package net.creativeparkour;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.inventory.ItemStack;
+
 import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityMetadata;
 import com.comphenix.protocol.PacketType;
@@ -125,7 +127,8 @@ class PlayerVisibilityManager
 				WrapperPlayServerEntityEquipment equipment = new WrapperPlayServerEntityEquipment();
 				equipment.setEntityID(j.getPlayer().getEntityId());
 				equipment.setSlot(ItemSlot.MAINHAND);
-				equipment.setItem(CPUtils.itemInHand(j.getPlayer()));
+				ItemStack item = CPUtils.itemInHand(j.getPlayer());
+				equipment.setItem(CPUtils.itemStackIsEmpty(item) ? null : item);
 				equipment.sendPacket(joueur.getPlayer());
 			}
 		}

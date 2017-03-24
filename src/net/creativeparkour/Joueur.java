@@ -880,12 +880,29 @@ class Joueur
 						}
 						if (voterQualite)
 						{
+							String [] etoiles = {
+									ChatColor.GOLD + "✮" + ChatColor.GRAY + "✮✮✮✮",
+									ChatColor.GOLD + "✮✮" + ChatColor.GRAY + "✮✮✮",
+									ChatColor.GOLD + "✮✮✮" + ChatColor.GRAY + "✮✮",
+									ChatColor.GOLD + "✮✮✮✮" + ChatColor.GRAY + "✮",
+									ChatColor.GOLD + "✮✮✮✮✮"
+							};
+							String sep = " ❘ ";
+							if (!CreativeParkour.auMoins1_9())
+							{
+								etoiles[0] = ChatColor.GOLD + "1/5";
+								etoiles[1] = ChatColor.GOLD + "2/5";
+								etoiles[2] = ChatColor.GOLD + "3/5";
+								etoiles[3] = ChatColor.GOLD + "4/5";
+								etoiles[4] = ChatColor.GOLD + "5/5";
+								sep = " | ";
+							}
 							player.spigot().sendMessage(new ComponentBuilder(Langues.getMessage("play.quality") + ": ").italic(true).color(ChatColor.YELLOW)
-									.append(ChatColor.GOLD + "✮" + ChatColor.GRAY + "✮✮✮✮").italic(false).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 1")).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("play.difficulty click")).color(ChatColor.YELLOW).create())).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
-									.append(ChatColor.GOLD + "✮✮" + ChatColor.GRAY + "✮✮✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 2")).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
-									.append(ChatColor.GOLD + "✮✮✮" + ChatColor.GRAY + "✮✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 3")).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
-									.append(ChatColor.GOLD + "✮✮✮✮" + ChatColor.GRAY + "✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 4")).append(" ❘ ").color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
-									.append(ChatColor.GOLD + "✮✮✮✮✮").event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 5")).create());
+									.append(etoiles[0]).italic(false).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 1")).event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("play.difficulty click")).color(ChatColor.YELLOW).create())).append(sep).color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(etoiles[1]).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 2")).append(sep).color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(etoiles[2]).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 3")).append(sep).color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(etoiles[3]).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 4")).append(sep).color(ChatColor.YELLOW).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null))
+									.append(etoiles[4]).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour quality 5")).create());
 						}
 					}
 				}
