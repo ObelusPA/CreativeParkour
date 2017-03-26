@@ -17,21 +17,25 @@
 
 package net.creativeparkour;
 
+import java.util.UUID;
+
 import org.bukkit.scheduler.BukkitRunnable;
 
 class Timer extends BukkitRunnable {
 
 	private int counter;
 	private Joueur j;
+	private UUID map;
 
 	Timer(Joueur joueur)
 	{
 		counter = 0;
 		j = joueur;
+		map = j.getMap();
 	}
 
 	public void run() {
-		if (j.getEtat() != EtatJoueur.JEU)
+		if (j.getEtat() != EtatJoueur.JEU || !map.equals(j.getMap()))
 			this.cancel();
 		else if (counter < 216000) // Au bout de 3 heures, on arrête
 		{
