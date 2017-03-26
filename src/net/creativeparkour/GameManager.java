@@ -38,20 +38,13 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Art;
 import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Rotation;
-import org.bukkit.SkullType;
 import org.bukkit.World;
-import org.bukkit.block.Banner;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
-import org.bukkit.block.Skull;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -680,14 +673,14 @@ class GameManager implements Listener
 								}
 							}
 						});
-						
+
 
 						// Enregistrement du nombre de tricheurs
 						o = json.get("data").getAsJsonObject().get("nbTricheurs");
 						if (o != null)
 						{
 							nbTricheurs = o.getAsInt();
-							
+
 							// Enregistrement des joueurs qui peuvent recevoir des notifications de triche
 							o = json.get("data").getAsJsonObject().get("receveursNotifsTriche");
 							receveursNotifsTriche = new ArrayList<UUID>();
@@ -1349,7 +1342,8 @@ class GameManager implements Listener
 					types.put(jsO.get("i").getAsInt(), jsO);
 				}
 				JsonArray blocs = jsContenu.get("blocs").getAsJsonArray();
-				List<JsonObject> autresBlocs = new ArrayList<JsonObject>();
+				List<JsonObject> blocsDelai = new ArrayList<JsonObject>();
+				List<JsonObject> blocsRedstone = new ArrayList<JsonObject>();
 				boolean blocsConvertis = false;
 				for (JsonElement jsB : blocs)
 				{
@@ -1485,16 +1479,41 @@ class GameManager implements Listener
 							mat == Material.LADDER ||
 							mat == Material.SKULL ||
 							mat == Material.BEACON ||
-							mat == Material.REDSTONE_WIRE ||
 							mat == Material.CARPET ||
 							mat == Material.SNOW ||
-							mat.name().contains("TORCH") ||
-							mat.name().contains("_PLATE") ||
+							mat == Material.GLOWSTONE ||
+							mat == Material.REDSTONE_LAMP_ON ||
+							mat == Material.SEA_LANTERN ||
+							mat == Material.JACK_O_LANTERN ||
+							mat.name().contains("PISTON") ||
 							mat.name().contains("STAIR") ||
 							mat.name().contains("CHORUS") ||
 							mat.name().contains("DOOR"))
 					{
-						autresBlocs.add(jsO);
+						blocsDelai.add(jsO);
+
+						if (mat == Material.BEACON && uuid.equalsIgnoreCase("e7d54103-66ec-42a1-9895-560c77e2cdf1")) // Dans Beacon Barrage, on ajoute des blocs sous les balises...
+						{
+							Map<Character, Integer> coords = CPUtils.parseCoordinates(jsO.get("c").getAsString());
+							listeBlocs.put(new Vector(xMin + coords.get('x'), yMin + coords.get('y') - 1, zMin + coords.get('z')), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x') - 1, yMin + coords.get('y') - 1, zMin + coords.get('z')), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x') - 1, yMin + coords.get('y') - 1, zMin + coords.get('z') - 1), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x') - 1, yMin + coords.get('y') - 1, zMin + coords.get('z') + 1), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x') + 1, yMin + coords.get('y') - 1, zMin + coords.get('z')), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x') + 1, yMin + coords.get('y') - 1, zMin + coords.get('z') - 1), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x') + 1, yMin + coords.get('y') - 1, zMin + coords.get('z') + 1), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x'), yMin + coords.get('y') - 1, zMin + coords.get('z') - 1), new MaterialData(mat));
+							listeBlocs.put(new Vector(xMin + coords.get('x'), yMin + coords.get('y') - 1, zMin + coords.get('z') + 1), new MaterialData(mat));
+						}
+					}
+					else if (mat == Material.LEVER ||
+							(mat.name().contains("REDSTONE") && !mat.name().contains("LAMP") && !mat.name().contains("ORE")) ||
+							mat.name().contains("BUTTON") ||
+							mat.name().contains("DIODE") ||
+							mat.name().contains("TORCH") ||
+							mat.name().contains("_PLATE"))
+					{
+						blocsRedstone.add(jsO);
 					}
 					else
 					{
@@ -1515,89 +1534,36 @@ class GameManager implements Listener
 
 				// Placement des blocs
 				remplisseur = new RemplisseurBlocs(listeBlocs, m, p, 30);
-				int delai = remplisseur.getDureeTraitement() + 1;
-				int cpt16 = 0; // Le délai augmente dès que ce truc est un multiple de 16
 				remplisseur.runTaskTimer(CreativeParkour.getPlugin(), 1, 1);
 
 				// Autres blocs
-				for (JsonObject jsO : autresBlocs)
+				Map<Integer, List<JsonObject>> listeDelais = new HashMap<Integer, List<JsonObject>>();
+				int delai = remplisseur.getDureeTraitement() + 1;
+				int cpt64 = 0; // Le délai augmente dès que ce truc est un multiple de 64
+				for (JsonObject jsO : blocsDelai)
 				{
-					Map<Character, Integer> coords = CPUtils.parseCoordinates(jsO.get("c").getAsString());
-					final Block b = m.getBlockAt(xMin + coords.get('x'), yMin + coords.get('y'), zMin + coords.get('z'));
-					if (b.getX() < xMin || b.getY() < yMin || b.getZ() < zMin || b.getX() > xMax || b.getY() > yMax || b.getZ() > zMax) // Si le bloc n'est pas dans la map
+					if (!listeDelais.containsKey(delai))
 					{
-						throw new SecurityException();
+						listeDelais.put(delai, new ArrayList<JsonObject>());
 					}
-					else
-					{
-						final JsonObject type = types.get(jsO.get("i").getAsInt());
-						final Material mat = Material.getMaterial(type.get("t").getAsString());
-						Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
-							public void run() {
-								b.setType(mat);
-								b.setData(type.get("d").getAsByte());
-							}
-						}, delai);
-						cpt16++;
-						if (cpt16 % 16 == 0)
-							delai++;
+					listeDelais.get(delai).add(jsO);
 
-						if (b.getState() != null)
-						{
-							Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
-								public void run() {
-									if (b.getState() instanceof Sign)
-									{
-										Sign pa = (Sign) b.getState();
-										JsonObject oPanneau = type.get("lignes-panneau").getAsJsonObject();
-										pa.setLine(0, oPanneau.get("0").getAsString());
-										pa.setLine(1, oPanneau.get("1").getAsString());
-										pa.setLine(2, oPanneau.get("2").getAsString());
-										pa.setLine(3, oPanneau.get("3").getAsString());
-										pa.update();
-									}
-									else if (b.getState() instanceof Banner)
-									{
-										Banner ba = (Banner) b.getState();
-										JsonObject oBan = type.get("donnees-banniere").getAsJsonObject();
-										ba.setBaseColor(DyeColor.valueOf(oBan.get("baseColor").getAsString()));
-										JsonArray patternsJ = oBan.get("patterns").getAsJsonArray();
-										for (JsonElement pattern : patternsJ)
-										{
-											JsonObject oPat = pattern.getAsJsonObject();
-											ba.addPattern(new Pattern(DyeColor.valueOf(oPat.get("color").getAsString()), PatternType.valueOf(oPat.get("pattern").getAsString())));
-										}
-										ba.update(true);
-									}
-									else if (b.getState() instanceof Skull)
-									{
-										Skull sk = (Skull) b.getState();
-										JsonObject oTete = type.get("donnees-tete").getAsJsonObject();
-										sk.setRotation(BlockFace.valueOf(oTete.get("rotation").getAsString()));
-										try {
-											sk.setSkullType(SkullType.valueOf(oTete.get("skullType").getAsString()));
-										} catch (IllegalArgumentException e) {
-											// Nothing, dragons' heads are replaces by skeleton skulls in 1.8.
-										}
-										sk.update();
-									}
-									else if (b.getType() == Material.BEACON && uuid.equalsIgnoreCase("e7d54103-66ec-42a1-9895-560c77e2cdf1")) // Dans Beacon Barrage, on ajoute des blocs sous les balises...
-									{
-										m.getBlockAt(b.getX(), b.getY() - 1, b.getZ()).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX()-1, b.getY() - 1, b.getZ()).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX()-1, b.getY() - 1, b.getZ()-1).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX()-1, b.getY() - 1, b.getZ()+1).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX()+1, b.getY() - 1, b.getZ()).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX()+1, b.getY() - 1, b.getZ()-1).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX()+1, b.getY() - 1, b.getZ()+1).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX(), b.getY() - 1, b.getZ()-1).setType(Material.IRON_BLOCK);
-										m.getBlockAt(b.getX(), b.getY() - 1, b.getZ()+1).setType(Material.IRON_BLOCK);
-									}
-								}
-							}, delai + 1);
-						}
-					}
+					// Incrémentation
+					if (cpt64 % 64 == 0)
+						delai++;
+					cpt64++;
 				}
+				// Blocs redstone après les autres, 2 fois
+				delai++;
+				listeDelais.put(delai, new ArrayList<JsonObject>());
+				listeDelais.put(delai + 20, new ArrayList<JsonObject>());
+				for (JsonObject jsO : blocsRedstone)
+				{
+					listeDelais.get(delai).add(jsO);
+					listeDelais.get(delai + 20).add(jsO);
+				}
+				new RemplisseurBlocsDelai(listeDelais, types, m, xMin, yMin, zMin, xMax, yMax, zMax).runTaskTimer(CreativeParkour.getPlugin(), 1, 1);
+
 
 				// Entités
 				final JsonArray entites = jsContenu.get("entites").getAsJsonArray();
@@ -1621,7 +1587,7 @@ class GameManager implements Listener
 							}
 						}
 					}
-				}, remplisseur.getDureeTraitement() + 1);
+				}, delai);
 
 
 				String uuidCreateur = CPUtils.separerUuidNom(jsData.get("createur").getAsString()).get("uuid");
