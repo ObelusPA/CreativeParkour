@@ -2403,7 +2403,7 @@ class GameManager implements Listener
 	static void voteQualite(Player p, int qualite)
 	{
 		Joueur j = getJoueur(p);
-		if (j != null && j.peutVoter())
+		if (j != null && (p.hasPermission("creativeparkour.manage") || j.peutVoter()))
 		{
 			CPMap m = getMap(j.getMap());
 			if (m != null)

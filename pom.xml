@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>CreativeParkour</groupId>
 	<artifactId>CreativeParkour</artifactId>
-	<version>2.10.0.4-SNAPSHOT</version>
+	<version>2.10.1-SNAPSHOT</version>
 	<name>CreativeParkour</name>
 	<description>Bukkit parkour plugin that allows all the players to play and show their skills in fun parkour maps they build or download!</description>
 	<build>
