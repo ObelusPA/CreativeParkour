@@ -18,6 +18,8 @@
 package net.creativeparkour;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -60,7 +62,17 @@ class Langues
 			Bukkit.getPluginManager().disablePlugin(plugin);
 			return;
 		}
-		if (Config.getLanguage().equals("enUS"))
+		File customLang = new File(plugin.getDataFolder(), "/" + Config.getLanguage());
+		if (customLang.exists())
+		{
+			try {
+				messages = chargerLangue(new FileInputStream(customLang), Config.getLanguage());
+			} catch (FileNotFoundException e) {
+				Bukkit.getLogger().warning("Something went wrong while loading language file " + customLang.getName() + ".");
+				e.printStackTrace();
+			}
+		}
+		else if (Config.getLanguage().equals("enUS"))
 		{
 			messages = messagesEN;
 			if (p != null)
@@ -126,18 +138,20 @@ class Langues
 
 	private static Properties chargerLangue(String codeLangue)
 	{
+		InputStream input = plugin.getResource("lang/" + codeLangue + ".lang");
+		if (input == null)
+		{
+			return null;
+		}
+
+		return chargerLangue(input, codeLangue);
+	}
+
+	private static Properties chargerLangue(InputStream input, String nomLangue)
+	{
 		Properties prop = new Properties();
-		InputStream input = null;
 		try {
-
-			input = plugin.getResource("lang/" + codeLangue + ".lang");
-			if (input == null)
-			{
-				return null;
-			}
-
 			prop.load(new InputStreamReader(input, Charset.forName("UTF-8")));
-
 		} catch (IOException e) {
 			CreativeParkour.erreur("LANG", e, true);
 			return null;
@@ -159,11 +173,15 @@ class Langues
 		{
 			if (e.getKey() instanceof String && e.getValue() instanceof String)
 			{
-				prop2.put(((String) e.getKey()).replace("_", " "), (String) e.getValue());
+				String k = (String) e.getKey();
+				String v = (String) e.getValue();
+				// Les messages traduits doivent obligatoirement contenir "CreativeParkour" si c'était dans le message original et que le préfixe a été modifié
+				if (Config.prefix().equalsIgnoreCase(Config.getDefPrefix()) || messagesEN == null || !messagesEN.containsKey(k.replace("_", " ")) || !((String)messagesEN.get(k)).toLowerCase().contains("creativeparkour") || v.toLowerCase().contains("creativeparkour"))
+					prop2.put(k.replace("_", " "), v);
 			}
 		}
 
-		Bukkit.getLogger().info(Config.prefix(false) + prop2.size() + " " + codeLangue + " phrases loaded.");
+		Bukkit.getLogger().info(Config.prefix(false) + prop2.size() + " " + nomLangue + " phrases loaded.");
 		return prop2;
 	}
 
