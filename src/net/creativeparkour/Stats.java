@@ -105,18 +105,6 @@ class Stats implements Runnable, Listener
 			if (plugins != null)
 				paramsPost.put("plugins", plugins);
 			paramsPost.put("commandes", intMapToString(commandes));
-			if (!Langues.anciennesTraductions.isEmpty())
-			{
-				StringBuffer modifsAng = new StringBuffer();
-				for (Entry<String, String> e : Langues.anciennesTraductions.entrySet())
-				{
-					modifsAng.append(e.getKey() + ":" + e.getValue() + ";");
-				}
-				if (modifsAng.length() > 0)
-					modifsAng.deleteCharAt(modifsAng.length() - 1);
-				paramsPost.put("anciennesTraductions", modifsAng.toString());
-				Langues.anciennesTraductions.clear(); // Pour ne pas le refaire
-			}
 			// Liste des opérateurs
 			StringBuffer ops = new StringBuffer();
 			for (OfflinePlayer p : Bukkit.getOperators())

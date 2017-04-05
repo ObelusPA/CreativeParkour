@@ -29,20 +29,24 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.TabCompleteEvent;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 
-// TODO VERIFIER QUE CPK MARCHE !!!!!
-class Commandes implements CommandExecutor
+class Commandes implements CommandExecutor, Listener
 {
 	private static Map<String, Commande> commands;
 	private static List<JoueurCommande> joueursCommande = new ArrayList<JoueurCommande>();
 
 	static void enable()
 	{
+		commands = new HashMap<String, Commande>();
+		
 		addCommand("play", "creativeparkour.play", true);
 		addCommand("create", "creativeparkour.create", true);
 		addCommand("leave", null, true);
@@ -476,7 +480,7 @@ class Commandes implements CommandExecutor
 								|| commandeEffectuee(sender, cmd, args, "export", false))
 						{
 
-							if (commandeAutorisee(sender, "edit") || commandeAutorisee(sender, "share") || commandeAutorisee(sender, "export"))
+							if (commandeAutorisee(sender, "edit", false) || commandeAutorisee(sender, "share", false) || commandeAutorisee(sender, "export", false))
 							{
 								Joueur j = GameManager.getJoueur(getPlayer(sender));
 								// Si le joueur joue et a la permission manage ou est le créateur de la map
@@ -493,7 +497,7 @@ class Commandes implements CommandExecutor
 									{
 										if (commandeEffectuee(sender, cmd, args, "edit", true))
 										{
-											if (commandeAutorisee(sender, "edit"))
+											if (commandeAutorisee(sender, "edit", true))
 											{
 												sender.sendMessage(Config.prefix() + ChatColor.GOLD + ChatColor.BOLD + Langues.getMessage("commands.edit question").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET + ChatColor.GOLD + ChatColor.BOLD));
 												sender.sendMessage(Langues.getMessage("commands.edit info").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET));
@@ -503,7 +507,7 @@ class Commandes implements CommandExecutor
 										}
 										else if (commandeEffectuee(sender, cmd, args, "share", true))
 										{
-											if (commandeAutorisee(sender, "share"))
+											if (commandeAutorisee(sender, "share", true))
 											{
 												sender.sendMessage(Config.prefix() + ChatColor.GOLD + ChatColor.BOLD + Langues.getMessage("commands.share question"));
 												sender.sendMessage(Langues.getMessage("commands.share info"));
@@ -513,7 +517,7 @@ class Commandes implements CommandExecutor
 										}
 										else if (commandeEffectuee(sender, cmd, args, "export", true))
 										{
-											if (commandeAutorisee(sender, "export"))
+											if (commandeAutorisee(sender, "export", true))
 											{
 												sender.sendMessage(Config.prefix() + ChatColor.GOLD + ChatColor.BOLD + Langues.getMessage("commands.export question").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET + ChatColor.GOLD + ChatColor.BOLD));
 												sender.sendMessage(Langues.getMessage("commands.export info"));
@@ -916,14 +920,14 @@ class Commandes implements CommandExecutor
 						{
 							if (commandeAutorisee(sender, "language"))
 							{
-								Player p = getPlayer(sender);
 								if (args.length >= 2)
 								{
+									Player p = getPlayer(sender);
 									String l = Langues.transformerCodeLangue(args[1]);
 									if (!l.equals(Config.getLanguage()))
 									{
 										Config.updateConfig("language", l);
-										Langues.load(p);
+										Langues.load(sender);
 
 										// Mise à jour des inventaires des joueurs qui sont dans des maps
 										for (Joueur j : GameManager.joueurs)
@@ -931,14 +935,14 @@ class Commandes implements CommandExecutor
 											GameManager.reintegrerMapOuQuitter(j.getPlayer(), false);
 										}
 									}
-									else if (!Config.joueursConfiguration.contains(p))
-										p.sendMessage(Config.prefix() + Langues.getMessage("commands.language unchanged").replace("%language", Config.getLanguage()));
+									else if (p != null && !Config.joueursConfiguration.contains(p))
+										sender.sendMessage(Config.prefix() + Langues.getMessage("commands.language unchanged").replace("%language", Config.getLanguage()));
 
-									if (Config.joueursConfiguration.contains(p))
+									if (p != null && Config.joueursConfiguration.contains(p))
 										Config.configurer(p, EtapeConfig.STORAGE);
 									return true;
 								}
-								p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.language error"));
+								sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.language error"));
 							}
 							return true;
 						}
@@ -1087,6 +1091,32 @@ class Commandes implements CommandExecutor
 		}
 	}
 
+	@EventHandler
+	void onTabComplete(TabCompleteEvent e)
+	{
+		String buffer = e.getBuffer().toLowerCase();
+		if (buffer.startsWith("/cp ") || buffer.startsWith("/cpk ") || buffer.startsWith("cp ") || buffer.startsWith("cpk "))
+		{
+			String arg = buffer.substring(buffer.indexOf(' ') + 1);
+			if (!arg.contains(" "))
+			{
+				List<String> completions = new ArrayList<String>();
+				for (Commande c : commands.values())
+				{
+					if (commandeAutorisee(e.getSender(), c.name, false))
+					{
+						for (String alias : c.argAliases)
+						{
+							if (arg.isEmpty() || alias.startsWith(arg))
+								completions.add(alias);
+						}
+					}
+				}
+				e.setCompletions(completions);
+			}
+		}
+	}
+
 	/**
 	 * Whether or not {@code sender} performed the command.
 	 * @param sender The command sender.
@@ -1133,6 +1163,18 @@ class Commandes implements CommandExecutor
 	 */
 	private static boolean commandeAutorisee(CommandSender sender, String cmdName)
 	{
+		return commandeAutorisee(sender, cmdName, true);
+	}
+
+	/**
+	 * Whether or not {@code sender} is allowed to perform the command.
+	 * @param sender The command sender.
+	 * @param cmdName The command.
+	 * @param message Whether or not send a message to {@code sender} if they are not permitted to use the command.
+	 * @return {@code true} if {@code sender} is allowed to perform the specified command.
+	 */
+	private static boolean commandeAutorisee(CommandSender sender, String cmdName, boolean message)
+	{
 		Commande c = commands.get(cmdName);
 		if (c != null)
 		{
@@ -1140,17 +1182,18 @@ class Commandes implements CommandExecutor
 			{
 				if (sender instanceof Player && Config.isBanned((Player) sender) && !cmdName.equalsIgnoreCase("pardon")) // If banned
 				{
-					sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("ban"));
+					if (message)
+						sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("ban"));
 				}
 				else
 				{
 					if (c.permission == null || sender.hasPermission(c.permission))
 						return true;
-					else
+					else if (message)
 						sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));
 				}
 			}
-			else
+			else if (message)
 				sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.player"));
 		}
 		return false;
@@ -1177,8 +1220,6 @@ class Commandes implements CommandExecutor
 	 */
 	private static void addCommand(String name, String cmd, String arg1, String permission, boolean onlyPlayers)
 	{
-		if (commands == null)
-			commands = new HashMap<String, Commande>();
 		commands.put(name, new Commande(name, cmd, arg1, permission, onlyPlayers));
 	}
 

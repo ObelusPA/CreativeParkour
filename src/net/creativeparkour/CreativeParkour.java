@@ -73,6 +73,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 		getServer().getPluginManager().registerEvents(new MainListener(), this);
 		getServer().getPluginManager().registerEvents(new Panneau(), this);
 		getServer().getPluginManager().registerEvents(new RewardManager(), this);
+		getServer().getPluginManager().registerEvents(new Commandes(), this);
 
 
 		// Vérification de ProtocolLib en premier car on a besoin de savoir pendant l'initialisation

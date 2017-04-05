@@ -27,15 +27,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
 import net.md_5.bungee.api.ChatColor;
@@ -45,13 +42,12 @@ class Langues
 	private static Plugin plugin = CreativeParkour.getPlugin();
 	static Properties messages;
 	static Properties messagesEN;
-	static Map<String, String> anciennesTraductions = new HashMap<String, String>(); // TODO Enlever un jour
 
 	/**
 	 * Loads the language specified in config.
-	 * @param p Player to send configmation messages to, or {@code null}.
+	 * @param sender Player to send configmation messages to, or {@code null}.
 	 */
-	static void load(Player p)
+	static void load(CommandSender sender)
 	{
 		// Chargement de la langue choisie dans la config
 		Bukkit.getLogger().info(Config.prefix(false) + "Loading messages in your language...");
@@ -75,8 +71,8 @@ class Langues
 		else if (Config.getLanguage().equals("enUS"))
 		{
 			messages = messagesEN;
-			if (p != null)
-				p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.language loaded").replace("%language", Config.getLanguage()));
+			if (sender != null)
+				sender.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.language loaded").replace("%language", Config.getLanguage()));
 		}
 		else
 		{
@@ -85,42 +81,24 @@ class Langues
 			{
 				messages = messagesEN;
 				Bukkit.getLogger().warning(Config.prefix(false) + "The language you specified is not supported yet. You can help translating the plugin at https://dev.bukkit.org/projects/creativeparkour/localization");
-				if (p != null)
-					p.sendMessage(Config.prefix() + ChatColor.RED + "The language you specified is not supported yet. You can help translating the plugin at https://dev.bukkit.org/projects/creativeparkour/localization");
+				if (sender != null)
+					sender.sendMessage(Config.prefix() + ChatColor.RED + "The language you specified is not supported yet. You can help translating the plugin at https://dev.bukkit.org/projects/creativeparkour/localization");
 			}
 			else if (messages.size() < messagesEN.size())
 			{
 				int pourcent = Math.round(Math.min(99, (float) messages.size() / messagesEN.size() * 100)); // Rounded, but not to 100 %
 				String msg = Langues.getMessage("commands.language incomplete").replace("%percentage", String.valueOf(pourcent));
 				Bukkit.getLogger().info(Config.prefix(false) + msg);
-				if (p != null)
-					p.sendMessage(Config.prefix() + ChatColor.YELLOW + msg);
+				if (sender != null)
+					sender.sendMessage(Config.prefix() + ChatColor.YELLOW + msg);
 			}
-			else if (p != null)
-				p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.language loaded").replace("%language", Config.getLanguage()));
+			else if (sender != null)
+				sender.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.language loaded").replace("%language", Config.getLanguage()));
 		}
 
 		// (Re)loading help and commands with the selected language
 		Help.enable();
 		Commandes.enable();
-
-		// Envoi des anciennes traductions
-		for (File f : CPUtils.filesInFolder(new File(plugin.getDataFolder(), "/languages")))
-		{
-			if (!f.getName().equals("en.yml") && !f.getName().equals("fr.yml"))
-			{
-				String lang = f.getName().replace(".yml", "");
-				YamlConfiguration conf = CPUtils.getYML(f);
-				if (conf != null)
-				{
-					for (String k : conf.getKeys(true))
-					{
-						if (conf.isString(k));
-						anciennesTraductions.put(lang + "/" + k, conf.getString(k));
-					}
-				}
-			}
-		}
 
 		// Ajout d'un fichier indiquant que les anciens fichiers de langue ne servent plus
 		try {
