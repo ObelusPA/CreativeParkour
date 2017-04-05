@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -247,18 +247,18 @@ public class CreativeParkour extends JavaPlugin implements Listener
 		}
 	}
 
-	static boolean erreurRequete(JsonObject json, Player p)
+	static boolean erreurRequete(JsonObject json, CommandSender sender)
 	{
 		if (json == null)
 		{
-			if (p != null)
-				p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error").replace("%error", "internal server error"));
+			if (sender != null)
+				sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error").replace("%error", "internal server error"));
 			return true;
 		}
 		else {
 			JsonElement raisonErreur = json.get("error reason");
-			if (raisonErreur != null && p != null)
-				p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error").replace("%error", raisonErreur.getAsString()));
+			if (raisonErreur != null && sender != null)
+				sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error").replace("%error", raisonErreur.getAsString()));
 			return !json.get("STATUS").getAsString().equalsIgnoreCase("OK");
 		}
 	}

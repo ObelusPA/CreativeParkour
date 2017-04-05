@@ -45,6 +45,7 @@ import org.bukkit.Rotation;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -146,91 +147,94 @@ class GameManager implements Listener
 		for (File f : getFichiersMaps())
 		{
 			YamlConfiguration yml = YamlConfiguration.loadConfiguration(f);
-			World w = Bukkit.getWorld(yml.getString("world"));
-			if (w != null)
+			if (yml.getString("world") != null)
 			{
-				Set<UUID> invites = new HashSet<UUID>();
-				for (int i1=0; yml.getList("contributors") != null && i1 < yml.getList("contributors").size(); i1++)
+				World w = Bukkit.getWorld(yml.getString("world"));
+				if (w != null)
 				{
-					invites.add(UUID.fromString((String) yml.getList("contributors").get(i1)));
-				}
-
-				List<BlocSpecial> blocsSpeciaux = new ArrayList<BlocSpecial>();
-				ConfigurationSection ymlBS = yml.getConfigurationSection("special blocks");
-				if (ymlBS != null)
-				{
-					for (String key : ymlBS.getKeys(false))
+					Set<UUID> invites = new HashSet<UUID>();
+					for (int i1=0; yml.getList("contributors") != null && i1 < yml.getList("contributors").size(); i1++)
 					{
-						String type = ymlBS.getString(key + ".t");
-						Map<Character, Integer> c = CPUtils.parseCoordinates(key);
-						Block bloc = w.getBlockAt(c.get('x'), c.get('y'), c.get('z'));
-						if (type.equalsIgnoreCase(BlocDepart.getType())) // Départs
+						invites.add(UUID.fromString((String) yml.getList("contributors").get(i1)));
+					}
+
+					List<BlocSpecial> blocsSpeciaux = new ArrayList<BlocSpecial>();
+					ConfigurationSection ymlBS = yml.getConfigurationSection("special blocks");
+					if (ymlBS != null)
+					{
+						for (String key : ymlBS.getKeys(false))
 						{
-							blocsSpeciaux.add(new BlocDepart(bloc));
-						}
-						else if (type.equalsIgnoreCase(BlocArrivee.getType())) // Arrivées
-						{
-							blocsSpeciaux.add(new BlocArrivee(bloc));
-						}
-						else if (type.equalsIgnoreCase(BlocCheckpoint.getType())) // Checkpoints
-						{
-							blocsSpeciaux.add(new BlocCheckpoint(bloc, (byte) ymlBS.getInt(key + ".dir"), ymlBS.getString(key + ".prop")));
-						}
-						else if (type.equalsIgnoreCase(BlocEffet.getType())) // Effets
-						{
-							blocsSpeciaux.add(new BlocEffet(bloc, ymlBS.getString(key + ".effect"), ymlBS.getInt(key + ".duration"), ymlBS.getInt(key + ".amplifier")));
-						}
-						else if (type.equalsIgnoreCase(BlocGive.getType())) // Gives
-						{
-							blocsSpeciaux.add(new BlocGive(bloc, ymlBS.getString(key + ".type"), ymlBS.getString(key + ".action")));
-						}
-						else if (type.equalsIgnoreCase(BlocMort.getType())) // Morts
-						{
-							blocsSpeciaux.add(new BlocMort(bloc));
-						}
-						else if (type.equalsIgnoreCase(BlocTP.getType())) // TP
-						{
-							blocsSpeciaux.add(new BlocTP(bloc, new Location(w, ymlBS.getDouble(key + ".x"), ymlBS.getDouble(key + ".y"), ymlBS.getDouble(key + ".z"))));
+							String type = ymlBS.getString(key + ".t");
+							Map<Character, Integer> c = CPUtils.parseCoordinates(key);
+							Block bloc = w.getBlockAt(c.get('x'), c.get('y'), c.get('z'));
+							if (type.equalsIgnoreCase(BlocDepart.getType())) // Départs
+							{
+								blocsSpeciaux.add(new BlocDepart(bloc));
+							}
+							else if (type.equalsIgnoreCase(BlocArrivee.getType())) // Arrivées
+							{
+								blocsSpeciaux.add(new BlocArrivee(bloc));
+							}
+							else if (type.equalsIgnoreCase(BlocCheckpoint.getType())) // Checkpoints
+							{
+								blocsSpeciaux.add(new BlocCheckpoint(bloc, (byte) ymlBS.getInt(key + ".dir"), ymlBS.getString(key + ".prop")));
+							}
+							else if (type.equalsIgnoreCase(BlocEffet.getType())) // Effets
+							{
+								blocsSpeciaux.add(new BlocEffet(bloc, ymlBS.getString(key + ".effect"), ymlBS.getInt(key + ".duration"), ymlBS.getInt(key + ".amplifier")));
+							}
+							else if (type.equalsIgnoreCase(BlocGive.getType())) // Gives
+							{
+								blocsSpeciaux.add(new BlocGive(bloc, ymlBS.getString(key + ".type"), ymlBS.getString(key + ".action")));
+							}
+							else if (type.equalsIgnoreCase(BlocMort.getType())) // Morts
+							{
+								blocsSpeciaux.add(new BlocMort(bloc));
+							}
+							else if (type.equalsIgnoreCase(BlocTP.getType())) // TP
+							{
+								blocsSpeciaux.add(new BlocTP(bloc, new Location(w, ymlBS.getDouble(key + ".x"), ymlBS.getDouble(key + ".y"), ymlBS.getDouble(key + ".z"))));
+							}
 						}
 					}
-				}
 
-				int id = yml.getInt("id");
-				float difficulty = -1;
-				float quality = -1;
-				try {
-					difficulty = Float.valueOf(yml.getString("difficulty"));
-					quality = Float.valueOf(yml.getString("quality"));
-				} catch (Exception e) {
-					// Rien
-				}
-				CPMap m = new CPMap (id, 
-						yml.getString("uuid"), 
-						CPMapState.valueOf(yml.getString("state").toUpperCase()), 
-						w, 
-						w.getBlockAt(yml.getInt("location min.x"), yml.getInt("location min.y"), yml.getInt("location min.z")), 
-						w.getBlockAt(yml.getInt("location max.x"), Math.min(yml.getInt("location max.y"), 126), yml.getInt("location max.z")), 
-						yml.getString("name"), 
-						UUID.fromString(yml.getString("creator")), 
-						invites, 
-						yml.getBoolean("pinned"), 
-						new BlocSpawn(w.getBlockAt(yml.getInt("spawn.x"), yml.getInt("spawn.y"), yml.getInt("spawn.z")), (byte) yml.getInt("spawn.dir")), 
-						blocsSpeciaux, 
-						yml.getInt("death height"),
-						yml.getBoolean("sneak allowed", true),
-						yml.getBoolean("deadly lava", false),
-						yml.getBoolean("deadly water", false),
-						yml.getBoolean("interactions allowed", true),
-						yml.getStringList("ratings"),
-						difficulty,
-						quality);
-				maps.put(id, m);
+					int id = yml.getInt("id");
+					float difficulty = -1;
+					float quality = -1;
+					try {
+						difficulty = Float.valueOf(yml.getString("difficulty"));
+						quality = Float.valueOf(yml.getString("quality"));
+					} catch (Exception e) {
+						// Rien
+					}
+					CPMap m = new CPMap (id, 
+							yml.getString("uuid"), 
+							CPMapState.valueOf(yml.getString("state").toUpperCase()), 
+							w, 
+							w.getBlockAt(yml.getInt("location min.x"), yml.getInt("location min.y"), yml.getInt("location min.z")), 
+							w.getBlockAt(yml.getInt("location max.x"), Math.min(yml.getInt("location max.y"), 126), yml.getInt("location max.z")), 
+							yml.getString("name"), 
+							UUID.fromString(yml.getString("creator")), 
+							invites, 
+							yml.getBoolean("pinned"), 
+							new BlocSpawn(w.getBlockAt(yml.getInt("spawn.x"), yml.getInt("spawn.y"), yml.getInt("spawn.z")), (byte) yml.getInt("spawn.dir")), 
+							blocsSpeciaux, 
+							yml.getInt("death height"),
+							yml.getBoolean("sneak allowed", true),
+							yml.getBoolean("deadly lava", false),
+							yml.getBoolean("deadly water", false),
+							yml.getBoolean("interactions allowed", true),
+							yml.getStringList("ratings"),
+							difficulty,
+							quality);
+					maps.put(id, m);
 
-				// Régénération du contour s'il n'est pas là aux coordonnées min
-				if (m.getMinLoc().getRelative(BlockFace.DOWN).getType() != Material.BEDROCK || m.getMinLoc().getRelative(BlockFace.NORTH).getType() != Material.BARRIER || m.getMinLoc().getRelative(BlockFace.WEST).getType() != Material.BARRIER)
-				{
-					Bukkit.getLogger().info(Config.prefix(false) + "Regenerating outline for the map \"" + m.getName() + "\"...");
-					new RemplisseurBlocs(genererContours(w, m.getMinLoc().getX(), m.getMinLoc().getY(), m.getMinLoc().getZ(), m.getMaxLoc().getX(), m.getMaxLoc().getY(), m.getMaxLoc().getZ()), w).runTaskTimer(CreativeParkour.getPlugin(), 20, 1);
+					// Régénération du contour s'il n'est pas là aux coordonnées min
+					if (m.getMinLoc().getRelative(BlockFace.DOWN).getType() != Material.BEDROCK || m.getMinLoc().getRelative(BlockFace.NORTH).getType() != Material.BARRIER || m.getMinLoc().getRelative(BlockFace.WEST).getType() != Material.BARRIER)
+					{
+						Bukkit.getLogger().info(Config.prefix(false) + "Regenerating outline for the map \"" + m.getName() + "\"...");
+						new RemplisseurBlocs(genererContours(w, m.getMinLoc().getX(), m.getMinLoc().getY(), m.getMinLoc().getZ(), m.getMaxLoc().getX(), m.getMaxLoc().getY(), m.getMaxLoc().getZ()), w).runTaskTimer(CreativeParkour.getPlugin(), 20, 1);
+					}
 				}
 			}
 		}
@@ -422,14 +426,14 @@ class GameManager implements Listener
 
 	/**
 	 * Contacte creativeparkour.net pour mettre à jour la liste des maps téléchargeables, mettre à jour les temps des joueurs, mettre à jour leurs noms, et envoyer les nouveaux fantômes
-	 * @param p Joueur auquel envoyer les infos sur l'état de la requête (ou null si pas besoin)
+	 * @param sender Joueur auquel envoyer les infos sur l'état de la requête (ou null si pas besoin)
 	 */
-	protected static void synchroWeb(final Player p)
+	protected static void synchroWeb(final CommandSender sender)
 	{
 		if (Config.online())
 		{
-			if (p != null)
-				p.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("commands.sync msg"));
+			if (sender != null)
+				sender.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("commands.sync msg"));
 			Bukkit.getScheduler().runTaskAsynchronously(CreativeParkour.getPlugin(), new Runnable() {
 				public void run() {
 					Map<String, String> paramsPost = new HashMap<String, String>();
@@ -487,19 +491,19 @@ class GameManager implements Listener
 					paramsPost.put("envoiFantomesAutorise", Config.getConfig().getString("online.upload ghosts"));
 					paramsPost.put("telechargementFantomesAutorise", Config.getConfig().getString("online.download ghosts"));
 
-					if (p != null)
-						p.sendMessage(CPRequest.messageAttente());
+					if (sender != null)
+						sender.sendMessage(CPRequest.messageAttente());
 					try {
-						CPRequest.effectuerRequete("list.php", paramsPost, null, GameManager.class.getMethod("reponseListe", JsonObject.class, String.class, Player.class), p);
+						CPRequest.effectuerRequete("list.php", paramsPost, null, GameManager.class.getMethod("reponseListe", JsonObject.class, String.class, CommandSender.class), sender);
 					} catch (NoSuchMethodException | SecurityException e) {
 						CreativeParkour.erreur("LIST", e, true);
 					}
 				}
 			});
 		}
-		else if (p != null)
+		else if (sender != null)
 		{
-			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("online disabled"));
+			sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("online disabled"));
 		}
 	}
 
@@ -509,12 +513,12 @@ class GameManager implements Listener
 	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
 	 * @param json
 	 * @param rep
-	 * @param p
+	 * @param sender
 	 * @throws InvalidQueryResponseException If the {@code Request} has not been registered before.
 	 */
-	public static void reponseListe(JsonObject json, String rep, Player p) throws InvalidQueryResponseException
+	public static void reponseListe(JsonObject json, String rep, CommandSender sender) throws InvalidQueryResponseException
 	{
-		if (CPRequest.verifMethode("reponseListe") && !CreativeParkour.erreurRequete(json, p) && json.get("data") != null)
+		if (CPRequest.verifMethode("reponseListe") && !CreativeParkour.erreurRequete(json, sender) && json.get("data") != null)
 		{
 			Bukkit.getScheduler().runTaskAsynchronously(CreativeParkour.getPlugin(), new Runnable() {
 				public void run() {
@@ -736,8 +740,8 @@ class GameManager implements Listener
 						vidangeMemoire();
 					}
 
-					if (p != null)
-						p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.sync done"));
+					if (sender != null)
+						sender.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.sync done"));
 				}
 			});
 		}
@@ -1137,29 +1141,37 @@ class GameManager implements Listener
 		return listeBlocs;
 	}
 
-	static void telechargerMap(Player p, String arg) throws NoSuchMethodException, SecurityException
+	static void telechargerMap(CommandSender sender, String arg) throws NoSuchMethodException, SecurityException
 	{
 		if (!Config.online())
-			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error disabled"));
+			sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error disabled"));
 		else if (!NumberUtils.isNumber(arg) && !arg.toLowerCase().contains("?id=") /*&& !idMap.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")*/) // Si ce n'est ni un nombre, ni un URL, ni un UUID
-			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error ID"));
+			sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error ID"));
 		else
 		{
-			Joueur j = getJoueur(p);
-			if (j == null)
+			Player p = (sender instanceof Player) ? (Player) sender : null;
+			Joueur j = null;
+			if (p != null)
 			{
-				j = new Joueur(p, false);
-				addJoueur(j);
+				j = getJoueur(p);
+				if (j == null)
+				{
+					j = new Joueur(p, false);
+					addJoueur(j);
+				}
 			}
-			if (j.peutTelecharger())
+			if (j == null || j.peutTelecharger())
 			{
 				HashMap<String, String> params = new HashMap<String, String>();
-				params.put("ipJoueur", p.getAddress().getHostName());
-				params.put("uuidJoueur", p.getUniqueId().toString());
+				if (p != null)
+				{
+					params.put("ipJoueur", p.getAddress().getHostName());
+					params.put("uuidJoueur", p.getUniqueId().toString());
+				}
 				params.put("idMap", arg);
 				params.put("versionServ", String.valueOf(CreativeParkour.getServVersion()));
-				CPRequest.effectuerRequete("download.php", params, null, GameManager.class.getMethod("reponseTelecharger", JsonObject.class, String.class, Player.class), p);
-				p.sendMessage(Config.prefix() + ChatColor.ITALIC + Langues.getMessage("commands.download loading"));
+				CPRequest.effectuerRequete("download.php", params, null, GameManager.class.getMethod("reponseTelecharger", JsonObject.class, String.class, CommandSender.class), sender);
+				sender.sendMessage(Config.prefix() + ChatColor.ITALIC + Langues.getMessage("commands.download loading"));
 			}
 		}
 	}
@@ -1169,32 +1181,41 @@ class GameManager implements Listener
 	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
 	 * @param json
 	 * @param rep
-	 * @param p
+	 * @param sender
 	 * @throws InvalidQueryResponseException If the {@code Request} has not been registered before.
 	 */
-	public static void reponseTelecharger(JsonObject json, String rep, Player p) throws IllegalArgumentException, InvalidQueryResponseException
+	public static void reponseTelecharger(JsonObject json, String rep, CommandSender sender) throws IllegalArgumentException, InvalidQueryResponseException
 	{
 		if (CPRequest.verifMethode("reponseTelecharger"))
 		{
-			if (CreativeParkour.erreurRequete(json, p))
+			if (CreativeParkour.erreurRequete(json, sender))
 			{
-				Joueur j = getJoueur(p);
-				if (j != null)
-					j.permettreTelechargement(1000 * 10); // Dans 10 secondes
+				if (sender instanceof Player)
+				{
+					Joueur j = getJoueur((Player) sender);
+					if (j != null)
+						j.permettreTelechargement(1000 * 10); // Dans 10 secondes
+				}
 			}
 			else
 			{
 				JsonObject jsData = json.get("data").getAsJsonObject();
 				if (jsData.get("servInconnu") != null && jsData.get("servInconnu").getAsBoolean() == true)
 				{
-					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.share unknown server"));
+					sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.share unknown server"));
 				}
 				else if (mapExistante(jsData.get("uuidMap").getAsString()))
 				{
-					jouer(p, getMap(UUID.fromString(jsData.get("uuidMap").getAsString())), false, true);
-					Joueur j = getJoueur(p);
-					if (j != null)
-						j.permettreTelechargement(1000 * 20); // Dans 20 secondes
+					if (sender instanceof Player)
+					{
+						Player p = (Player) sender;
+						jouer(p, getMap(UUID.fromString(jsData.get("uuidMap").getAsString())), false, true);
+						Joueur j = getJoueur(p);
+						if (j != null)
+							j.permettreTelechargement(1000 * 20); // Dans 20 secondes
+					}
+					else
+						sender.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("commands.download already downloaded"));
 				}
 				else if (jsData.get("verConversion").getAsInt() > CreativeParkour.getServVersion())
 				{
@@ -1204,37 +1225,44 @@ class GameManager implements Listener
 					} catch (Exception e) {
 						// Rien
 					}
-					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error incompatible").replace("%elements", details));
-					Joueur j = getJoueur(p);
-					if (j != null)
-						j.permettreTelechargement(1000 * 5); // Dans 5 secondes
+					sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error incompatible").replace("%elements", details));
+					if (sender instanceof Player)
+					{
+						Joueur j = getJoueur((Player) sender);
+						if (j != null)
+							j.permettreTelechargement(1000 * 5); // Dans 5 secondes
+					}
 				}
 				else
 				{
-					p.sendMessage(Config.prefix() + ChatColor.GRAY + "" + ChatColor.ITALIC + Langues.getMessage("commands.download wait 2").replace("%map", jsData.get("nomMap").getAsString()));
-					final CPMap map = construireMapTelechargee(jsData, CPMapState.DOWNLOADED, p);
-					final Joueur j = getJoueur(p);
+					sender.sendMessage(Config.prefix() + ChatColor.GRAY + "" + ChatColor.ITALIC + Langues.getMessage("commands.download wait 2").replace("%map", jsData.get("nomMap").getAsString()));
+					final CPMap map = construireMapTelechargee(jsData, CPMapState.DOWNLOADED, sender);
+					final Joueur j = (sender instanceof Player) ? getJoueur((Player) sender) : null;
 
 					if (map == null)
 					{
-						p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error build"));
+						sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error build"));
 						if (j != null)
 							j.permettreTelechargement(1000 * 20); // Dans 20 secondes
 					}
 					else
 					{
 						// Après le remplissage de la map, le joueur peut jouer
-						final Player p1 = p;
 						Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 							public void run() {
-								Joueur j1 = j;
-								if (j1 == null || j1.getMap() == null)
-									j1 = sauvInventaire(p1, "play");
-								if (j1 != null)
+								if (sender instanceof Player)
 								{
-									j1.setMap(map.getUUID());
-									map.jouer(j1);
+									Joueur j1 = j;
+									if (j1 == null || j1.getMap() == null)
+										j1 = sauvInventaire((Player) sender, "play");
+									if (j1 != null)
+									{
+										j1.setMap(map.getUUID());
+										map.jouer(j1);
+									}
 								}
+								else
+									sender.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.download done").replace("%map", map.getName()));
 							}
 						}, map.getDelaiRemplissage());
 					}
@@ -1246,7 +1274,7 @@ class GameManager implements Listener
 		}
 	}
 
-	private static CPMap construireMapTelechargee(JsonObject jsData, CPMapState etatAMettre, Player p)
+	private static CPMap construireMapTelechargee(JsonObject jsData, CPMapState etatAMettre, CommandSender sender)
 	{
 		final String uuid = jsData.get("uuidMap").getAsString();
 		String nomMap = jsData.get("nomMap").getAsString();
@@ -1323,14 +1351,14 @@ class GameManager implements Listener
 							blocsFaits++;
 							if (blocsFaits == moitie)
 							{
-								p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "10 %");
+								sender.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "10 %");
 							}
 						}
 					}
 				}
 				// Couche de bedrock
 				listeBlocs.putAll(genererContours(m, xMin, yMin, zMin, xMax, yMax, zMax));
-				p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "20 %");
+				sender.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "20 %");
 
 				// Remplacement des blocs d'air qu'il faut par des blocs
 				// Remplissage de la liste des types
@@ -1530,10 +1558,10 @@ class GameManager implements Listener
 						}
 					}
 				}
-				p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "30 %");
+				sender.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "30 %");
 
 				// Placement des blocs
-				remplisseur = new RemplisseurBlocs(listeBlocs, m, p, 30);
+				remplisseur = new RemplisseurBlocs(listeBlocs, m, sender, 30);
 				remplisseur.runTaskTimer(CreativeParkour.getPlugin(), 1, 1);
 
 				// Autres blocs
@@ -1691,7 +1719,7 @@ class GameManager implements Listener
 				map.setRemplisseur(remplisseur);
 
 				if (blocsConvertis)
-					p.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("play.download converted"));
+					sender.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("play.download converted"));
 
 				return map;
 

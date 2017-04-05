@@ -1,7 +1,7 @@
 main: net.creativeparkour.CreativeParkour
 name: CreativeParkour
 description: Plugin that allows all the players to play and show their skills in fun parkour maps they build or download!
-version: 2.10.1-SNAPSHOT
+version: 2.11-SNAPSHOT
 author: Obelus
 load: POSTWORLD
 website: https://creativeparkour.net
@@ -39,6 +39,7 @@ permissions:
        creativeparkour.spectate: true
        creativeparkour.rate.difficulty: true
        creativeparkour.rate.quality: true
+       creativeparkour.invite: true
    creativeparkour.play:
      description: Allows players to play maps.
      default: true
@@ -82,3 +83,6 @@ permissions:
    creativeparkour.rate.quality:
      description: Allows players to rate maps' quality.
      default: true
+   creativeparkour.invite:
+     description: Allows players to invite others to build maps with them.
+     default: op

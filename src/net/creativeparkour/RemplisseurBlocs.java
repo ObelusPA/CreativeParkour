@@ -28,7 +28,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -41,17 +41,17 @@ class RemplisseurBlocs extends BukkitRunnable
 
 	Map<Chunk, List<BlocDansChunk>> chunksBlocs;
 	private int nbChunks;
-	private Player player = null;
+	private CommandSender sender = null;
 	private int pourcent;
 	private int pourcentageMin;
 
 	/**
 	 * @param blocs Liste des blocs à mettre avec leurs positions
 	 * @param world Monde où placer les blocs
-	 * @param player Joueur à qui dire la progression (null pour désactiver)
+	 * @param sender Joueur à qui dire la progression (null pour désactiver)
 	 * @param pourcentageMin Pourcentage de départ
 	 */
-	RemplisseurBlocs(Map<Vector, MaterialData> blocs, World world, Player player, int pourcentageMin)
+	RemplisseurBlocs(Map<Vector, MaterialData> blocs, World world, CommandSender sender, int pourcentageMin)
 	{
 		chunksBlocs = new HashMap<Chunk, List<BlocDansChunk>>();
 
@@ -70,7 +70,7 @@ class RemplisseurBlocs extends BukkitRunnable
 		}
 
 		this.nbChunks = chunksBlocs.size();
-		this.player = player;
+		this.sender = sender;
 		this.pourcent = pourcentageMin;
 	}
 
@@ -108,14 +108,14 @@ class RemplisseurBlocs extends BukkitRunnable
 			}
 
 			// Progression
-			if (player != null)
+			if (sender != null)
 			{
 				int chunksFaits = nbChunks - chunksBlocs.size();
 				float progression = pourcentageMin + ((float) chunksFaits / nbChunks) * 100;
 				if (progression > pourcent + 10)
 				{
 					pourcent += 10;
-					player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + pourcent + " %");
+					sender.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + pourcent + " %");
 				}
 			}
 		}

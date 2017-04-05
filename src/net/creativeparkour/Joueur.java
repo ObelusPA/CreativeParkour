@@ -301,7 +301,7 @@ class Joueur
 
 					item = new ItemStack(Material.INK_SACK, 1, (short) 1);
 					im = item.getItemMeta();
-					String msg = m.contientTesteur(player) ? Langues.getMessage("play.items.leave test") : Langues.getMessage("commands.leave");
+					String msg = m.contientTesteur(player) ? Langues.getMessage("play.items.leave test") : Langues.getCommand("leave");
 					im.setDisplayName(ChatColor.RED + CPUtils.ucfirst(msg) + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
 					item.setItemMeta(im);
 					inv.setItem(slot, item);
@@ -1524,7 +1524,7 @@ class Joueur
 					String nomJ = NameManager.getNomAvecUUID(uuid);
 					ComponentBuilder cb = new ComponentBuilder(" • ").color(ChatColor.YELLOW)
 							.append(nomJ).color(ChatColor.WHITE).append(" ")
-							.append("[" + CPUtils.ucfirst(Langues.getMessage("commands.remove")) + "]").color(ChatColor.RED)
+							.append("[" + CPUtils.ucfirst(Langues.getCommand("remove")) + "]").color(ChatColor.RED)
 							.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Langues.getMessage("commands.contributors remove info").replace("%player", nomJ)).italic(true).color(ChatColor.WHITE).create()))
 							.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour remove " + nomJ));
 					player.spigot().sendMessage(cb.create());;

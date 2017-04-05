@@ -100,8 +100,9 @@ class Langues
 				p.sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.language loaded").replace("%language", Config.getLanguage()));
 		}
 
-		// (Re)loading help with the selected language
+		// (Re)loading help and commands with the selected language
 		Help.enable();
+		Commandes.enable();
 
 		// Envoi des anciennes traductions
 		for (File f : CPUtils.filesInFolder(new File(plugin.getDataFolder(), "/languages")))
@@ -176,7 +177,7 @@ class Langues
 				String k = (String) e.getKey();
 				String v = (String) e.getValue();
 				// Les messages traduits doivent obligatoirement contenir "CreativeParkour" si c'était dans le message original et que le préfixe a été modifié
-				if (Config.prefix().equalsIgnoreCase(Config.getDefPrefix()) || messagesEN == null || !messagesEN.containsKey(k.replace("_", " ")) || !((String)messagesEN.get(k)).toLowerCase().contains("creativeparkour") || v.toLowerCase().contains("creativeparkour"))
+				if (Config.prefix().toLowerCase().contains("creativeparkour") || messagesEN == null || !messagesEN.containsKey(k.replace("_", " ")) || !((String)messagesEN.get(k)).toLowerCase().contains("creativeparkour") || v.toLowerCase().contains("creativeparkour"))
 					prop2.put(k.replace("_", " "), v);
 			}
 		}
@@ -218,5 +219,10 @@ class Langues
 			return "zhCN";
 
 		return code;
+	}
+
+	static String getCommand(String name)
+	{
+		return getMessage("commands." + name).split(";")[0];
 	}
 }

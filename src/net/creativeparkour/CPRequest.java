@@ -35,7 +35,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -55,7 +55,7 @@ public class CPRequest implements Runnable
 	private static List<BukkitTask> tasks = new ArrayList<BukkitTask>();
 	private static List<String> methodesEnAttente = new ArrayList<String>();
 
-	static void effectuerRequete(String adresse, Map<String, String> paramsPost2, Object objetAppelant, Method methodeRetour, Player joueurConcerne)
+	static void effectuerRequete(String adresse, Map<String, String> paramsPost2, Object objetAppelant, Method methodeRetour, CommandSender sender)
 	{
 		paramsPost2.put("versionPlugin", CreativeParkour.getVersion());
 		paramsPost2.put("uuidServ", Config.getServUUID());
@@ -63,7 +63,7 @@ public class CPRequest implements Runnable
 		// NEVER TRY TO ACCESS THIS URL YOURSELF. Just don't try.
 		// This adress is used for remote features and statistics. Everything is detailed on the plugin page: https://dev.bukkit.org/projects/creativeparkour#title-7-3
 		// ***********************************************************************************************************************************************************************************************************
-		CPRequest r = new CPRequest("https://creativeparkour.net/api/" + CreativeParkour.getVersion() + "/" + adresse, paramsPost2, objetAppelant, methodeRetour, joueurConcerne);
+		CPRequest r = new CPRequest("https://creativeparkour.net/api/" + CreativeParkour.getVersion() + "/" + adresse, paramsPost2, objetAppelant, methodeRetour, sender);
 		// ***********************************************************************************************************************************************************************************************************
 		// NEVER TRY TO ACCESS THIS URL YOURSELF
 		// ***********************************************************************************************************************************************************************************************************
@@ -128,17 +128,17 @@ public class CPRequest implements Runnable
 	private Map<String, String> paramsPost;
 	private Method methodeRetour;
 	private Object objetAppelant;
-	private Player joueurConcerne;
+	private CommandSender sender;
 	private BukkitTask task;
 
-	private CPRequest(String adresse, Map<String, String> paramsPost2, Object objetAppelant, Method methodeRetour, Player joueurConcerne)
+	private CPRequest(String adresse, Map<String, String> paramsPost2, Object objetAppelant, Method methodeRetour, CommandSender sender)
 	{
 		this.plugin = CreativeParkour.getPlugin();
 		this.adresse = adresse;
 		this.paramsPost = paramsPost2;
 		this.methodeRetour = methodeRetour;
 		this.objetAppelant = objetAppelant;
-		this.joueurConcerne = joueurConcerne;
+		this.sender = sender;
 	}
 
 	private void setTask(BukkitTask t)
@@ -237,16 +237,16 @@ public class CPRequest implements Runnable
 					public void run() {
 						try {
 							if (repCodeFinal == 200)
-								methodeRetour.invoke(objetAppelant, objJsonFinal, reponseFinal, joueurConcerne);
-							else if (joueurConcerne != null)
+								methodeRetour.invoke(objetAppelant, objJsonFinal, reponseFinal, sender);
+							else if (sender != null)
 							{
 								String raison = "HTTP error " + String.valueOf(repCodeFinal);
 								if (repCodeFinal == 403)
 									raison = "Forbidden";
 								if (repCodeFinal != 503)
-									joueurConcerne.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error").replace("%error", raison));
+									sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error").replace("%error", raison));
 								else
-									joueurConcerne.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error maintenance"));
+									sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("http error maintenance"));
 							}
 							else
 								CreativeParkour.debug("REQ", Config.prefix(false) + Langues.getMessage("http error").replace("%error", String.valueOf(repCodeFinal)));

@@ -832,7 +832,7 @@ class MainListener implements Listener
 				{
 					GameManager.quitterTest(p);
 				}
-				else if (objetMain.getItemMeta().getDisplayName().toLowerCase().contains(Langues.getMessage("commands.leave").toLowerCase()))
+				else if (objetMain.getItemMeta().getDisplayName().toLowerCase().contains(Langues.getCommand("leave").toLowerCase()))
 				{
 					j.quitter(true, false);
 					p.playSound(p.getLocation(), CPUtils.getSound("ENTITY_ENDERMEN_TELEPORT", "ENDERMAN_TELEPORT"), 1, 1);

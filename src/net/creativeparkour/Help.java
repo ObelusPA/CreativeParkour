@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package net.creativeparkour;
 
@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -29,7 +28,7 @@ class Help
 {
 	private static List<String> h = new ArrayList<String>();
 	private static List<String> hop = new ArrayList<String>();
-	
+
 	private static ChatColor reset = ChatColor.RESET;
 	private static ChatColor bold = ChatColor.BOLD;
 	private static ChatColor italic = ChatColor.ITALIC;
@@ -37,79 +36,78 @@ class Help
 	private static ChatColor gold = ChatColor.GOLD;
 	private static ChatColor d_green = ChatColor.DARK_GREEN;
 	private static ChatColor green = ChatColor.GREEN;
-	
+
 	private static String trans = reset + " : " + italic;
-	
+
 	static void enable()
 	{
 		h.clear();
 		hop.clear();
 		
-		h.add(gold + "/cp " + Langues.getMessage("help.title").toLowerCase() + trans + Langues.getMessage("help.help"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.play") + " [" +Langues.getMessage("commands.map name") + "]" + trans + Langues.getMessage("help.play"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.download") + " <map ID>" + trans + Langues.getMessage("help.download"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.create") + trans + Langues.getMessage("help.create"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.test") + trans + Langues.getMessage("help.test"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.invite") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.invite"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.remove") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.remove"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.contributors") + trans + Langues.getMessage("help.contributors"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.settings") + trans + Langues.getMessage("help.settings"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.tp") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.tp"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.spectator") + trans + Langues.getMessage("help.spectator"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.leave") + trans + Langues.getMessage("help.leave"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.publish") + trans + Langues.getMessage("help.publish"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.mapoptions") + trans + Langues.getMessage("help.mapoptions"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.importsel") + trans + Langues.getMessage("help.importsel"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.claim") + trans + Langues.getMessage("help.claim"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.pin") + trans + Langues.getMessage("help.pin"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.unpin") + trans + Langues.getMessage("help.unpin"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.share") + trans + Langues.getMessage("help.share"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.export") + trans + Langues.getMessage("help.export"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.edit") + trans + Langues.getMessage("help.edit"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.delete") + trans + Langues.getMessage("help.delete"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost play") + trans + Langues.getMessage("help.ghost play"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost speed") + " [" +Langues.getMessage("help.multiplier") + "]" + trans + Langues.getMessage("help.ghost speed"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost rewind") + " [" +Langues.getMessage("help.seconds") + "]" + trans + Langues.getMessage("help.ghost rewind"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost moment") + " [" +Langues.getMessage("help.second") + "]" + trans + Langues.getMessage("help.ghost moment"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost select") + trans + Langues.getMessage("help.ghost select"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.ghost") + " " + Langues.getMessage("commands.ghost watch") + " <" +Langues.getMessage("help.ghost id") + ">" + trans + Langues.getMessage("help.ghost watch"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.register") + trans + Langues.getMessage("help.register"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.sync") + trans + Langues.getMessage("help.sync"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.managemaps") + trans + Langues.getMessage("help.managemaps"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.getid") + " [map name]" + trans + Langues.getMessage("help.getid"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.ban") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.ban"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.pardon") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.pardon"));
-		h.add(gold + "/cp " + Langues.getMessage("commands.removetime") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.removetime"));
-		
-		hop.add(yellow + "/cp config" + trans + Langues.getMessage("help.config"));
-		hop.add(yellow + "/cp language <language code>" + trans + Langues.getMessage("help.language"));
-		hop.add(yellow + "/cp enable" + trans + Langues.getMessage("help.enable"));
-		hop.add(yellow + "/cp disable" + trans + Langues.getMessage("help.disable"));
+		String cmd = Config.getConfig().getBoolean("dont use cp") ? "/cpk " : "/cp ";
+
+		h.add(gold + cmd + Langues.getMessage("help.title").toLowerCase() + trans + Langues.getMessage("help.help"));
+		h.add(gold + cmd + Langues.getCommand("play") + " [" +Langues.getMessage("commands.map name") + "]" + trans + Langues.getMessage("help.play"));
+		h.add(gold + cmd + Langues.getCommand("download") + " <map ID>" + trans + Langues.getMessage("help.download"));
+		h.add(gold + cmd + Langues.getCommand("create") + trans + Langues.getMessage("help.create"));
+		h.add(gold + cmd + Langues.getCommand("leave") + trans + Langues.getMessage("help.leave"));
+		h.add(gold + cmd + Langues.getCommand("test") + trans + Langues.getMessage("help.test"));
+		h.add(gold + cmd + Langues.getCommand("invite") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.invite"));
+		h.add(gold + cmd + Langues.getCommand("remove") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.remove"));
+		h.add(gold + cmd + Langues.getCommand("contributors") + trans + Langues.getMessage("help.contributors"));
+		h.add(gold + cmd + Langues.getCommand("settings") + trans + Langues.getMessage("help.settings"));
+		h.add(gold + cmd + Langues.getCommand("tp") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.tp"));
+		h.add(gold + cmd + Langues.getCommand("spectator") + trans + Langues.getMessage("help.spectator"));
+		h.add(gold + cmd + Langues.getCommand("publish") + trans + Langues.getMessage("help.publish"));
+		h.add(gold + cmd + Langues.getCommand("mapoptions") + trans + Langues.getMessage("help.mapoptions"));
+		h.add(gold + cmd + Langues.getCommand("importsel") + trans + Langues.getMessage("help.importsel"));
+		h.add(gold + cmd + Langues.getCommand("claim") + trans + Langues.getMessage("help.claim"));
+		h.add(gold + cmd + Langues.getCommand("pin") + trans + Langues.getMessage("help.pin"));
+		h.add(gold + cmd + Langues.getCommand("unpin") + trans + Langues.getMessage("help.unpin"));
+		h.add(gold + cmd + Langues.getCommand("share") + trans + Langues.getMessage("help.share"));
+		h.add(gold + cmd + Langues.getCommand("export") + trans + Langues.getMessage("help.export"));
+		h.add(gold + cmd + Langues.getCommand("edit") + trans + Langues.getMessage("help.edit"));
+		h.add(gold + cmd + Langues.getCommand("delete") + trans + Langues.getMessage("help.delete"));
+		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost play") + trans + Langues.getMessage("help.ghost play"));
+		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost speed") + " [" +Langues.getMessage("help.multiplier") + "]" + trans + Langues.getMessage("help.ghost speed"));
+		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost rewind") + " [" +Langues.getMessage("help.seconds") + "]" + trans + Langues.getMessage("help.ghost rewind"));
+		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost moment") + " [" +Langues.getMessage("help.second") + "]" + trans + Langues.getMessage("help.ghost moment"));
+		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost select") + trans + Langues.getMessage("help.ghost select"));
+		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost watch") + " <" +Langues.getMessage("help.ghost id") + ">" + trans + Langues.getMessage("help.ghost watch"));
+		h.add(gold + cmd + Langues.getCommand("register") + trans + Langues.getMessage("help.register"));
+		h.add(gold + cmd + Langues.getCommand("sync") + trans + Langues.getMessage("help.sync"));
+		h.add(gold + cmd + Langues.getCommand("managemaps") + trans + Langues.getMessage("help.managemaps"));
+		h.add(gold + cmd + Langues.getCommand("getid") + " [map name]" + trans + Langues.getMessage("help.getid"));
+		h.add(gold + cmd + Langues.getCommand("ban") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.ban"));
+		h.add(gold + cmd + Langues.getCommand("pardon") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.pardon"));
+		h.add(gold + cmd + Langues.getCommand("removetime") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.removetime"));
+
+		hop.add(yellow + cmd + "config" + trans + Langues.getMessage("help.config"));
+		hop.add(yellow + cmd + "language <language code>" + trans + Langues.getMessage("help.language"));
+		hop.add(yellow + cmd + "enable" + trans + Langues.getMessage("help.enable"));
+		hop.add(yellow + cmd + "disable" + trans + Langues.getMessage("help.disable"));
 	}
-	
+
 	static void sendHelp(CommandSender sender, int page)
 	{
 		int nbLignes = h.size();
 		final int commandesParPage = 7;
-		
-		if (sender instanceof Player)
+
+		if (sender.hasPermission("creativeparkour.*"))
 		{
-			if (sender.hasPermission("creativeparkour.*"))
-			{
-				nbLignes = nbLignes + hop.size();
-			}
+			nbLignes = nbLignes + hop.size();
 		}
-		
+
 		int pageNb = 1;
 		double nbPages = Math.ceil((float)nbLignes/commandesParPage);
 		if (page > 1 && page <= nbPages)
 		{
 			pageNb = page;
 		}
-		
+
 		sender.sendMessage(gold + "------ " + d_green  + bold + CreativeParkour.getNom() + " \u2022 " + Langues.getMessage("help.title") + gold + " ------");
 		sender.sendMessage(italic + "" + green + Langues.getMessage("help.page") + " " + pageNb + "/"+ (int) nbPages + reset + green + " - " + Langues.getMessage("help.page command"));
-		
+
 		int l = (pageNb-1) * commandesParPage;
 		int lMax = l + commandesParPage;
 		if (pageNb == nbPages)
@@ -128,7 +126,7 @@ class Help
 			}
 		}
 	}
-	
+
 	static List<String> getHelp()
 	{
 		List<String> list = new ArrayList<String>(h);
