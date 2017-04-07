@@ -19,9 +19,11 @@ package net.creativeparkour;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -46,7 +48,7 @@ class Commandes implements CommandExecutor, Listener
 	static void enable()
 	{
 		commands = new HashMap<String, Commande>();
-		
+
 		addCommand("play", "creativeparkour.play", true);
 		addCommand("create", "creativeparkour.create", true);
 		addCommand("leave", null, true);
@@ -675,7 +677,7 @@ class Commandes implements CommandExecutor, Listener
 											if (args.length < 3)
 												sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.ghost watch error id"));
 											else
-												GameManager.watchGhost(j.getPlayer(), args[2]);
+												GameManager.watchGhost(getPlayer(sender), args[2]);
 										}
 									}
 								}
@@ -1100,7 +1102,7 @@ class Commandes implements CommandExecutor, Listener
 			String arg = buffer.substring(buffer.indexOf(' ') + 1);
 			if (!arg.contains(" "))
 			{
-				List<String> completions = new ArrayList<String>();
+				Set<String> completions = new HashSet<String>();
 				for (Commande c : commands.values())
 				{
 					if (commandeAutorisee(e.getSender(), c.name, false))
@@ -1112,7 +1114,7 @@ class Commandes implements CommandExecutor, Listener
 						}
 					}
 				}
-				e.setCompletions(completions);
+				e.setCompletions(new ArrayList<String>(completions));
 			}
 		}
 	}
