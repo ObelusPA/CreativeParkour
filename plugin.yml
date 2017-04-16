@@ -1,7 +1,7 @@
 main: net.creativeparkour.CreativeParkour
 name: CreativeParkour
 description: Plugin that allows all the players to play and show their skills in fun parkour maps they build or download!
-version: 2.11.0.1
+version: 2.11.0.2
 author: Obelus
 load: POSTWORLD
 website: https://creativeparkour.net
@@ -13,7 +13,7 @@ commands:
      aliases: [cp,cpk]
      permission: creativeparkour.play
      permission-message: You are not permitted to use CreativeParkour.
-     usage: Type "/cp help" for full help. If you have a problem, please report it (are you using Spigot?).
+     usage: Type "/cp help" for full help. If you keep seeing this message, a problem occurred when loading CreativeParkour. Please look for errors in console and report the problem.
    cpd:
      description: Download a parkour map from creativeparkour.net
      aliases: [cpdownload]

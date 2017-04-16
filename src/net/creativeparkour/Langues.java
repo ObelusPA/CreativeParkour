@@ -152,11 +152,19 @@ class Langues
 		{
 			if (e.getKey() instanceof String && e.getValue() instanceof String)
 			{
-				String k = (String) e.getKey();
+				String k = ((String) e.getKey()).replace("_", " ");
 				String v = (String) e.getValue();
-				// Les messages traduits doivent obligatoirement contenir "CreativeParkour" si c'était dans le message original et que le préfixe a été modifié
-				if (Config.prefix().toLowerCase().contains("creativeparkour") || messagesEN == null || !messagesEN.containsKey(k.replace("_", " ")) || !((String)messagesEN.get(k)).toLowerCase().contains("creativeparkour") || v.toLowerCase().contains("creativeparkour"))
-					prop2.put(k.replace("_", " "), v);
+				try {
+					// Les messages traduits doivent obligatoirement contenir "CreativeParkour" si c'était dans le message original et que le préfixe a été modifié
+					if (Config.prefix().toLowerCase().contains("creativeparkour") || messagesEN == null || messagesEN.get(k) == null || !((String)messagesEN.get(k)).toLowerCase().contains("creativeparkour") || v.toLowerCase().contains("creativeparkour"))
+					{
+						prop2.put(k, v);
+						if (!nomLangue.equals("enUS"))
+							CreativeParkour.debug("LANG", "\"" + k + "\" loaded in " + nomLangue);
+					}
+				} catch (Exception ex) {
+					Bukkit.getLogger().warning(Config.prefix(false) + "Could not load " + ((String) e.getKey()) + " phrase from " + nomLangue + " (" + ((String)messagesEN.get(k)) + ", " + v + ").");
+				}
 			}
 		}
 

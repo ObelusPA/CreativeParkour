@@ -73,7 +73,8 @@ public class CreativeParkour extends JavaPlugin implements Listener
 		getServer().getPluginManager().registerEvents(new MainListener(), this);
 		getServer().getPluginManager().registerEvents(new Panneau(), this);
 		getServer().getPluginManager().registerEvents(new RewardManager(), this);
-		getServer().getPluginManager().registerEvents(new Commandes(), this);
+		if (auMoins1_9())
+			getServer().getPluginManager().registerEvents(new Commandes(), this);
 
 
 		// Vérification de ProtocolLib en premier car on a besoin de savoir pendant l'initialisation
@@ -119,7 +120,8 @@ public class CreativeParkour extends JavaPlugin implements Listener
 			getServer().getPluginManager().registerEvents(stats, this);
 		}
 
-		debug("INIT", "Debug is enabled in " + getNom() + ", you can disable it in configuration.yml");
+		debug("INIT1", "Debug is enabled in " + getNom() + ", you can disable it in configuration.yml");
+		debug("INIT2", "Java version: " + System.getProperty("java.version"));
 
 		Config.updateConfig("previous version", getVersion());
 	}
