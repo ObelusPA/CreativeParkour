@@ -18,7 +18,6 @@
 package net.creativeparkour;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +29,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -107,14 +105,6 @@ public class CreativeParkour extends JavaPlugin implements Listener
 
 		if (Config.getConfig().getBoolean("enable data collection"))
 		{
-			try {
-				// This class only connects to "mcstats.org"
-				Metrics metrics = new Metrics(this);
-				metrics.start();
-			} catch (IOException e) {
-				// Failed to submit the stats :-(
-			}
-
 			stats = new Stats(this);
 			getServer().getScheduler().runTaskTimer(this, stats, 20 * 60 * 10, 20 * 60 * 60 * 6); // Délai de 10 minutes, puis intervalle de 6 heures
 			getServer().getPluginManager().registerEvents(stats, this);

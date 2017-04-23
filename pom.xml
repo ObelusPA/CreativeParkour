@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>CreativeParkour</groupId>
 	<artifactId>CreativeParkour</artifactId>
-	<version>2.11.0.2</version>
+	<version>2.11.0.3</version>
 	<name>CreativeParkour</name>
 	<description>Bukkit parkour plugin that allows all the players to play and show their skills in fun parkour maps they build or download!</description>
 	<build>
@@ -25,9 +25,9 @@
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
-            <id>sk89q-repo</id>
-            <url>http://maven.sk89q.com/repo/</url>
-        </repository>
+			<id>sk89q-repo</id>
+			<url>http://maven.sk89q.com/repo/</url>
+		</repository>
 		<repository>
 			<id>vault-repo</id>
 			<url>http://nexus.hc.to/content/repositories/pub_releases</url>
@@ -54,17 +54,17 @@
 		</dependency>
 		<!-- WorldEdit -->
 		<dependency>
-            <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-bukkit</artifactId>
-            <version>6.1.5</version>
-            <scope>provided</scope>
-        </dependency>
+			<groupId>com.sk89q.worldedit</groupId>
+			<artifactId>worldedit-bukkit</artifactId>
+			<version>6.1.5</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
-            <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-core</artifactId>
-            <version>6.1.4-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
+			<groupId>com.sk89q.worldedit</groupId>
+			<artifactId>worldedit-core</artifactId>
+			<version>6.1.4-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- Vault -->
 		<dependency>
 			<groupId>net.milkbowl.vault</groupId>

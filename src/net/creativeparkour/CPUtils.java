@@ -17,12 +17,15 @@
 
 package net.creativeparkour;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.GZIPOutputStream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -351,7 +354,7 @@ public class CPUtils
 		}
 	}
 
-	
+
 	/**
 	 * <em>Third-party plugins cannot use this method through CreativeParkour's API (it will throw an {@code InvalidQueryResponseException}).</em><br>
 	 * Method called when <a href="https://creativeparkour.net" target="_blank">creativeparkour.net</a> responds to a query.
@@ -441,7 +444,7 @@ public class CPUtils
 
 		return l;
 	}
-	
+
 	/**
 	 * @see net.creativeparkour.CPUtils#divideText(String, ChatColor)
 	 */
@@ -450,7 +453,7 @@ public class CPUtils
 	{
 		return divideText(text, color);
 	}
-	
+
 	/**
 	 * Returns all the {@code String}s in the {@code List} in one single {@code String}, with line breaks between lines.
 	 * @param lines {@code List} of paragraph's lines.
@@ -467,5 +470,30 @@ public class CPUtils
 		if (s.length() > 0)
 			s.deleteCharAt(s.length() - 1);
 		return s.toString();
+	}
+
+	/**
+	 * GZip compresses a {@code String} of bytes.
+	 * @param input
+	 * @return Bytes of the compressed {@code String}.
+	 */
+	public static byte[] gzip(String input)
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		GZIPOutputStream gzos = null;
+
+		try {
+			gzos = new GZIPOutputStream(baos);
+			gzos.write(input.getBytes("UTF-8"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (gzos != null) try {
+				gzos.close();
+			} catch (IOException ignore) {
+			}
+		}
+
+		return baos.toByteArray();
 	}
 }

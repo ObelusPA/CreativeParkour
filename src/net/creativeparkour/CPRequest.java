@@ -39,7 +39,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.mcstats.Metrics;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -169,7 +168,7 @@ public class CPRequest implements Runnable
 			{
 				try {
 
-					byte[] compressed = Metrics.gzip(urlParameters);
+					byte[] compressed = CPUtils.gzip(urlParameters);
 
 					// Headers
 					connection.setRequestMethod("POST");
