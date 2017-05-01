@@ -184,32 +184,36 @@ public class CPTime implements Comparable<CPTime>
 	{
 		if (objet != null)
 		{
-			if (objet instanceof MemorySection)
-			{
-				MemorySection ms = (MemorySection) objet;
-				World monde = map.getWorld();
-				Set<String> keys = ms.getKeys(false);
-				Iterator<String> it = keys.iterator();
-				while (it.hasNext())
-				{
-					String k = it.next();
-					Map<Character, Integer> coords = CPUtils.parseCoordinates(k);
-					checkpoints.put(monde.getBlockAt(coords.get('x'), coords.get('y'), coords.get('z')), ms.getInt(k));
+			Bukkit.getScheduler().scheduleSyncDelayedTask(CreativeParkour.getPlugin(), new Runnable() {
+				public void run() {
+					if (objet instanceof MemorySection)
+					{
+						MemorySection ms = (MemorySection) objet;
+						World monde = map.getWorld();
+						Set<String> keys = ms.getKeys(false);
+						Iterator<String> it = keys.iterator();
+						while (it.hasNext())
+						{
+							String k = it.next();
+							Map<Character, Integer> coords = CPUtils.parseCoordinates(k);
+							checkpoints.put(monde.getBlockAt(coords.get('x'), coords.get('y'), coords.get('z')), ms.getInt(k));
+						}
+					}
+					else if (objet instanceof Map<?,?>)
+					{
+						@SuppressWarnings("unchecked")
+						Map<String, Integer> hm = (Map<String, Integer>) objet;
+						World monde = map.getWorld();
+						Iterator<String> it = hm.keySet().iterator();
+						while (it.hasNext())
+						{
+							String k = it.next();
+							Map<Character, Integer> coords = CPUtils.parseCoordinates(k);
+							checkpoints.put(monde.getBlockAt(coords.get('x'), coords.get('y'), coords.get('z')), hm.get(k));
+						}
+					}
 				}
-			}
-			else if (objet instanceof Map<?,?>)
-			{
-				@SuppressWarnings("unchecked")
-				Map<String, Integer> hm = (Map<String, Integer>) objet;
-				World monde = map.getWorld();
-				Iterator<String> it = hm.keySet().iterator();
-				while (it.hasNext())
-				{
-					String k = it.next();
-					Map<Character, Integer> coords = CPUtils.parseCoordinates(k);
-					checkpoints.put(monde.getBlockAt(coords.get('x'), coords.get('y'), coords.get('z')), hm.get(k));
-				}
-			}
+			});
 		}
 	}
 
