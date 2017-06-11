@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>CreativeParkour</groupId>
 	<artifactId>CreativeParkour</artifactId>
-	<version>2.11.0.4</version>
+	<version>2.11.5</version>
 	<name>CreativeParkour</name>
 	<description>Bukkit parkour plugin that allows all the players to play and show their skills in fun parkour maps they build or download!</description>
 	<build>
@@ -24,17 +24,17 @@
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
-		<repository>
+		<!--<repository>
 			<id>sk89q-repo</id>
 			<url>http://maven.sk89q.com/repo/</url>
-		</repository>
+		</repository>-->
 		<repository>
 			<id>vault-repo</id>
 			<url>http://nexus.hc.to/content/repositories/pub_releases</url>
 		</repository>
 		<repository>
 			<id>dmulloy2-repo</id>
-			<url>http://repo.dmulloy2.net/content/groups/public/</url>
+			<url>http://repo.dmulloy2.net/nexus/repository/public/</url>
 		</repository>
 	</repositories>
 	<dependencies>
@@ -42,29 +42,23 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.11.2-R0.1-SNAPSHOT</version>
+			<version>1.12-pre6-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!--Bukkit API -->
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.11.2-R0.1-SNAPSHOT</version>
+			<version>1.12-pre6-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- WorldEdit -->
-		<dependency>
+		<!--<dependency>
 			<groupId>com.sk89q.worldedit</groupId>
 			<artifactId>worldedit-bukkit</artifactId>
 			<version>6.1.5</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sk89q.worldedit</groupId>
-			<artifactId>worldedit-core</artifactId>
-			<version>6.1.4-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
+		</dependency>-->
 		<!-- Vault -->
 		<dependency>
 			<groupId>net.milkbowl.vault</groupId>
@@ -76,7 +70,7 @@
 		<dependency>
 			<groupId>com.comphenix.protocol</groupId>
 			<artifactId>ProtocolLib-API</artifactId>
-			<version>4.2.1-SNAPSHOT</version>
+			<version>4.2.1</version>
 		</dependency>
 	</dependencies>
 	<url>https://creativeparkour.net</url>

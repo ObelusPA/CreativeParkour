@@ -174,7 +174,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 
 	/**
 	 * Returns server's Minecraft version without "1.".
-	 * @return Server's version (eg: if the server is in 1.11, it returns 11).
+	 * @return Server's version (eg: if the server is in 1.12, it returns 12).
 	 */
 	static int getServVersion()
 	{

@@ -25,6 +25,7 @@ import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.World;
 import org.bukkit.block.Banner;
+import org.bukkit.block.Bed;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -122,11 +123,21 @@ class RemplisseurBlocsDelai extends BukkitRunnable
 								}
 								sk.update();
 							}
+							else if (CreativeParkour.getServVersion() >= 12 && b.getState() instanceof Bed)
+							{
+								Bed bed = (Bed) b.getState();
+								if (type.has("donnees-lit"))
+								{
+									JsonObject oBed = type.get("donnees-lit").getAsJsonObject();
+									bed.setColor(DyeColor.valueOf(oBed.get("color").getAsString()));
+									bed.update(true);
+								}
+							}
 						}
 					}
 				}
 			}
-			
+
 			blocs.remove(i);
 		}
 		this.i++;

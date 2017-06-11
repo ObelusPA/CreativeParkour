@@ -1,7 +1,7 @@
 main: net.creativeparkour.CreativeParkour
 name: CreativeParkour
 description: Plugin that allows all the players to play and show their skills in fun parkour maps they build or download!
-version: 2.11.0.4
+version: 2.11.5
 author: Obelus
 load: POSTWORLD
 website: https://creativeparkour.net

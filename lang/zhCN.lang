@@ -3,3 +3,5 @@ commands.ban=禁止
 commands.ban_error=这个人已被禁止
 commands.pardon_error=这个人不被禁止
 commands.cannot_be_undone=这不能被撤消
+commands.ban_banned=%player (%uuid) 已经被封禁!
+cheaters.notification=创造跑酷已经在本服务器上检测到作弊的跑酷玩家，左键这里%L 来查看更多信息或者禁用本类通知。

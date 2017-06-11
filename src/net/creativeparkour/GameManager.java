@@ -1424,68 +1424,90 @@ class GameManager implements Listener
 							mat = Material.AIR;
 							break;
 						case "WHITE_SHULKER_BOX":
+						case "WHITE_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 0);
 							break;
 						case "ORANGE_SHULKER_BOX":
+						case "ORANGE_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 1);
 							break;
 						case "MAGENTA_SHULKER_BOX":
+						case "MAGENTA_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 2);
 							break;
 						case "LIGHT_BLUE_SHULKER_BOX":
+						case "LIGHT_BLUE_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 3);
 							break;
 						case "YELLOW_SHULKER_BOX":
+						case "YELLOW_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 4);
 							break;
 						case "LIME_SHULKER_BOX":
+						case "LIME_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 5);
 							break;
 						case "PINK_SHULKER_BOX":
+						case "PINK_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 6);
 							break;
 						case "GRAY_SHULKER_BOX":
+						case "GRAY_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 7);
 							break;
 						case "SILVER_SHULKER_BOX":
+						case "SILVER_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 8);
 							break;
 						case "CYAN_SHULKER_BOX":
+						case "CYAN_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 9);
 							break;
 						case "PURPLE_SHULKER_BOX":
+						case "PURPLE_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 10);
 							break;
 						case "BLUE_SHULKER_BOX":
+						case "BLUE_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 11);
 							break;
 						case "BROWN_SHULKER_BOX":
+						case "BROWN_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 12);
 							break;
 						case "GREEN_SHULKER_BOX":
+						case "GREEN_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 13);
 							break;
 						case "RED_SHULKER_BOX":
+						case "RED_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 14);
 							break;
 						case "BLACK_SHULKER_BOX":
+						case "BLACK_GLAZED_TERRACOTTA":
 							mat = Material.STAINED_CLAY;
 							type.addProperty("d", 15);
+							break;
+						case "CONCRETE":
+							mat = Material.STAINED_CLAY;
+							break;
+						case "CONCRETE_POWDER":
+							mat = Material.SAND;
 							break;
 						}
 
@@ -1513,6 +1535,7 @@ class GameManager implements Listener
 							mat == Material.REDSTONE_LAMP_ON ||
 							mat == Material.SEA_LANTERN ||
 							mat == Material.JACK_O_LANTERN ||
+							mat == Material.BED_BLOCK ||
 							mat.name().contains("PISTON") ||
 							mat.name().contains("STAIR") ||
 							mat.name().contains("CHORUS") ||
@@ -1601,17 +1624,25 @@ class GameManager implements Listener
 						{
 							JsonObject jsO = jsE.getAsJsonObject();
 							Location loc = new Location(m, xMin + jsO.get("x").getAsDouble(), yMin + jsO.get("y").getAsDouble(), zMin + jsO.get("z").getAsDouble(), jsO.get("yaw").getAsFloat(), jsO.get("pitch").getAsFloat());
-							Entity e = m.spawnEntity(loc, EntityType.valueOf(jsO.get("type").getAsString()));
-							if (e instanceof Painting)
-							{
-								Painting painting = (Painting) e;
-								painting.setArt(Art.getByName(jsO.get("art").getAsString()));
-							}
-							else if (e instanceof ItemFrame)
-							{
-								ItemFrame itemFrame = (ItemFrame) e;
-								itemFrame.setItem(new ItemStack(Material.getMaterial(jsO.get("item").getAsString())));
-								itemFrame.setRotation(Rotation.valueOf(jsO.get("rotation").getAsString()));
+							try {
+								Entity e = m.spawnEntity(loc, EntityType.valueOf(jsO.get("type").getAsString()));
+								if (e instanceof Painting)
+								{
+									Painting painting = (Painting) e;
+									painting.setArt(Art.getByName(jsO.get("art").getAsString()));
+								}
+								else if (e instanceof ItemFrame)
+								{
+									ItemFrame itemFrame = (ItemFrame) e;
+									try {
+										itemFrame.setItem(new ItemStack(Material.getMaterial(jsO.get("item").getAsString())));
+									} catch (NullPointerException e0) {
+										// Nothing
+									}
+									itemFrame.setRotation(Rotation.valueOf(jsO.get("rotation").getAsString()));
+								}
+							} catch (IllegalArgumentException e) {
+								// Nothing
 							}
 						}
 					}

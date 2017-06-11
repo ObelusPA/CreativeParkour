@@ -62,7 +62,7 @@ public class CPRequest implements Runnable
 		// NEVER TRY TO ACCESS THIS URL YOURSELF. Just don't try.
 		// This adress is used for remote features and statistics. Everything is detailed on the plugin page: https://dev.bukkit.org/projects/creativeparkour#title-7-3
 		// ***********************************************************************************************************************************************************************************************************
-		CPRequest r = new CPRequest("https://creativeparkour.net/api/" + CreativeParkour.getVersion() + "/" + adresse, paramsPost2, objetAppelant, methodeRetour, sender);
+		CPRequest r = new CPRequest("https://creativeparkour.net/api2/" + CreativeParkour.getVersion().replace('.', '/') + "/" + adresse, paramsPost2, objetAppelant, methodeRetour, sender);
 		// ***********************************************************************************************************************************************************************************************************
 		// NEVER TRY TO ACCESS THIS URL YOURSELF
 		// ***********************************************************************************************************************************************************************************************************

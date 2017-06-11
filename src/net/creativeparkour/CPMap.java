@@ -42,6 +42,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Banner;
+import org.bukkit.block.Bed;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
@@ -1399,6 +1400,13 @@ public class CPMap
 					oSk.addProperty("rotation", sk.getRotation().name());
 					// TODO Joueurs
 					objetBloc.add("donnees-tete", oSk);
+				}
+				else if (CreativeParkour.getServVersion() >= 12 && b.getState() instanceof Bed)
+				{
+					Bed bed = (Bed) b.getState();
+					JsonObject oBed = new JsonObject();
+					oBed.addProperty("color", bed.getColor().name());
+					objetBloc.add("donnees-lit", oBed);
 				}
 				// Recherche du bloc dans ceux déjà enregistrés (seuls les ids de cette liste sont mis, puis la liste est donnée)
 				boolean trouve = false;
