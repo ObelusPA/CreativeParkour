@@ -30,8 +30,8 @@ class PlayerProfiles {
 	{
 		textures = new HashMap<UUID, WrappedSignedProperty>();
 		dateLoad = new Date();
-		// Si pas de fantômes, pas la peine d'activer ce bordel
-		if (!Config.getConfig().getBoolean("game.fetch ghosts skins") || !CreativeParkour.protocollibPresent() || !Config.fantomesPasInterdits() || !CreativeParkour.auMoins1_9())
+		// Si pas de fantômes ou offline-mode, pas la peine d'activer ce bordel
+		if (!Config.getConfig().getBoolean("game.fetch ghosts skins") || !CreativeParkour.protocollibPresent() || !Config.fantomesPasInterdits() || !CreativeParkour.auMoins1_9() || !Bukkit.getOnlineMode())
 		{
 			enabled = false;
 			return;

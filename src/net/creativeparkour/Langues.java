@@ -185,6 +185,8 @@ class Langues
 			return "enUS";
 		else if (code.startsWith("de"))
 			return "deDE";
+		else if (code.startsWith("esmx"))
+			return "esMX";
 		else if (code.startsWith("es"))
 			return "esES";
 		else if (code.startsWith("fr"))

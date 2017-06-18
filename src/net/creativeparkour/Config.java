@@ -544,6 +544,13 @@ class Config implements Listener
 				cb.bold(true);
 			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
 
+			cb.append("한국어").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language koKR"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Korean")).create()));
+			if (System.getProperty("user.language").equalsIgnoreCase("ko"))
+				cb.bold(true);
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
 			cb.append("Polski").color(ChatColor.AQUA)
 			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language plPL"))
 			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Polish")).create()));
@@ -570,6 +577,11 @@ class Config implements Listener
 			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Spanish")).create()));
 			if (System.getProperty("user.language").equalsIgnoreCase("es"))
 				cb.bold(true);
+			cb.append(" / ").bold(false).color(ChatColor.BLUE).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, null)).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, null));
+
+			cb.append("Español latinoamericano").color(ChatColor.AQUA)
+			.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour language esMX"))
+			.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(info.replace("%lang", ChatColor.ITALIC + "Latin American Spanish")).create()));
 
 			p.spigot().sendMessage(cb.create());
 
