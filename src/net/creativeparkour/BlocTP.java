@@ -27,7 +27,7 @@ class BlocTP extends BlocSpecial
 
 	BlocTP(Block b, Location locTP)
 	{
-		super(b);
+		super(b, true);
 		this.locTP = locTP;
 	}
 

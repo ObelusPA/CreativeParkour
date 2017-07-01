@@ -24,7 +24,7 @@ class BlocSpawn extends BlocSpecial
 {
 	BlocSpawn(Block b, byte dir)
 	{
-		super(b, dir);
+		super(b, dir, false);
 	}
 
 	@Override

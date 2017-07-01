@@ -83,6 +83,7 @@ class Commandes implements CommandExecutor, Listener
 		addCommand("notifications", null, true);
 		addCommand("messages", null, true);
 		addCommand("sync", "creativeparkour.manage", false);
+		addCommand("noplates", "creativeparkour.manage", true);
 		addCommand("version", null, false);
 		addCommand("config", "creativeparkour.*", true);
 		addCommand("language", "creativeparkour.*", false);
@@ -889,6 +890,24 @@ class Commandes implements CommandExecutor, Listener
 							if (commandeAutorisee(sender, "sync"))
 							{
 								GameManager.synchroWeb(sender);
+							}
+							return true;
+						}
+						else if (commandeEffectuee(sender, cmd, args, "noplates"))
+						{
+							if (commandeAutorisee(sender, "noplates"))
+							{
+								Joueur j = GameManager.getJoueur(getPlayer(sender));
+								if (j != null)
+								{
+									CPMap m = j.getMapObjet();
+									if (m != null)
+									{
+										m.togglePlates(j);
+										return true;
+									}
+								}
+								sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error 4"));
 							}
 							return true;
 						}

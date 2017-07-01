@@ -26,7 +26,7 @@ class BlocCheckpoint extends BlocSpecial
 
 	BlocCheckpoint(Block b, byte dir, String optionalStr)
 	{
-		super(b, dir);
+		super(b, dir, true);
 		this.optional = optionalStr != null && (optionalStr.toLowerCase().contains("optional") || optionalStr.equalsIgnoreCase("o"));
 	}
 

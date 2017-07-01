@@ -20,6 +20,7 @@ package net.creativeparkour;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 
 /**
@@ -29,17 +30,21 @@ abstract class BlocSpecial
 {
 	private Block bloc;
 	protected byte dir = 0;
+	private boolean plaquePossible = false;
+	private boolean plaquePression = false;
 
-	BlocSpecial(Block b)
+	BlocSpecial(Block b, boolean plaquePossible)
 	{
 		this.bloc = b;
 		this.dir = 0;
+		this.plaquePossible = plaquePossible;
 	}
 
-	BlocSpecial(Block b, byte dir)
+	BlocSpecial(Block b, byte dir, boolean plaquePossible)
 	{
 		this.bloc = b;
 		this.dir = dir;
+		this.plaquePossible = plaquePossible;
 	}
 
 	void setDir(byte dir)
@@ -88,6 +93,27 @@ abstract class BlocSpecial
 	void supprimerPanneau()
 	{
 		bloc.setType(Material.AIR);
+	}
+	
+	void placerPlaqueOuAir(boolean forcerAir)
+	{
+		if (!forcerAir && plaquePossible)
+		{
+			Material rel = bloc.getRelative(BlockFace.DOWN).getType();
+			if (rel.isSolid() && rel.isOccluding())
+			{
+				bloc.setType(Material.STONE_PLATE);
+				plaquePression = true;
+				return;
+			}
+		}
+		bloc.setType(Material.AIR);
+		plaquePression = false;
+	}
+	
+	boolean estPlaquePression()
+	{
+		return plaquePression;
 	}
 
 	abstract void faireAction(Joueur j);

@@ -24,7 +24,7 @@ class BlocArrivee extends BlocSpecial
 {
 	BlocArrivee(Block b)
 	{
-		super(b);
+		super(b, true);
 	}
 
 	@Override

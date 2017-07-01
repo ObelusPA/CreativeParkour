@@ -226,8 +226,10 @@ class GameManager implements Listener
 							yml.getBoolean("interactions allowed", true),
 							yml.getStringList("ratings"),
 							difficulty,
-							quality);
+							quality,
+							yml.getBoolean("force no plates"));
 					maps.put(id, m);
+					m.placerOuRetirerPlaques();
 
 					// Régénération du contour s'il n'est pas là aux coordonnées min
 					if (m.getMinLoc().getRelative(BlockFace.DOWN).getType() != Material.BEDROCK || m.getMinLoc().getRelative(BlockFace.NORTH).getType() != Material.BARRIER || m.getMinLoc().getRelative(BlockFace.WEST).getType() != Material.BARRIER)
@@ -607,7 +609,7 @@ class GameManager implements Listener
 							}
 						}
 
-						List<CPMap> mapsAMettreAJour = new ArrayList<CPMap>();
+						Set<CPMap> mapsAMettreAJour = new HashSet<CPMap>();
 						// Suppression des fantômes à supprimer
 						o = json.get("data").getAsJsonObject().get("fantomesASupprimer");
 						if (o != null && o.isJsonArray())
@@ -645,7 +647,7 @@ class GameManager implements Listener
 								{
 									JsonObject obj = e.getAsJsonObject();
 									CPMap m = getMap(UUID.fromString(obj.get("uuidMap").getAsString()));
-									if (m != null)
+									if (m != null && m.isPlayable())
 									{
 										CPTime t = new CPTime(UUID.fromString(obj.get("uuidJoueur").getAsString()), m, obj.get("ticks").getAsInt());
 										t.etat = EtatTemps.TO_DOWNLOAD;
@@ -660,23 +662,28 @@ class GameManager implements Listener
 						}
 
 						// Mise à jour des temps dans les maps
-
-						Bukkit.getScheduler().scheduleSyncDelayedTask(CreativeParkour.getPlugin(), new Runnable() {
-							public void run() {
-								for (CPMap m : mapsAMettreAJour)
-								{
-									m.getListeTemps(true);
-									Panneau.majClassements(m);
-									// Mise à jour des leaderboard des joueurs
-									for (Joueur j : getJoueurs(m.getUUID()))
-									{
-										j.calculerScoreboard();
-										j.choixFantomesPreferes();
-										j.majTeteFantomes();
+						Set<CPMap> mapsAvecPanneau = Panneau.getMapsAvecPanneauClassement();
+						for (CPMap m : mapsAMettreAJour)
+						{
+							List<Joueur> joueursMap = getJoueurs(m.getUUID());
+							if (!joueursMap.isEmpty() || mapsAvecPanneau.contains(m))
+							{
+								m.getListeTemps(true);
+								Bukkit.getScheduler().scheduleSyncDelayedTask(CreativeParkour.getPlugin(), new Runnable() {
+									public void run() {
+										if (mapsAvecPanneau.contains(m))
+											Panneau.majClassements(m);
+										// Mise à jour des leaderboard des joueurs
+										for (Joueur j : joueursMap)
+										{
+											j.calculerScoreboard();
+											j.choixFantomesPreferes();
+											j.majTeteFantomes();
+										}
 									}
-								}
+								});
 							}
-						});
+						}
 
 
 						// Enregistrement du nombre de tricheurs
@@ -747,7 +754,7 @@ class GameManager implements Listener
 		}
 	}
 
-	static void telechargerFantomes(List<String> liste)
+	static void telechargerFantomes(List<String> liste, Joueur j)
 	{
 		if (Config.online() && Config.getConfig().getBoolean("online.download ghosts"))
 		{
@@ -759,7 +766,7 @@ class GameManager implements Listener
 			}
 
 			try {
-				CPRequest.effectuerRequete("ghosts-download.php", paramsPost, null, GameManager.class.getMethod("reponseTelechargementFantomes", JsonObject.class, String.class, Player.class), null);
+				CPRequest.effectuerRequete("ghosts-download.php", paramsPost, null, GameManager.class.getMethod("reponseTelechargementFantomes", JsonObject.class, String.class, Player.class), j.getPlayer());
 			} catch (NoSuchMethodException | SecurityException e) {
 				CreativeParkour.erreur("GHOSTSDOWNLOAD", e, true);
 			}
@@ -1250,6 +1257,7 @@ class GameManager implements Listener
 						// Après le remplissage de la map, le joueur peut jouer
 						Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
 							public void run() {
+								map.placerOuRetirerPlaques();
 								if (sender instanceof Player)
 								{
 									Joueur j1 = j;
@@ -1743,7 +1751,7 @@ class GameManager implements Listener
 						(jsContenu.has("mortLave") ? jsContenu.get("mortLave").getAsBoolean() : false),
 						(jsContenu.has("mortEau") ? jsContenu.get("mortEau").getAsBoolean() : false),
 						(jsContenu.has("interactionsAutorisees") ? jsContenu.get("interactionsAutorisees").getAsBoolean() : true),
-						null, jsData.get("difficulte").getAsFloat(), jsData.get("qualite").getAsFloat());
+						null, jsData.get("difficulte").getAsFloat(), jsData.get("qualite").getAsFloat(), false);
 				maps.put(id, map);
 				map.sauvegarder();
 
@@ -1791,6 +1799,12 @@ class GameManager implements Listener
 			if (teleporter)
 				j.getPlayer().teleport(m.getSpawn().getLocation().add(0.5, 0, 0.5));
 			CreativeParkour.debug("TC", m.getSpawn().getLocation().add(0.5, 0, 0.5).toString());
+
+			// Si personne ne teste, on s'assure que les panneaux sont là
+			if (!m.estEnTest())
+			{
+				m.restaurerPanneaux();
+			}
 		}
 	}
 
@@ -1859,7 +1873,7 @@ class GameManager implements Listener
 				int xMax = xMin + taille;
 				int yMax = Math.min(yMin + taille, 126); // Au maximum 126 (1 de marge pour le toit en barrière invisible)
 				int zMax = zMin + taille;
-				Block spawn = m.getBlockAt((xMin+xMax)/2, yMin, (zMin+zMax)/2);
+				Block spawn = getDefaultSpawn(m, xMin, xMax, yMin, zMin, zMax);
 
 				List<Entity> entites = new ArrayList<Entity>();
 				for (int i=0; i < m.getEntities().size(); i++)
@@ -1907,7 +1921,7 @@ class GameManager implements Listener
 
 				CPMap map = new CPMap(id, uuid, CPMapState.CREATION, m, 
 						blocMin, m.getBlockAt(xMax, yMax, zMax), 
-						new String(), p.getUniqueId(), new HashSet<UUID>(), false, new BlocSpawn(spawn, (byte) 0), new ArrayList<BlocSpecial>(), 0, true, false, false, true, null, -1, -1);
+						new String(), p.getUniqueId(), new HashSet<UUID>(), false, new BlocSpawn(spawn, (byte) 0), new ArrayList<BlocSpecial>(), 0, true, false, false, true, null, -1, -1, false);
 
 				maps.put(id, map);
 				map.sauvegarder();
@@ -1928,6 +1942,21 @@ class GameManager implements Listener
 					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.importsel error block"));
 			}
 		}
+	}
+
+	/**
+	 * Retourne le bloc de spawn par défaut d'une map selon ses coordonnées
+	 * @param m Monde
+	 * @param xMin xMin de la map
+	 * @param xMax xMax de la map
+	 * @param y Altitude du point
+	 * @param zMin zMin de la map
+	 * @param zMax zMax de la map
+	 * @return Le bloc de spawn par défaut
+	 */
+	static Block getDefaultSpawn(World m, int xMin, int xMax, int y, int zMin, int zMax)
+	{
+		return m.getBlockAt((xMin+xMax)/2, y, (zMin+zMax)/2);
 	}
 
 	private static int getIdMapDispo(int taille)
@@ -2337,9 +2366,8 @@ class GameManager implements Listener
 		if (j != null && j.getMap() != null && j.getEtat() == EtatJoueur.JEU && getMap(j.getMap()).contientTesteur(p))
 		{
 			CPMap m = getMap(j.getMap());
-			p.teleport(m.getSpawn().getLocation().add(0.5, 0, 0.5));
-			j.modeCreation();
 			m.supprimerTesteur(p);
+			teleporterCreation(p, m, true, false);
 			if (CreativeParkour.protocollibPresent() && CreativeParkour.auMoins1_9())
 				PlayerVisibilityManager.majVisibiliteJoueurs(j);
 		}

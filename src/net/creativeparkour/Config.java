@@ -96,7 +96,7 @@ class Config implements Listener
 		path = "sign brackets"; if(!configGenerale.contains(path)) { configGenerale.set(path, "triangle"); }
 		path = "debug"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "previous version"; if(!configGenerale.contains(path)) { configGenerale.set(path, null); }
-		path = "memory dump interval"; if(!configGenerale.contains(path)) { configGenerale.set(path, 90); }
+		path = "memory dump interval"; if(!configGenerale.contains(path)) { configGenerale.set(path, 20); }
 		path = "dont use cp"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "installation date"; if(!configGenerale.contains(path)) { configGenerale.set(path, new Date().getTime()); }
 
@@ -130,6 +130,8 @@ class Config implements Listener
 		path = "game.exit location.x"; if(!configGenerale.contains(path)) { configGenerale.set(path, world0.getSpawnLocation().getX()); }
 		path = "game.exit location.y"; if(!configGenerale.contains(path)) { configGenerale.set(path, world0.getSpawnLocation().getY()); }
 		path = "game.exit location.z"; if(!configGenerale.contains(path)) { configGenerale.set(path, world0.getSpawnLocation().getZ()); }
+		path = "game.exit location.pitch"; if(!configGenerale.contains(path)) { configGenerale.set(path, world0.getSpawnLocation().getPitch()); }
+		path = "game.exit location.yaw"; if(!configGenerale.contains(path)) { configGenerale.set(path, world0.getSpawnLocation().getYaw()); }
 		path = "game.always teleport to exit location"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.exit on login"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.update players before teleporting"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
@@ -137,6 +139,7 @@ class Config implements Listener
 		path = "game.negative leaderboard"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.enable map rating"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "game.freeze redstone"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
+		path = "game.pressure plates as special blocks"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.milliseconds difference"; if(!configGenerale.contains(path)) { configGenerale.set(path, 1000 * 10); }
 		path = "game.enable ghosts"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "game.max ghosts"; if(!configGenerale.contains(path)) { configGenerale.set(path, 15); }
@@ -382,7 +385,9 @@ class Config implements Listener
 
 	static Location getExitLocation()
 	{
-		return new Location(Bukkit.getWorld(configGenerale.getString("game.exit location.world")), configGenerale.getDouble("game.exit location.x"), configGenerale.getDouble("game.exit location.y"), configGenerale.getDouble("game.exit location.z"));
+		return new Location(Bukkit.getWorld(configGenerale.getString("game.exit location.world")), 
+				configGenerale.getDouble("game.exit location.x"), configGenerale.getDouble("game.exit location.y"), configGenerale.getDouble("game.exit location.z"), 
+				(float) configGenerale.getDouble("game.exit location.yaw"), (float) configGenerale.getDouble("game.exit location.pitch"));
 	}
 
 	static Material getWorldEditItem()

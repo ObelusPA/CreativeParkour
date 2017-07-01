@@ -29,7 +29,7 @@ class BlocGive extends BlocSpecial
 
 	BlocGive (Block bloc, String type, String donner)
 	{
-		super(bloc);
+		super(bloc, true);
 		if (type.toLowerCase().contains("elytra"))
 			this.type = TypeGive.ELYTRA;
 		else if (type.toLowerCase().contains("firework"))

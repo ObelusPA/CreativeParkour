@@ -33,7 +33,7 @@ class BlocEffet extends BlocSpecial
 	
 	BlocEffet(Block b, String effect, int duree, int force)
 	{
-		super(b);
+		super(b, true);
 		effect = effect.replace(" ", "_");
 		
 		PotionEffectType effectType = null;

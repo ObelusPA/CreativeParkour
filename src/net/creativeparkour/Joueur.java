@@ -164,7 +164,7 @@ class Joueur
 	{
 		etat = EtatJoueur.CREATION;
 
-		player.setScoreboard(GameManager.getMap(mapUUID).getScoreboardC());
+		player.setScoreboard(getMapObjet().getScoreboardC());
 		BlocEffet.supprimerEffets(player);
 		if (task != null)
 		{
@@ -582,7 +582,11 @@ class Joueur
 		{
 			m.saveSpawn();
 			if (m.contientTesteur(player))
+			{
 				m.supprimerTesteur(player);
+				if (!m.estEnTest()) // S'il n'y avait que lui qui testait, on restaure les panneaux
+					m.restaurerPanneaux();
+			}
 			mapUUID = null;
 			mapObjet = null;
 		}
@@ -679,12 +683,12 @@ class Joueur
 							GameManager.receveursNotifsTriche.clear();
 							GameManager.nbTricheurs = 0;
 						}
-						else if (player.hasPermission("creativeparkour.manage") && conf.getBoolean("feedback 1") != true && Config.getDateInstall().getTime() + 1000 * 60 * 60 * 24 * 4  < new Date().getTime()) // Si c'est à plus de 4 jours de l'installation
+						/*else if (player.hasPermission("creativeparkour.manage") && conf.getBoolean("feedback 1") != true && Config.getDateInstall().getTime() + 1000 * 60 * 60 * 24 * 4  < new Date().getTime()) // Si c'est à plus de 4 jours de l'installation
 						{
 							CPUtils.sendClickableMsg(player, Langues.getMessage("feedback 1"), null, "https://creativeparkour.net/contact.php", "%L", ChatColor.AQUA);
 							conf.set("feedback 1", true);
 							saveConf();
-						}
+						}*/
 						else if (!Config.getLanguage().equals("enUS") && !Config.getLanguage().equals("frFR") && new Random().nextInt(conf.getInt("languages info chance", 15)) == 0) // Une chance sur 15, ou plus si le message a déjà été affiché
 						{
 							player.sendMessage(Config.prefix() + ChatColor.AQUA + Langues.getMessage("languages info"));
@@ -956,7 +960,7 @@ class Joueur
 		//			player.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("location error"));
 		//			return false;
 		//		}
-		else if (dernierTelechargement != null && new Date().getTime() < dernierTelechargement.getTime() + 30000) // 30 secondes
+		else if (dernierTelechargement != null && new Date().getTime() < dernierTelechargement.getTime() + 20000) // 20 secondes
 		{
 			player.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download wait"));
 			return false;
@@ -1695,7 +1699,6 @@ class Joueur
 	 */
 	void downloadGhosts()
 	{
-		downloadingGhosts = true;
 		List<String> tempsATelecharger = new ArrayList<String>();
 		int delaiProfils = 4;
 		for (CPTime t : tempsFantomesChoisis)
@@ -1705,7 +1708,8 @@ class Joueur
 		}
 		if (!tempsATelecharger.isEmpty())
 		{
-			GameManager.telechargerFantomes(tempsATelecharger);
+			downloadingGhosts = true;
+			GameManager.telechargerFantomes(tempsATelecharger, this);
 			delaiProfils = 20;
 		}
 

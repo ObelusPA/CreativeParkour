@@ -44,6 +44,7 @@ import org.bukkit.World;
 import org.bukkit.block.Banner;
 import org.bukkit.block.Bed;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.block.banner.Pattern;
@@ -90,7 +91,10 @@ public class CPMap
 	private String nom;
 	private BlocSpawn spawn;
 	private List<BlocSpecial> blocsSpeciaux = new ArrayList<BlocSpecial>();
+	private List<BlocSpecial> blocsSpeciauxAir = new ArrayList<BlocSpecial>();
+	private List<BlocSpecial> blocsSpeciauxPlaques = new ArrayList<BlocSpecial>();
 	private int hauteurMort;
+	private Block blocHautMort;
 	private Scoreboard scoreboardCreation;
 	private boolean valide;
 	private boolean epingle = false;
@@ -102,9 +106,10 @@ public class CPMap
 	boolean mortLave = false;
 	boolean mortEau = false;
 	boolean interactionsAutorisees;
+	private boolean forceNoPlates = false;
 
 
-	CPMap (int id, String uuid, CPMapState etat, World monde, Block locMin, Block locMax, String nom, UUID createur, Set<UUID> contributeurs, boolean epingle, BlocSpawn spawn, List<BlocSpecial> blocsSpeciaux, int hauteurMort, boolean sneakAutorise, boolean mortLave, boolean mortEau, boolean interactionsAutorisees, List<String> listeVotes, float difficulte, float qualite)
+	CPMap (int id, String uuid, CPMapState etat, World monde, Block locMin, Block locMax, String nom, UUID createur, Set<UUID> contributeurs, boolean epingle, BlocSpawn spawn, List<BlocSpecial> blocsSpeciaux, int hauteurMort, boolean sneakAutorise, boolean mortLave, boolean mortEau, boolean interactionsAutorisees, List<String> listeVotes, float difficulte, float qualite, boolean forceNoPlates)
 	{
 		boolean saveConf = false;
 
@@ -131,12 +136,14 @@ public class CPMap
 		this.mortLave = mortLave;
 		this.mortEau = mortEau;
 		this.sneakAutorise = sneakAutorise;
+		this.forceNoPlates = forceNoPlates;
 		this.blocsSpeciaux = blocsSpeciaux;
 		scoreboardCreation = null;
 		if (this.etat == CPMapState.CREATION)
 		{
 			creerScoreboardC();
 			valide = false;
+			restaurerPanneaux(); // Au cas où on soit après un plantage
 		}
 		else
 		{
@@ -320,178 +327,15 @@ public class CPMap
 		obj.getScore(s).setScore(-1);
 	}
 
-	/**
-	 * Remplit les variables spawn, heuteurMort et blocsSpeciaux en analysant les panneaux posés dans la map. Les variables sont vidées s'il y a une erreur.
-	 * @param p Joueur à qui envoyer les messages
-	 * @param supprimer S'il faut ou non supprimer les panneaux
-	 * @return true s'il n'y a aucune erreur, false sinon.
-	 */
-	boolean traiterPanneaux(Player p, boolean supprimer)
-	{
-		p.sendMessage(Config.prefix() + ChatColor.GRAY + "" + ChatColor.ITALIC + Langues.getMessage("creation.check signs"));
-
-		spawn = null;
-		hauteurMort = 0;
-		blocsSpeciaux = new ArrayList<BlocSpecial>();
-		List<String> erreurs = new ArrayList<String>();
-		// Variables juste là pour la vérif (pour pas avoir à les chercher dans la liste)
-		List<Block> departs = new ArrayList<Block>();
-		List<Block> arrivees = new ArrayList<Block>();
-		Block blocDeath = null;
-
-		// Recherche des panneaux de la map et remplissage des variables
-		for (Block bloc : getBlocks())
-		{
-			if (bloc.getType().equals(Material.SIGN_POST) || bloc.getType().equals(Material.WALL_SIGN))
-			{
-				Sign sign = (Sign) bloc.getState();
-				if (sign.getLine(0).toLowerCase().contains(BlocDepart.getTag()))
-				{
-					blocsSpeciaux.add(new BlocDepart(bloc));
-					departs.add(bloc);
-				}
-				else if (sign.getLine(0).toLowerCase().contains(BlocArrivee.getTag()))
-				{
-					blocsSpeciaux.add(new BlocArrivee(bloc));
-					arrivees.add(bloc);
-				}
-				else if (sign.getLine(0).toLowerCase().contains(BlocSpawn.getTag()))
-				{
-					if (spawn == null)
-					{
-						spawn = new BlocSpawn(bloc, bloc.getData());
-					}
-					else
-					{
-						erreurs.add(Langues.getMessage("creation.check.multiple sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocSpawn.getTag() + ChatColor.RESET + ChatColor.RED).replace("1", ChatColor.BOLD + "1" + ChatColor.RESET + ChatColor.RED));
-					}
-				}
-				else if (sign.getLine(0).toLowerCase().contains(BlocCheckpoint.getTag()))
-				{
-					blocsSpeciaux.add(new BlocCheckpoint(bloc, bloc.getData(), sign.getLine(1)));
-				}
-				else if (sign.getLine(0).toLowerCase().contains(BlocEffet.getTag()))
-				{
-					if (BlocEffet.estUnPanneauValide(sign.getLines(), p, bloc))
-					{
-						blocsSpeciaux.add(new BlocEffet(bloc, sign.getLine(1), Integer.valueOf(sign.getLine(2)), Integer.valueOf(sign.getLine(3))));
-					}
-				}
-				else if (sign.getLine(0).toLowerCase().contains(BlocGive.getTag()))
-				{
-					blocsSpeciaux.add(new BlocGive(bloc, sign.getLine(1), sign.getLine(2)));
-				}
-				else if (sign.getLine(0).toLowerCase().contains(CPUtils.bracket("death")))
-				{
-					if (hauteurMort == 0)
-					{
-						hauteurMort = sign.getY();
-						blocDeath = bloc;
-					}
-					else
-					{
-						erreurs.add(Langues.getMessage("creation.check.multiple sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + CPUtils.bracket("death") + ChatColor.RESET + ChatColor.RED).replace("1", ChatColor.BOLD + "1" + ChatColor.RESET + ChatColor.RED));
-					}
-				}
-				else if (sign.getLine(0).toLowerCase().contains(BlocMort.getTag()))
-				{
-					blocsSpeciaux.add(new BlocMort(bloc));
-				}
-				else if (sign.getLine(0).toLowerCase().contains(BlocTP.getTag()))
-				{
-					Location loc = null;
-					try {
-						loc = new Location(bloc.getWorld(), Double.valueOf(sign.getLine(1)), Double.valueOf(sign.getLine(2)), Double.valueOf(sign.getLine(3)));
-					} catch (Exception e) {
-						// Rien, le message est après
-					}
-					if (loc == null)
-						erreurs.add(Langues.getMessage("creation.check.tp error 1").replace("%loc", CPUtils.coordsToString(bloc.getX(), bloc.getY(), bloc.getZ())));
-					else if (!this.containsBlock(loc.getBlock()))
-						erreurs.add(Langues.getMessage("creation.check.tp error 2").replace("%loc", CPUtils.coordsToString(bloc.getX(), bloc.getY(), bloc.getZ())));
-					else
-						blocsSpeciaux.add(new BlocTP(bloc, loc));
-				}
-			}
-		}
-
-		if (departs.isEmpty())
-		{
-			erreurs.add(Langues.getMessage("creation.check.no sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocDepart.getTag() + ChatColor.RESET + ChatColor.RED));
-		}
-		if (arrivees.isEmpty())
-		{
-			erreurs.add(Langues.getMessage("creation.check.no sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocArrivee.getTag() + ChatColor.RESET + ChatColor.RED));
-		}
-		if (spawn == null)
-		{
-			erreurs.add(Langues.getMessage("creation.check.no sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocSpawn.getTag() + ChatColor.RESET + ChatColor.RED));
-		}
-		boolean errHauteur = spawn != null && hauteurMort >= spawn.getBloc().getY();
-		if (!errHauteur) // Pas besoin de ces vérifications si on est déjà en erreur...
-		{
-			// Départs
-			for (int i=0; i < departs.size() && !errHauteur; i++)
-			{
-				if (hauteurMort > departs.get(i).getY())
-					errHauteur = true;
-			}
-			// Arrivées
-			for (int i=0; i < arrivees.size() && !errHauteur; i++)
-			{
-				if (hauteurMort > arrivees.get(i).getY())
-					errHauteur = true;
-			}
-		}
-		if (errHauteur)
-			erreurs.add(Langues.getMessage("creation.check.sign height error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + CPUtils.bracket("death") + ChatColor.RESET + ChatColor.RED));
-
-		List<String> messages = new ArrayList<String>();
-		for (int i=0; i < erreurs.size(); i++)
-		{
-			if (!messages.contains(erreurs.get(i)))
-			{
-				messages.add(erreurs.get(i));
-			}
-		}
-		for (int i=0; i < messages.size(); i++)
-		{
-			p.sendMessage(ChatColor.RED + messages.get(i));
-		}
-
-		// S'il y a des erreurs, on réinitialise les variables et on renvoir false
-		if (!erreurs.isEmpty())
-		{
-			spawn = null;
-			hauteurMort = 0;
-			blocsSpeciaux = new ArrayList<BlocSpecial>();
-			return false;
-		}
-		else
-		{
-			// Suppression des panneaux si demandé
-			if (supprimer)
-			{
-				spawn.supprimerPanneau();
-				if (blocDeath != null)
-					blocDeath.setType(Material.AIR);
-				for (BlocSpecial b : blocsSpeciaux)
-				{
-					b.supprimerPanneau();
-				}
-			}
-			return true;
-		}
-	}
-
 	void test(Player p)
 	{
-		if (traiterPanneaux(p, false))
+		if (estEnTest() || traiterPanneaux(p)) // S'il y a déjà un testeur, on ne revérifie pas
 		{
 			p.sendMessage(Config.prefix() + ChatColor.YELLOW + Langues.getMessage("creation.test"));
 			p.sendMessage(ChatColor.YELLOW + "" + ChatColor.ITALIC + Langues.getMessage("creation.test leave"));
 			ajouterTesteur(p);
 			jouer(GameManager.getJoueur(p));
+			sauvegarder(); // Pour retrouver les trucs si le serveur plante...
 		}
 	}
 
@@ -556,7 +400,7 @@ public class CPMap
 	{
 		if (valide)
 		{
-			if (traiterPanneaux(p, true))
+			if (estEnTest() || traiterPanneaux(p)) // Si elle est en test, les panneaux ne sont plus là
 			{
 				nom = n;
 				createur = p.getUniqueId();
@@ -603,7 +447,7 @@ public class CPMap
 
 
 				// Message d'encouragement au feedback
-				final YamlConfiguration conf = Config.getConfJoueur(p.getUniqueId().toString());
+				/*final YamlConfiguration conf = Config.getConfJoueur(p.getUniqueId().toString());
 				if (conf.getBoolean("feedback 2") != true && GameManager.nbMapsPubliees(p) >= 2) // Si c'est à plus de 4 jours de l'installation
 				{
 					Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
@@ -613,7 +457,7 @@ public class CPMap
 							Config.saveConfJoueur(p.getUniqueId().toString());
 						}
 					}, 40);
-				}
+				}*/
 			}
 		}
 	}
@@ -701,6 +545,16 @@ public class CPMap
 	List<BlocSpecial> getBlocsSpeciaux()
 	{
 		return blocsSpeciaux;
+	}
+
+	List<BlocSpecial> getBlocsSpeciauxAir()
+	{
+		return blocsSpeciauxAir;
+	}
+
+	List<BlocSpecial> getBlocsSpeciauxPlaques()
+	{
+		return blocsSpeciauxPlaques;
 	}
 
 	List<BlocCheckpoint> getCkeckpoints()
@@ -803,7 +657,7 @@ public class CPMap
 	 */
 	public boolean containsBlock(Block b)
 	{
-		if (b.getWorld().equals(monde) && b.getX() >= locMin.getX() && b.getY() >= locMin.getY() && b.getZ() >= locMin.getZ() && b.getX() <= locMax.getX() && b.getY() <= locMax.getY() && b.getZ() <= locMax.getZ())
+		if (b.getX() >= locMin.getX() && b.getZ() >= locMin.getZ() && b.getX() <= locMax.getX() && b.getZ() <= locMax.getZ() && b.getY() >= locMin.getY() && b.getY() <= locMax.getY() && b.getWorld().equals(monde))
 		{
 			return true;
 		}
@@ -887,7 +741,7 @@ public class CPMap
 		return etat == CPMapState.PUBLISHED || etat == CPMapState.DOWNLOADED;
 	}
 
-	void sauvegarder()
+	synchronized void sauvegarder()
 	{
 		config.set("id", id);
 		config.set("name", nom);
@@ -940,6 +794,7 @@ public class CPMap
 		config.set("deadly lava", mortLave);
 		config.set("deadly water", mortEau);
 		config.set("interactions allowed", interactionsAutorisees);
+		config.set("force no plates", forceNoPlates);
 
 		// Sauvegarde
 		try {
@@ -1255,7 +1110,6 @@ public class CPMap
 		creerScoreboardC();
 		j.modeCreation();
 		CPUtils.sendClickableMsg(p, Langues.getMessage("creation.new"), null, "https://creativeparkour.net/doc/map-creation.php", "%L", ChatColor.YELLOW);
-		restaurerPanneaux();
 
 		// Si le joueur n'est pas le créateur, on le met créateur et on met le créateur dans les contributeurs
 		if (!p.getUniqueId().equals(createur))
@@ -1265,34 +1119,212 @@ public class CPMap
 			createur = p.getUniqueId();
 		}
 
-		hauteurMort = 0;
-		blocsSpeciaux.clear();
 		uuid = UUID.randomUUID();
 		j.setMap(uuid);
-		sauvegarder();
+		restaurerPanneaux();
+	}
+
+	/**
+	 * Remplit les variables spawn, heuteurMort et blocsSpeciaux en analysant les panneaux posés dans la map. Les variables sont vidées s'il y a une erreur.
+	 * @param p Joueur à qui envoyer les messages
+	 * @return true s'il n'y a aucune erreur, false sinon.
+	 */
+	boolean traiterPanneaux(Player p)
+	{
+		p.sendMessage(Config.prefix() + ChatColor.GRAY + "" + ChatColor.ITALIC + Langues.getMessage("creation.check signs"));
+
+		spawn = null;
+		hauteurMort = 0;
+		blocsSpeciaux = new ArrayList<BlocSpecial>();
+		List<String> erreurs = new ArrayList<String>();
+		// Variables juste là pour la vérif (pour pas avoir à les chercher dans la liste)
+		List<Block> departs = new ArrayList<Block>();
+		List<Block> arrivees = new ArrayList<Block>();
+		Block blocDeath = null;
+
+		// Recherche des panneaux de la map et remplissage des variables
+		for (Block bloc : getBlocks())
+		{
+			if (bloc.getType().equals(Material.SIGN_POST) || bloc.getType().equals(Material.WALL_SIGN))
+			{
+				Sign sign = (Sign) bloc.getState();
+				if (sign.getLine(0).toLowerCase().contains(BlocDepart.getTag()))
+				{
+					blocsSpeciaux.add(new BlocDepart(bloc));
+					departs.add(bloc);
+				}
+				else if (sign.getLine(0).toLowerCase().contains(BlocArrivee.getTag()))
+				{
+					blocsSpeciaux.add(new BlocArrivee(bloc));
+					arrivees.add(bloc);
+				}
+				else if (sign.getLine(0).toLowerCase().contains(BlocSpawn.getTag()))
+				{
+					if (spawn == null)
+					{
+						spawn = new BlocSpawn(bloc, bloc.getData());
+					}
+					else
+					{
+						erreurs.add(Langues.getMessage("creation.check.multiple sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocSpawn.getTag() + ChatColor.RESET + ChatColor.RED).replace("1", ChatColor.BOLD + "1" + ChatColor.RESET + ChatColor.RED));
+					}
+				}
+				else if (sign.getLine(0).toLowerCase().contains(BlocCheckpoint.getTag()))
+				{
+					blocsSpeciaux.add(new BlocCheckpoint(bloc, bloc.getData(), sign.getLine(1)));
+				}
+				else if (sign.getLine(0).toLowerCase().contains(BlocEffet.getTag()))
+				{
+					if (BlocEffet.estUnPanneauValide(sign.getLines(), p, bloc))
+					{
+						blocsSpeciaux.add(new BlocEffet(bloc, sign.getLine(1), Integer.valueOf(sign.getLine(2)), Integer.valueOf(sign.getLine(3))));
+					}
+				}
+				else if (sign.getLine(0).toLowerCase().contains(BlocGive.getTag()))
+				{
+					blocsSpeciaux.add(new BlocGive(bloc, sign.getLine(1), sign.getLine(2)));
+				}
+				else if (sign.getLine(0).toLowerCase().contains(CPUtils.bracket("death")))
+				{
+					if (hauteurMort == 0)
+					{
+						hauteurMort = sign.getY();
+						blocDeath = bloc;
+					}
+					else
+					{
+						erreurs.add(Langues.getMessage("creation.check.multiple sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + CPUtils.bracket("death") + ChatColor.RESET + ChatColor.RED).replace("1", ChatColor.BOLD + "1" + ChatColor.RESET + ChatColor.RED));
+					}
+				}
+				else if (sign.getLine(0).toLowerCase().contains(BlocMort.getTag()))
+				{
+					blocsSpeciaux.add(new BlocMort(bloc));
+				}
+				else if (sign.getLine(0).toLowerCase().contains(BlocTP.getTag()))
+				{
+					Location loc = null;
+					try {
+						loc = new Location(bloc.getWorld(), Double.valueOf(sign.getLine(1)), Double.valueOf(sign.getLine(2)), Double.valueOf(sign.getLine(3)));
+					} catch (Exception e) {
+						// Rien, le message est après
+					}
+					if (loc == null)
+						erreurs.add(Langues.getMessage("creation.check.tp error 1").replace("%loc", CPUtils.coordsToString(bloc.getX(), bloc.getY(), bloc.getZ())));
+					else if (!this.containsBlock(loc.getBlock()))
+						erreurs.add(Langues.getMessage("creation.check.tp error 2").replace("%loc", CPUtils.coordsToString(bloc.getX(), bloc.getY(), bloc.getZ())));
+					else
+						blocsSpeciaux.add(new BlocTP(bloc, loc));
+				}
+			}
+		}
+
+		if (departs.isEmpty())
+		{
+			erreurs.add(Langues.getMessage("creation.check.no sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocDepart.getTag() + ChatColor.RESET + ChatColor.RED));
+		}
+		if (arrivees.isEmpty())
+		{
+			erreurs.add(Langues.getMessage("creation.check.no sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocArrivee.getTag() + ChatColor.RESET + ChatColor.RED));
+		}
+		if (spawn == null)
+		{
+			erreurs.add(Langues.getMessage("creation.check.no sign error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + BlocSpawn.getTag() + ChatColor.RESET + ChatColor.RED));
+		}
+		boolean errHauteur = spawn != null && hauteurMort >= spawn.getBloc().getY();
+		if (!errHauteur) // Pas besoin de ces vérifications si on est déjà en erreur...
+		{
+			// Départs
+			for (int i=0; i < departs.size() && !errHauteur; i++)
+			{
+				if (hauteurMort > departs.get(i).getY())
+					errHauteur = true;
+			}
+			// Arrivées
+			for (int i=0; i < arrivees.size() && !errHauteur; i++)
+			{
+				if (hauteurMort > arrivees.get(i).getY())
+					errHauteur = true;
+			}
+		}
+		if (errHauteur)
+			erreurs.add(Langues.getMessage("creation.check.sign height error").replace("%type", ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + CPUtils.bracket("death") + ChatColor.RESET + ChatColor.RED));
+
+		List<String> messages = new ArrayList<String>();
+		for (int i=0; i < erreurs.size(); i++)
+		{
+			if (!messages.contains(erreurs.get(i)))
+			{
+				messages.add(erreurs.get(i));
+			}
+		}
+		for (int i=0; i < messages.size(); i++)
+		{
+			p.sendMessage(ChatColor.RED + messages.get(i));
+		}
+
+		// S'il y a des erreurs, on réinitialise les variables et on renvoir false
+		if (!erreurs.isEmpty())
+		{
+			spawn = null;
+			hauteurMort = 0;
+			blocsSpeciaux = new ArrayList<BlocSpecial>();
+			return false;
+		}
+		else
+		{
+			// Suppression des panneaux
+			spawn.supprimerPanneau();
+			if (blocDeath != null)
+			{
+				blocDeath.setType(Material.AIR);
+				blocHautMort = blocDeath;
+			}
+			for (BlocSpecial b : blocsSpeciaux)
+			{
+				b.supprimerPanneau();
+			}
+			placerOuRetirerPlaques();
+			return true;
+		}
 	}
 
 	/**
 	 * Place les panneaux dans la map en fonction des valeurs des variables (spawn, blocsSpeciaux...)
 	 */
-	private void restaurerPanneaux()
+	void restaurerPanneaux()
 	{
-		creerPanneau(spawn.getBloc(), spawn.getDir(), spawn.getPanneau(), true);
+		if (spawn != null && !(spawn.getBloc().equals(GameManager.getDefaultSpawn(monde, locMin.getX(), locMax.getX(), locMin.getY(), locMin.getZ(), locMax.getZ())) && spawn.getDir() == 0)) // Si c'est le spawn par défaut, on ne met pas le panneau
+			creerPanneau(spawn.getBloc(), spawn.getDir(), spawn.getPanneau());
 		// Blocs spéciaux
-		for (BlocSpecial bs : blocsSpeciaux)
+		if (blocsSpeciaux != null)
 		{
-			creerPanneau(bs.getBloc(), bs.getDir(), bs.getPanneau(), true);
+			for (BlocSpecial bs : blocsSpeciaux)
+			{
+				creerPanneau(bs.getBloc(), bs.getDir(), bs.getPanneau());
+			}
+			blocsSpeciaux.clear();
 		}
 
-		// Recherche d'un bloc libre pour la hauteur de mort
-		boolean stop = false;
-		for (int x=locMin.getX(); x <= locMax.getX() && !stop; x++)
+		if (blocHautMort == null)
 		{
-			for (int z=locMin.getZ(); z <= locMax.getZ() && !stop; z++)
+			// Recherche d'un bloc libre pour la hauteur de mort
+			boolean stop = false;
+			for (int x=locMin.getX(); x <= locMax.getX() && !stop; x++)
 			{
-				stop = creerPanneau(monde.getBlockAt(x, hauteurMort, z), (byte) 0, new String[]{CPUtils.bracket("death"), "", "", ""}, false);
+				for (int z=locMin.getZ(); z <= locMax.getZ() && !stop; z++)
+				{
+					stop = creerPanneau(monde.getBlockAt(x, hauteurMort, z), (byte) 0, new String[]{CPUtils.bracket("death"), "", "", ""});
+				}
 			}
 		}
+		else
+		{
+			creerPanneau(blocHautMort, (byte) 0, new String[]{CPUtils.bracket("death"), "", "", ""});
+			blocHautMort = null;
+		}
+		hauteurMort = 0;
+		
+		sauvegarder();
 	}
 
 	/**
@@ -1300,38 +1332,42 @@ public class CPMap
 	 * @param bloc Bloc où mettre le panneau
 	 * @param dir Direction du panneau
 	 * @param lignes
-	 * @param sol Si true, le panneau sera forcément sur le sol
 	 * @return True si le panneu a été placé, false sinon
 	 */
-	private boolean creerPanneau(Block bloc, byte dir, String[] lignes, boolean sol)
+	private boolean creerPanneau(Block bloc, byte dir, String[] lignes)
 	{
 		// Mise à jour du bloc
 		bloc = bloc.getWorld().getBlockAt(bloc.getX(), bloc.getY(), bloc.getZ());
 
 		boolean ok = false;
-		if (bloc.isEmpty()) // && bloc.getRelative(BlockFace.DOWN).getType().isSolid() TODO Remettre avec Spigot pour les rotations des panneaux muraux
+		if (bloc.getRelative(BlockFace.DOWN).getType().isSolid())
 		{
 			bloc.setType(Material.SIGN_POST);
 			bloc.setData(dir);
 			ok = true;
 		}
-		//		else if (!sol)
-		//		{
-		//			// Test des différentes faces
-		//			BlockFace[] faces = {BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST};
-		//			for (int i=0; i < faces.length && !ok; i++)
-		//			{
-		//				if (bloc.getRelative(faces[i]).getType().isSolid())
-		//				{
-		//					bloc.setType(Material.WALL_SIGN);
-		//					// Mettre la bonne face
-		//					ok = true;
-		//				}
-		//			}
-		//		}
+		else
+		{
+			// Test des différentes faces
+			BlockFace[] faces = {BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST};
+			for (BlockFace f : faces)
+			{
+				if (bloc.getRelative(f).getType().isSolid())
+				{
+					bloc.setType(Material.WALL_SIGN);
+					
+					org.bukkit.material.Sign signData = new org.bukkit.material.Sign(Material.WALL_SIGN);
+					signData.setFacingDirection(f.getOppositeFace());
+					org.bukkit.block.Sign sign = (org.bukkit.block.Sign) bloc.getState();
+					sign.setData(signData);
+					sign.update();
+					ok = true;
+				}
+			}
+		}
 
 		// Création du panneau
-		if (ok && bloc.getState() instanceof Sign) // && ok
+		if (ok && bloc.getState() instanceof Sign)
 		{
 			Sign panneau = ((Sign)bloc.getState());
 			panneau.setLine(0, lignes[0]);
@@ -1341,6 +1377,34 @@ public class CPMap
 			panneau.update();
 		}
 		return ok;
+	}
+
+	void togglePlates(Joueur j)
+	{
+		forceNoPlates = !forceNoPlates;
+		if (!forceNoPlates)
+			j.getPlayer().sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.noplates disabled"));
+		else
+			j.getPlayer().sendMessage(Config.prefix() + ChatColor.GREEN + Langues.getMessage("commands.noplates enabled"));
+		// S'il joue (ou teste), mise à jour des trucs
+		if (j.getEtat() == EtatJoueur.JEU || j.getEtat() == EtatJoueur.SPECTATEUR)
+			placerOuRetirerPlaques();
+		sauvegarder();
+	}
+
+	void placerOuRetirerPlaques()
+	{
+		boolean valConf = Config.getConfig().getBoolean("game.pressure plates as special blocks");
+		blocsSpeciauxAir.clear();
+		blocsSpeciauxPlaques.clear();
+		for (BlocSpecial bs : blocsSpeciaux)
+		{
+			bs.placerPlaqueOuAir(forceNoPlates || !valConf);
+			if (bs.estPlaquePression())
+				blocsSpeciauxPlaques.add(bs);
+			else
+				blocsSpeciauxAir.add(bs);
+		}
 	}
 
 	JsonObject getJson()
@@ -1767,7 +1831,7 @@ public class CPMap
 		j.invOptionsMaps.remplir();
 		j.getPlayer().openInventory(j.invOptionsMaps.getInventaire());
 	}
-	
+
 	/**
 	 * Increments attempt number for the specified player.
 	 * @param player Player's {@code UUID}.
@@ -1779,7 +1843,7 @@ public class CPMap
 			nb.incrementAndGet();
 		else
 			attempts.put(player, new AtomicInteger(1));
-		
+
 		// Incrementing general attempt count
 		if (CreativeParkour.stats() != null)
 			CreativeParkour.stats().parkoursTentes++;
@@ -1793,7 +1857,7 @@ public class CPMap
 	{
 		return attempts;
 	}
-	
+
 	/**
 	 * Reset number of attempts per player.
 	 */

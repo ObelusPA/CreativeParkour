@@ -1,7 +1,7 @@
 main: net.creativeparkour.CreativeParkour
 name: CreativeParkour
 description: Plugin that allows all the players to play and show their skills in fun parkour maps they build or download!
-version: 2.11.5.1
+version: 2.11.6
 author: Obelus
 load: POSTWORLD
 website: https://creativeparkour.net
@@ -66,8 +66,6 @@ permissions:
    creativeparkour.ghosts.save:
      description: Allows players to save the recording of their course when finishing a parkour.
      default: true
-     children:
-       creativeparkour.ghosts.see: true
    creativeparkour.ghosts.see:
      description: Allows players to see ghosts when playing parkour maps.
      default: true

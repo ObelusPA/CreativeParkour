@@ -47,16 +47,16 @@ class Help
 		String cmd = Config.getConfig().getBoolean("dont use cp") ? "/cpk " : "/cp ";
 
 		h.add(gold + cmd + Langues.getMessage("help.title").toLowerCase() + trans + Langues.getMessage("help.help"));
-		h.add(gold + cmd + Langues.getCommand("play") + " [" +Langues.getMessage("commands.map name") + "]" + trans + Langues.getMessage("help.play"));
+		h.add(gold + cmd + Langues.getCommand("play") + " [" + Langues.getMessage("commands.map name") + "]" + trans + Langues.getMessage("help.play"));
 		h.add(gold + cmd + Langues.getCommand("download") + " <map ID>" + trans + Langues.getMessage("help.download"));
 		h.add(gold + cmd + Langues.getCommand("create") + trans + Langues.getMessage("help.create"));
 		h.add(gold + cmd + Langues.getCommand("leave") + trans + Langues.getMessage("help.leave"));
 		h.add(gold + cmd + Langues.getCommand("test") + trans + Langues.getMessage("help.test"));
-		h.add(gold + cmd + Langues.getCommand("invite") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.invite"));
-		h.add(gold + cmd + Langues.getCommand("remove") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.remove"));
+		h.add(gold + cmd + Langues.getCommand("invite") + " <" + Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.invite"));
+		h.add(gold + cmd + Langues.getCommand("remove") + " <" + Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.remove"));
 		h.add(gold + cmd + Langues.getCommand("contributors") + trans + Langues.getMessage("help.contributors"));
 		h.add(gold + cmd + Langues.getCommand("settings") + trans + Langues.getMessage("help.settings"));
-		h.add(gold + cmd + Langues.getCommand("tp") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.tp"));
+		h.add(gold + cmd + Langues.getCommand("tp") + " <" + Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.tp"));
 		h.add(gold + cmd + Langues.getCommand("spectator") + trans + Langues.getMessage("help.spectator"));
 		h.add(gold + cmd + Langues.getCommand("publish") + trans + Langues.getMessage("help.publish"));
 		h.add(gold + cmd + Langues.getCommand("mapoptions") + trans + Langues.getMessage("help.mapoptions"));
@@ -74,13 +74,14 @@ class Help
 		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost moment") + " [" +Langues.getMessage("help.second") + "]" + trans + Langues.getMessage("help.ghost moment"));
 		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost select") + trans + Langues.getMessage("help.ghost select"));
 		h.add(gold + cmd + Langues.getCommand("ghost") + " " + Langues.getCommand("ghost watch") + " <" +Langues.getMessage("help.ghost id") + ">" + trans + Langues.getMessage("help.ghost watch"));
+		h.add(gold + cmd + Langues.getCommand("noplates") + trans + Langues.getMessage("help.noplates"));
 		h.add(gold + cmd + Langues.getCommand("register") + trans + Langues.getMessage("help.register"));
 		h.add(gold + cmd + Langues.getCommand("sync") + trans + Langues.getMessage("help.sync"));
 		h.add(gold + cmd + Langues.getCommand("managemaps") + trans + Langues.getMessage("help.managemaps"));
 		h.add(gold + cmd + Langues.getCommand("getid") + " [map name]" + trans + Langues.getMessage("help.getid"));
-		h.add(gold + cmd + Langues.getCommand("ban") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.ban"));
-		h.add(gold + cmd + Langues.getCommand("pardon") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.pardon"));
-		h.add(gold + cmd + Langues.getCommand("removetime") + " <" +Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.removetime"));
+		h.add(gold + cmd + Langues.getCommand("ban") + " <" + Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.ban"));
+		h.add(gold + cmd + Langues.getCommand("pardon") + " <" + Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.pardon"));
+		h.add(gold + cmd + Langues.getCommand("removetime") + " <" + Langues.getMessage("commands.playerN") + ">" + trans + Langues.getMessage("help.removetime"));
 
 		hop.add(yellow + cmd + "config" + trans + Langues.getMessage("help.config"));
 		hop.add(yellow + cmd + "language <language code>" + trans + Langues.getMessage("help.language"));

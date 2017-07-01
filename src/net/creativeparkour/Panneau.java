@@ -20,9 +20,11 @@ package net.creativeparkour;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 
 import org.bukkit.Bukkit;
@@ -371,6 +373,17 @@ class Panneau implements Listener
 				}
 			}
 		}
+	}
+	
+	static Set<CPMap> getMapsAvecPanneauClassement()
+	{
+		Set<CPMap> liste = new HashSet<CPMap>();
+		for (Panneau p : panneaux)
+		{
+			if (p instanceof PanneauClassement)
+				liste.add(((PanneauClassement) p).map);
+		}
+		return liste;
 	}
 
 

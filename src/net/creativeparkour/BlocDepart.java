@@ -24,7 +24,7 @@ class BlocDepart extends BlocSpecial
 {
 	BlocDepart(Block b)
 	{
-		super(b);
+		super(b, true);
 	}
 
 	@Override

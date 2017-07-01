@@ -24,7 +24,7 @@ class BlocMort extends BlocSpecial
 {
 	BlocMort(Block b)
 	{
-		super(b);
+		super(b, false);
 	}
 
 	@Override

@@ -418,14 +418,14 @@ class MainListener implements Listener
 	void onPlayerInteract(PlayerInteractEvent e)
 	{
 		try {
-			if (e.getHand() != EquipmentSlot.HAND) // Pour éviter que l'événement passe 2 fois (une fois pour chaque main)
+			if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) // Pour éviter que l'événement passe 2 fois (une fois pour chaque main)
 			{
 				return;
 			}
 		} catch (NoSuchMethodError err) {
 			// Rien
 		}
-	
+
 		Block b = e.getClickedBlock();
 		Player p = e.getPlayer();
 		Joueur j = GameManager.getJoueur(p);
@@ -434,8 +434,19 @@ class MainListener implements Listener
 		{
 			m = j.getMapObjet();
 		}
-	
-		if (e.getAction() == Action.PHYSICAL && b.getType() == Material.SOIL && m != null) // S'il saute sur de la terre labourée, on annule
+
+		if (m != null && j.getEtat() == EtatJoueur.JEU && e.getAction() == Action.PHYSICAL && b.getType() == Material.STONE_PLATE) // Si c'ets potentiellement un bloc spécial
+		{
+			for (BlocSpecial bs : m.getBlocsSpeciauxPlaques())
+			{
+				if (bs.estPasse(p.getLocation()))
+				{
+					bs.faireAction(j);
+					e.setCancelled(true);
+				}
+			}
+		}
+		else if (e.getAction() == Action.PHYSICAL && b.getType() == Material.SOIL && m != null) // S'il saute sur de la terre labourée, on annule
 		{
 			e.setCancelled(true);
 		}
@@ -571,7 +582,7 @@ class MainListener implements Listener
 						// On dévalide la map
 						m.setValide(false);
 						j.getPlayer().setScoreboard(m.getScoreboardC());
-	
+
 						CPUtils.sendInfoMessage(p, Langues.getMessage("play.interactions disabled when playing"));
 					}
 					else
@@ -608,143 +619,154 @@ class MainListener implements Listener
 	@EventHandler
 	void onPlayerMove(PlayerMoveEvent e)
 	{
-		final Player p = e.getPlayer();
-		final Joueur j = GameManager.getJoueur(p);
+		//long nano = System.nanoTime();
 		final Location l = e.getTo();
-		final Block b = e.getTo().getBlock();
-		CPMap m = null;
-		if (j != null)
+		if (l.getWorld().equals(Config.getMonde()))
 		{
-			// Sécurité pour NullPointerException
-			m = j.getMapObjet();
-		}
-		if (m == null && l.getWorld().equals(Config.getMonde()) && GameManager.estDansUneMap(l.getBlock()))
-		{
-			// Si un joueur tente d'entrer dans une map
-			p.teleport(e.getFrom());
-			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));
-		}
-		else if (j != null && m != null && l.getWorld().equals(m.getWorld()) && (!m.containsBlock(b) || l.getY() >= m.getMaxLoc().getY()))
-		{
-			// Si le joueur sort de la map
-			e.setCancelled(true);
-			if (j.aElytres())
+			final Player p = e.getPlayer();
+			final Joueur j = GameManager.getJoueur(p);
+			final Block b = e.getTo().getBlock();
+			CPMap m = null;
+			if (j != null)
 			{
-				ItemStack item = p.getInventory().getArmorContents()[2];
-				try {
-					if (item != null && item.getType() == Material.ELYTRA)
-					{
-						p.getInventory().setArmorContents(null);
-						new BukkitRunnable() {				
-							public void run()
-							{
-								j.donnerElytres();
-							}
-						}.runTaskLater(CreativeParkour.getPlugin(), 2);
-					}
-				} catch (NoSuchFieldError error) {
-					// Rien
-				}
+				// Sécurité pour NullPointerException
+				m = j.getMapObjet();
 			}
-		}
-		else if (j != null && m != null && j.getEtat() == EtatJoueur.JEU)
-		{
-			if (p.isSneaking() && !m.sneakAutorise)
+			if (m == null && GameManager.estDansUneMap(l.getBlock()))
 			{
-				// Si le joueur sneak alors que c'est interdit
-				e.setCancelled(true);
-				if (j.dernierMsgSneak == null || new Date().getTime() > j.dernierMsgSneak.getTime() + 1000) // Pour éviter le spam
-				{
-					p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("play.sneak disabled"));
-					j.dernierMsgSneak = new Date();
-				}
+				// Si un joueur tente d'entrer dans une map
+				p.teleport(e.getFrom());
+				p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));
 			}
-			else if (l.getY() <= m.getHauteurMort() + 0.4)
+			else if (j != null && m != null)
 			{
-				// Si le joueur tombe
-				List<BlocCheckpoint> checkpoints = j.getCheckpoints();
-				if (checkpoints.size() > 0)
+				if (!m.containsBlock(b) || l.getY() >= m.getMaxLoc().getY())
 				{
-					j.tpAvecSpectateurs(checkpoints.get(checkpoints.size()-1).getLocation().add(0.5, 0, 0.5));
-				}
-				else
-				{
-					j.tpAvecSpectateurs(m.getSpawn().getLocation().add(0.5, 0, 0.5));
-					j.giveMontre();
-					j.retirerElytres();
-					j.retirerPerles();
-					j.stopTimer();
-				}
-				p.playSound(p.getLocation(), CPUtils.getSound("ENTITY_ENDERMEN_TELEPORT", "ENDERMAN_TELEPORT"), 1, 1);
-			}
-			else
-			{
-				// Recherche de lave ou eau mortelles autour du joueur
-				boolean mort = false;
-				if (m.mortLave || m.mortEau)
-				{
-					List<Block> blocs = new ArrayList<Block>(); // Blocs à vérifier
-					blocs.add(b);
-					BlockFace [] faces = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_WEST, BlockFace.SOUTH_EAST};
-					for (BlockFace bf : faces)
+					// Si le joueur sort de la map
+					e.setCancelled(true);
+					if (j.aElytres())
 					{
-						blocs.add(b.getRelative(bf));
-					}
-					// Vérif de chaque bloc de la liste
-					for (Block rel : blocs)
-					{
-						if (CPUtils.blockTouched(rel, l))
-						{
-							if (m.mortLave && rel.getType() == Material.STATIONARY_LAVA)
+						ItemStack item = p.getInventory().getArmorContents()[2];
+						try {
+							if (item != null && item.getType() == Material.ELYTRA)
 							{
-								mort = true;
-								j.tuer();
-								if (!j.infoMortLave)
-								{
-									CPUtils.sendInfoMessage(p, Langues.getMessage("play.deadly lava"));
-									j.infoMortLave = true;
-								}
-								break;
+								p.getInventory().setArmorContents(null);
+								new BukkitRunnable() {				
+									public void run()
+									{
+										j.donnerElytres();
+									}
+								}.runTaskLater(CreativeParkour.getPlugin(), 2);
 							}
-							else if (m.mortEau && rel.getType() == Material.STATIONARY_WATER)
-							{
-								mort = true;
-								j.tuer();
-								if (!j.infoMortEau)
-								{
-									CPUtils.sendInfoMessage(p, Langues.getMessage("play.deadly water"));
-									j.infoMortEau = true;
-								}
-								break;
-							}
+						} catch (NoSuchFieldError error) {
+							// Rien
 						}
 					}
 				}
-
-				if (!mort)
+				else if (j.getEtat() == EtatJoueur.JEU)
 				{
-					// Recherche de blocs spéciaux passés
-					for (BlocSpecial bs : m.getBlocsSpeciaux())
+					//nano = CPUtils.debugNanoTime("PM0", nano);
+					if (l.getY() <= m.getHauteurMort() + 0.4)
 					{
-						if (bs.estPasse(l))
-							bs.faireAction(j);
+						// Si le joueur tombe
+						List<BlocCheckpoint> checkpoints = j.getCheckpoints();
+						if (checkpoints.size() > 0)
+						{
+							j.tpAvecSpectateurs(checkpoints.get(checkpoints.size()-1).getLocation().add(0.5, 0, 0.5));
+						}
+						else
+						{
+							j.tpAvecSpectateurs(m.getSpawn().getLocation().add(0.5, 0, 0.5));
+							j.giveMontre();
+							j.retirerElytres();
+							j.retirerPerles();
+							j.stopTimer();
+						}
+						p.playSound(p.getLocation(), CPUtils.getSound("ENTITY_ENDERMEN_TELEPORT", "ENDERMAN_TELEPORT"), 1, 1);
 					}
-				}
-			}
+					else if (!m.sneakAutorise && p.isSneaking())
+					{
+						// Si le joueur sneak alors que c'est interdit
+						e.setCancelled(true);
+						if (j.dernierMsgSneak == null || new Date().getTime() > j.dernierMsgSneak.getTime() + 1000) // Pour éviter le spam
+						{
+							p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("play.sneak disabled"));
+							j.dernierMsgSneak = new Date();
+						}
+					}
+					else
+					{
+						// Recherche de lave ou eau mortelles autour du joueur
+						boolean mort = false;
+						if (m.mortLave || m.mortEau)
+						{
+							List<Block> blocs = new ArrayList<Block>(); // Blocs à vérifier
+							blocs.add(b);
+							BlockFace [] faces = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_WEST, BlockFace.SOUTH_EAST};
+							for (BlockFace bf : faces)
+							{
+								blocs.add(b.getRelative(bf));
+							}
+							// Vérif de chaque bloc de la liste
+							for (Block rel : blocs)
+							{
+								if (CPUtils.blockTouched(rel, l))
+								{
+									if (m.mortLave && rel.getType() == Material.STATIONARY_LAVA)
+									{
+										mort = true;
+										j.tuer();
+										if (!j.infoMortLave)
+										{
+											CPUtils.sendInfoMessage(p, Langues.getMessage("play.deadly lava"));
+											j.infoMortLave = true;
+										}
+										break;
+									}
+									else if (m.mortEau && rel.getType() == Material.STATIONARY_WATER)
+									{
+										mort = true;
+										j.tuer();
+										if (!j.infoMortEau)
+										{
+											CPUtils.sendInfoMessage(p, Langues.getMessage("play.deadly water"));
+											j.infoMortEau = true;
+										}
+										break;
+									}
+								}
+							}
+						}
+						//nano = CPUtils.debugNanoTime("PM3", nano);
 
-			// Comptage des sauts du joueur
-			if (CreativeParkour.stats() != null)
-			{
-				if (e.getTo().getY() > e.getFrom().getY())
-				{
-					if (!j.enSaut)
-					{
-						j.enSaut = true;
-						CreativeParkour.stats().nbSauts++;
+						if (!mort)
+						{
+							// Recherche de blocs spéciaux passés
+							for (BlocSpecial bs : m.getBlocsSpeciauxAir())
+							{
+								if (bs.estPasse(l))
+									bs.faireAction(j);
+							}
+						}
+						//nano = CPUtils.debugNanoTime("PM4", nano);
 					}
+
+					// Comptage des sauts du joueur
+					if (CreativeParkour.stats() != null)
+					{
+						if (e.getTo().getY() > e.getFrom().getY())
+						{
+							if (!j.enSaut)
+							{
+								j.enSaut = true;
+								CreativeParkour.stats().nbSauts++;
+							}
+						}
+						else
+							j.enSaut = false;
+					}
+					//nano = CPUtils.debugNanoTime("PM5", nano);
 				}
-				else
-					j.enSaut = false;
 			}
 		}
 	}
