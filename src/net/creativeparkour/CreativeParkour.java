@@ -77,12 +77,11 @@ public class CreativeParkour extends JavaPlugin implements Listener
 
 		// Vérification de ProtocolLib en premier car on a besoin de savoir pendant l'initialisation
 		protocollib = Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
+		Config.enable(false);
 		if (!protocollib && Config.fantomesPasInterdits())
 		{
 			Bukkit.getLogger().info(Config.prefix(false) + "ProtocolLib plugin not detected on this server. You must install it to enable player visibility and ghost-related features in CreativeParkour.");
 		}
-
-		Config.enable(false);
 
 		getCommand("creativeparkour").setExecutor(new Commandes());
 		getCommand("cpd").setExecutor(new Commandes());

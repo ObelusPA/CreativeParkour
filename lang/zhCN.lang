@@ -1,7 +1,16 @@
 ban=你不能用CreativeParkour.
+commands.click=点击
+commands.contributors=贡献者
 commands.ban=禁止
+commands.claim=领取
 commands.ban_error=这个人已被禁止
 commands.pardon_error=这个人不被禁止
+commands.click_to_answer=点击来 确定 %answer
+commands.contributors_empty=你没有邀请任何人和你一起建造地图
 commands.cannot_be_undone=这不能被撤消
+commands.claim_error=你必须离开CreativeParkour来领取你的奖励（输入/cp leave）
+commands.claim_error_2=你没有可以领取的奖励
+commands.claim_error_3=你不能在这个世界领取奖励，如果你是管理员，请查看CreativeParkour的配置文件
+commands.config=指令;设置
 commands.ban_banned=%player (%uuid) 已经被封禁!
-cheaters.notification=创造跑酷已经在本服务器上检测到作弊的跑酷玩家，左键这里%L 来查看更多信息或者禁用本类通知。
+cheaters.notification=创造跑酷已经在本服务器上检测到作弊的跑酷玩家，%L左键这里%L 来查看更多信息或者禁用本类通知。
