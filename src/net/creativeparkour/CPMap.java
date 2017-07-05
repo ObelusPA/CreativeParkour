@@ -842,73 +842,76 @@ public class CPMap
 
 	void updateTemps(Joueur j)
 	{
-		CPTime temps = j.getTemps();
-		temps.realMilliseconds = j.getTempsReel();
-
-		double multiplicateur = temps.realMilliseconds / 1000.0 / 60.0;
-		if (multiplicateur < 1)
-			multiplicateur = 1;
-		if (Config.getConfig().getInt("game.milliseconds difference") > 0 && Math.abs(temps.realMilliseconds - temps.ticks * 50) > Config.getConfig().getInt("game.milliseconds difference") * multiplicateur)
+		if (!Config.getConfig().getBoolean("game.disable leaderboards"))
 		{
-			j.getPlayer().sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("play.timer error").replace("%ticks", String.valueOf(temps.ticks)).replace("%tsec", String.valueOf(temps.inSeconds())).replace("%seconds", String.valueOf(temps.realMilliseconds / 1000.0)));
-			Bukkit.getLogger().warning(Config.prefix(false) + Langues.getMessage("play.timer error log").replace("%player", j.getPlayer().getName()).replace("%ticks", String.valueOf(temps.ticks)).replace("%tsec", String.valueOf(temps.inSeconds())).replace("%seconds", String.valueOf(temps.realMilliseconds / 1000.0)));
-		}
-		else
-		{
-			CPTime tempsPreced = getTime(j.getUUID());
+			CPTime temps = j.getTemps();
+			temps.realMilliseconds = j.getTempsReel();
 
-			boolean maj = false;
-			if (tempsPreced == null)
+			double multiplicateur = temps.realMilliseconds / 1000.0 / 60.0;
+			if (multiplicateur < 1)
+				multiplicateur = 1;
+			if (Config.getConfig().getInt("game.milliseconds difference") > 0 && Math.abs(temps.realMilliseconds - temps.ticks * 50) > Config.getConfig().getInt("game.milliseconds difference") * multiplicateur)
 			{
-				maj = true;
+				j.getPlayer().sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("play.timer error").replace("%ticks", String.valueOf(temps.ticks)).replace("%tsec", String.valueOf(temps.inSeconds())).replace("%seconds", String.valueOf(temps.realMilliseconds / 1000.0)));
+				Bukkit.getLogger().warning(Config.prefix(false) + Langues.getMessage("play.timer error log").replace("%player", j.getPlayer().getName()).replace("%ticks", String.valueOf(temps.ticks)).replace("%tsec", String.valueOf(temps.inSeconds())).replace("%seconds", String.valueOf(temps.realMilliseconds / 1000.0)));
 			}
-			else if (temps.ticks < tempsPreced.ticks)
+			else
 			{
-				maj = true;
-				j.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + Langues.getMessage("play.time record"));
-			}
-			else if (etat == CPMapState.CREATION)
-			{
-				maj = true;
-			}
+				CPTime tempsPreced = getTime(j.getUUID());
 
-			CPTime recordman = getRecord();
-
-			if (maj)
-			{
-				temps.sauvegarder();
-				getListeTemps(true); // Mise à jour de la liste de temps
-
-				// Mise à jour des scoreboard des autres joueurs
-				List<Joueur> joueurs = GameManager.getJoueurs(uuid);
-				for (int i1=0; i1 < joueurs.size(); i1++)
+				boolean maj = false;
+				if (tempsPreced == null)
 				{
-					joueurs.get(i1).calculerScoreboard();
+					maj = true;
+				}
+				else if (temps.ticks < tempsPreced.ticks)
+				{
+					maj = true;
+					j.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + Langues.getMessage("play.time record"));
+				}
+				else if (etat == CPMapState.CREATION)
+				{
+					maj = true;
 				}
 
-				// Mise à jour des panneaux de classements
-				if (isPlayable())
-					Panneau.majClassements(this);
+				CPTime recordman = getRecord();
 
-				if (recordman != null && recordman.ticks > temps.ticks && !recordman.playerUUID.equals(j.getPlayer().getUniqueId()))
+				if (maj)
 				{
-					Player autreJoueur = Bukkit.getPlayer(recordman.playerUUID);
-					if (autreJoueur != null && !Config.isBanned(autreJoueur)) // Notification à celui qui s'est fait battre son record
+					temps.sauvegarder();
+					getListeTemps(true); // Mise à jour de la liste de temps
+
+					// Mise à jour des scoreboard des autres joueurs
+					List<Joueur> joueurs = GameManager.getJoueurs(uuid);
+					for (int i1=0; i1 < joueurs.size(); i1++)
 					{
-						Joueur autreJoueurJ = GameManager.getJoueur(autreJoueur);
-						if (autreJoueurJ == null)
-						{
-							autreJoueurJ = new Joueur(autreJoueur, false);
-							GameManager.addJoueur(autreJoueurJ);
-						}
-						if (autreJoueurJ.getParamBool(PlayerSetting.NOTIFICATIONS) && isPlayable())
-						{
-							// Message avec texte cliquable pour jouer la map
-							CPUtils.sendClickableMsg(autreJoueur, Langues.getMessage("play.record notification").replace("%player", j.getPlayer().getName()).replace("%map", ChatColor.ITALIC + nom + ChatColor.LIGHT_PURPLE), "/cp play " + nom, null, "%L", ChatColor.LIGHT_PURPLE);
-							autreJoueurJ.infoDesactiverNotification();
-						}
+						joueurs.get(i1).calculerScoreboard();
 					}
-					j.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + Langues.getMessage("play.time server record").replace("%player", recordman.getPlayerName()));
+
+					// Mise à jour des panneaux de classements
+					if (isPlayable())
+						Panneau.majClassements(this);
+
+					if (recordman != null && recordman.ticks > temps.ticks && !recordman.playerUUID.equals(j.getPlayer().getUniqueId()))
+					{
+						Player autreJoueur = Bukkit.getPlayer(recordman.playerUUID);
+						if (autreJoueur != null && !Config.isBanned(autreJoueur)) // Notification à celui qui s'est fait battre son record
+						{
+							Joueur autreJoueurJ = GameManager.getJoueur(autreJoueur);
+							if (autreJoueurJ == null)
+							{
+								autreJoueurJ = new Joueur(autreJoueur, false);
+								GameManager.addJoueur(autreJoueurJ);
+							}
+							if (autreJoueurJ.getParamBool(PlayerSetting.NOTIFICATIONS) && isPlayable())
+							{
+								// Message avec texte cliquable pour jouer la map
+								CPUtils.sendClickableMsg(autreJoueur, Langues.getMessage("play.record notification").replace("%player", j.getPlayer().getName()).replace("%map", ChatColor.ITALIC + nom + ChatColor.LIGHT_PURPLE), "/cp play " + nom, null, "%L", ChatColor.LIGHT_PURPLE);
+								autreJoueurJ.infoDesactiverNotification();
+							}
+						}
+						j.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + Langues.getMessage("play.time server record").replace("%player", recordman.getPlayerName()));
+					}
 				}
 			}
 		}
@@ -1323,7 +1326,7 @@ public class CPMap
 			blocHautMort = null;
 		}
 		hauteurMort = 0;
-		
+
 		sauvegarder();
 	}
 
@@ -1355,7 +1358,7 @@ public class CPMap
 				if (bloc.getRelative(f).getType().isSolid())
 				{
 					bloc.setType(Material.WALL_SIGN);
-					
+
 					org.bukkit.material.Sign signData = new org.bukkit.material.Sign(Material.WALL_SIGN);
 					signData.setFacingDirection(f.getOppositeFace());
 					org.bukkit.block.Sign sign = (org.bukkit.block.Sign) bloc.getState();
@@ -1786,19 +1789,23 @@ public class CPMap
 
 	CPTime getTempsAvecFichier(File fichier)
 	{
-		try {
-			YamlConfiguration yml = CPUtils.getYML(fichier);
-			CPTime t = new CPTime(UUID.fromString(yml.getString("player uuid")), this, yml.getInt("ticks"));
-			t.ajouterCheckpoints(yml.get("checkpoints"));
-			t.ajouterPositions(yml.get("ghost"));
-			t.date = new Date(yml.getLong("date"));
-			if (yml.getString("state") != null)
-				t.etat = EtatTemps.valueOf(yml.getString("state"));
-			t.realMilliseconds = yml.getLong("real milliseconds");
-			return t;
-		} catch (NullPointerException e) {
-			return null;
+		if (!Config.getConfig().getBoolean("game.disable leaderboards"))
+		{
+			try {
+				YamlConfiguration yml = CPUtils.getYML(fichier);
+				CPTime t = new CPTime(UUID.fromString(yml.getString("player uuid")), this, yml.getInt("ticks"));
+				t.ajouterCheckpoints(yml.get("checkpoints"));
+				t.ajouterPositions(yml.get("ghost"));
+				t.date = new Date(yml.getLong("date"));
+				if (yml.getString("state") != null)
+					t.etat = EtatTemps.valueOf(yml.getString("state"));
+				t.realMilliseconds = yml.getLong("real milliseconds");
+				return t;
+			} catch (NullPointerException e) {
+				return null;
+			}
 		}
+		return null;
 	}
 
 	/**

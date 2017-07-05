@@ -17,6 +17,7 @@
 
 package net.creativeparkour;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -209,9 +210,13 @@ class InventaireSelection
 							}
 							else
 							{
-								YamlConfiguration record = CPUtils.getYML(GameManager.getFichierTemps(m.getUUID().toString() + "_" + p.getUniqueId().toString()));
-								if (record != null)
-									secondes = (float) (record.getInt("ticks") / 20.0);
+								File f = GameManager.getFichierTemps(m.getUUID().toString() + "_" + p.getUniqueId().toString());
+								if (f != null)
+								{
+									YamlConfiguration record = CPUtils.getYML(f);
+									if (record != null)
+										secondes = (float) (record.getInt("ticks") / 20.0);
+								}
 							}
 							//					nano2 = Util.debugNanoTime("IS4e", nano2);
 							if (secondes > 0)

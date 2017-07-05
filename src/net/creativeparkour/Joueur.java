@@ -326,7 +326,7 @@ class Joueur
 							slot--;
 						}
 
-						if (Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see")) // Si les fantomes sont activés ou que le problème est que ProtocolLib n'est pas là
+						if (Config.fantomesPasInterdits() && player.hasPermission("creativeparkour.ghosts.see") && !Config.getConfig().getBoolean("game.disable leaderboards")) // Si les fantomes sont activés ou que le problème est que ProtocolLib n'est pas là
 						{
 							item = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
 							im = item.getItemMeta();
@@ -368,7 +368,7 @@ class Joueur
 		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		// Secondes
 		objective = scoreboard.registerNewObjective("cp_time", "dummy");
-		String titre = m.isPlayable() ? Langues.getMessage("play.leaderboard") : Langues.getMessage("play.time");
+		String titre = m.isPlayable() && !Config.getConfig().getBoolean("game.disable leaderboards") ? Langues.getMessage("play.leaderboard") : Langues.getMessage("play.time");
 		String s = ChatColor.GOLD + "" + ChatColor.BOLD + titre;
 		if (s.length() > 32) { s = s.substring(0, 32); }
 		objective.setDisplayName(s);

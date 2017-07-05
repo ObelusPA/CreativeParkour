@@ -137,6 +137,7 @@ class Config implements Listener
 		path = "game.update players before teleporting"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.only leave with creativeparkour command"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.negative leaderboard"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
+		path = "game.disable leaderboards"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.enable map rating"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "game.freeze redstone"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "game.pressure plates as special blocks"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }

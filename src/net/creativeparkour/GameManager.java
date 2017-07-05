@@ -491,7 +491,7 @@ class GameManager implements Listener
 					paramsPost.put("fantomesSupprimes", tempsExclus.toString());
 
 					paramsPost.put("envoiFantomesAutorise", Config.getConfig().getString("online.upload ghosts"));
-					paramsPost.put("telechargementFantomesAutorise", Config.getConfig().getString("online.download ghosts"));
+					paramsPost.put("telechargementFantomesAutorise", String.valueOf(Config.getConfig().getBoolean("online.download ghosts") && !Config.getConfig().getBoolean("game.disable leaderboards")));
 
 					if (sender != null)
 						sender.sendMessage(CPRequest.messageAttente());
@@ -935,6 +935,8 @@ class GameManager implements Listener
 
 	static List<File> getFichiersTemps()
 	{
+		if (Config.getConfig().getBoolean("game.disable leaderboards"))
+			return new ArrayList<File>();
 		return CPUtils.filesInFolder(dossier_temps);
 	}
 
@@ -2687,7 +2689,9 @@ class GameManager implements Listener
 
 	static File getFichierTemps(String nomFichier)
 	{
-		return new File(dossier_temps, nomFichier + ".yml");
+		if (!Config.getConfig().getBoolean("game.disable leaderboards"))
+			return new File(dossier_temps, nomFichier + ".yml");
+		return null;
 	}
 
 	static File getFichierMap(int idMap)
