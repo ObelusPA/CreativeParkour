@@ -30,7 +30,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 
 class RewardManager implements Listener
 {
-	private enum TypeRecompense {ITEM, XP, MONEY};
+	private enum TypeRecompense {ITEM, XP, MONEY, COMMAND};
 	static File file;
 	private static YamlConfiguration config;
 	private static Set<String> mondesClaim;
@@ -70,6 +70,12 @@ class RewardManager implements Listener
 			config.set("example3.once", false);
 			config.set("example3.amount", 150);
 			config.set("example3.cooldown", 60);
+			// Commandes
+			config.set("example4.type", "COMMAND");
+			config.set("example4.map", "all");
+			config.set("example4.once", false);
+			config.set("example4.command", "effect @player REGENERATION 10 1");
+			config.set("example4.displayname", "Regeneration II for 10 seconds");
 		}
 
 		config.options().header("Documentation: https://creativeparkour.net/doc/rewards.php");
@@ -162,6 +168,8 @@ class RewardManager implements Listener
 
 	private static String recompenseToString(ConfigurationSection recomp) throws Exception
 	{
+		if (recomp.contains("displayname"))
+			return recomp.getString("displayname");
 		TypeRecompense type = getType(recomp);
 		if (type == TypeRecompense.ITEM)
 		{
@@ -181,6 +189,10 @@ class RewardManager implements Listener
 				return null;
 			}
 			return Config.getConfig().getString("rewards.currency").replace("%amount", recomp.getString("amount"));
+		}
+		else if (type == TypeRecompense.COMMAND)
+		{
+			return recomp.getString("displayname");
 		}
 		return null;
 	}
@@ -262,6 +274,10 @@ class RewardManager implements Listener
 											p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("rewards.money error"));
 									}
 								}
+								else if (type == TypeRecompense.COMMAND)
+								{
+									Bukkit.dispatchCommand(Bukkit.getConsoleSender(), recomp.getString("command").replace("@player", p.getName()));
+								}
 
 								// Message
 								p.sendMessage(ChatColor.GOLD + Langues.getMessage("rewards.received").replace("%reward", recompenseToString(recomp)));
@@ -307,6 +323,7 @@ class RewardManager implements Listener
 		keys.remove("example1");
 		keys.remove("example2");
 		keys.remove("example3");
+		keys.remove("example4");
 		return keys;
 	}
 
