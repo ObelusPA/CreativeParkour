@@ -433,3 +433,4 @@ help.language=Cambiar el idioma del complemento.
 play.firework_error=Los cohetes de fuego artificial sólo se pueden utilizar como un alza al volar con Elytra.
 play.quality=Calidad
 commands.help=ayuda
+play.items.leave=Salir

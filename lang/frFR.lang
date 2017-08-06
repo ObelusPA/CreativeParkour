@@ -474,3 +474,4 @@ commands.noplates=pasplaques;pasplaquespression
 commands.noplates_enabled=Cette map n'utilisera pas de plaques de pression pour ses blocs spéciaux. Refaites cette commande pour réactiver les plaques. Pour arrêter d'en utiliser dans toutes les maps, modifiez la configuration de CreativeParkour.
 commands.noplates_disabled=Cette map utilisera des plaques de pression pour ses blocs spéciaux si vous avez activé cette option dans la configuration de CreativeParkour.
 help.noplates=Ne pas utiliser de plaques de pression pour les blocs spéciaux d'une map.
+play.items.leave=Quitter

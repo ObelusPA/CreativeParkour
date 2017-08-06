@@ -470,3 +470,4 @@ disable=wyłącz
 commands.help=pomoc
 commands.download_already_downloaded=Ta mapa jest już pobrana na Twoim serwerze.
 commands.download_done=Mapa %map została pomyślnie pobrana i utworzona.
+play.items.leave=Wyjdź

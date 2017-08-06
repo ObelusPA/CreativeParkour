@@ -474,3 +474,4 @@ commands.noplates=noplates;nopressureplates
 commands.noplates_enabled=This map will not use pressure plates as special blocks. Type this command again to re-enable this. To stop using pressure plates in all the maps, change CreativeParkour's configuration.
 commands.noplates_disabled=This map will use pressure plates as special blocks if you enabled the option in CreativeParkour's configuration.
 help.noplates=Don't use pressure plates as special blocks in a map.
+play.items.leave=Leave

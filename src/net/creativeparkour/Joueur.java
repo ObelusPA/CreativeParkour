@@ -301,8 +301,8 @@ class Joueur
 
 					item = new ItemStack(Material.INK_SACK, 1, (short) 1);
 					im = item.getItemMeta();
-					String msg = m.contientTesteur(player) ? Langues.getMessage("play.items.leave test") : Langues.getCommand("leave");
-					im.setDisplayName(ChatColor.RED + CPUtils.ucfirst(msg) + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
+					String msg = m.contientTesteur(player) ? Langues.getMessage("play.items.leave test") : Langues.getMessage("play.items.leave");
+					im.setDisplayName(ChatColor.RED + msg + ChatColor.GRAY + " (" + Langues.getMessage("play.items.right click") + ")");
 					item.setItemMeta(im);
 					inv.setItem(slot, item);
 					slot--;

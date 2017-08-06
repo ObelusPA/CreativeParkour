@@ -58,7 +58,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 			Bukkit.getLogger().warning("It seems that you are using Bukkit. CreativeParkour is no longer compatible with it, please use Spigot. https://www.spigotmc.org/wiki/buildtools/");
 		}
 
-		// Auto updater
+		// Auto updater (done before the rest in case of a plugin crash)
 		if (YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "configuration.yml")).getBoolean("enable auto updater"))
 		{
 			// Only this class is used to update the plugin, it connects to "https://api.curseforge.com"

@@ -476,3 +476,4 @@ commands.noplates=keineplatten;keinedruckplatten
 commands.noplates_enabled=Diese Karte wird Druckplatten nicht als Spezialblöcke nutzen. Tippe diesen Befehl wieder ein, um die Funktion wieder zu aktivieren. Um das benutzen von Druckplatten in allen Karten zu unterbinden, sollte die CreativeParkour-Konfigurationsdatei angepasst werden.
 commands.noplates_disabled=Wenn du in der CreativeParkour-Konfigurationsdatei die Einstellung aktivierst, nutzt diese Karte Druckplatten als Spezialblöcke.
 help.noplates=Druckplatten nicht als Spezialblöcke in einer Karte verwenden.
+play.items.leave=Verlassen
