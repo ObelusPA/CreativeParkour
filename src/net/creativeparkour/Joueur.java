@@ -196,16 +196,15 @@ class Joueur
 
 		items.add(livre);
 		boolean we = CreativeParkour.getWorldEdit() != null && player.hasPermission("creativeparkour.worldedit");
-		if (we) items.add(new ItemStack(Config.getWorldEditItem()));
-		items.add(new ItemStack(Material.SIGN));
-
-		if (we)
-		{
-			ItemMeta im = items.get(1).getItemMeta();
+		if (we) {
+			ItemStack item = new ItemStack(Config.getWorldEditItem());
+			items.add(item);
+			ItemMeta im = item.getItemMeta();
 			im.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + Langues.getMessage("creation.items.worldedit wand"));
 			im.addEnchant(Enchantment.DIG_SPEED, 10, true);
-			items.get(1).setItemMeta(im);
+			item.setItemMeta(im);
 		}
+		items.add(new ItemStack(Material.SIGN));
 
 		// Petit délai avant de filer les objets et de mettre en créatif pour éviter que d'autres plugins ne fassent chier
 		Bukkit.getScheduler().runTaskLater(CreativeParkour.getPlugin(), new Runnable() {
