@@ -197,7 +197,7 @@ class Joueur
 		items.add(livre);
 		boolean we = CreativeParkour.getWorldEdit() != null && player.hasPermission("creativeparkour.worldedit");
 		if (we) {
-			ItemStack item = new ItemStack(Config.getWorldEditItem());
+			ItemStack item = Config.getWorldEditItem();
 			items.add(item);
 			ItemMeta im = item.getItemMeta();
 			im.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + Langues.getMessage("creation.items.worldedit wand"));

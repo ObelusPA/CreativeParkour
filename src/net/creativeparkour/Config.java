@@ -43,6 +43,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import com.google.gson.JsonObject;
@@ -391,15 +392,15 @@ class Config implements Listener
 				(float) configGenerale.getDouble("game.exit location.yaw"), (float) configGenerale.getDouble("game.exit location.pitch"));
 	}
 
-	static Material getWorldEditItem()
+	static ItemStack getWorldEditItem()
 	{
-		Material m = null;
+		ItemStack item = null;
 		try {
-			m = Material.getMaterial(configGenerale.getString("map creation.worldedit item"));
+			item = new ItemStack(Material.getMaterial(configGenerale.getString("map creation.worldedit item")));
 		} catch (Exception e) {
 			Bukkit.getLogger().warning(Config.prefix(false) + configGenerale.getString("map creation.worldedit item") + " is not a valid item (configuration.yml).");
 		}
-		return m == null ? Material.WOOD_AXE : m;
+		return item == null || !item.hasItemMeta() ? new ItemStack(Material.WOOD_AXE) : item;
 	}
 
 

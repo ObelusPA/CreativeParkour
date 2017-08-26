@@ -71,7 +71,7 @@ class MainListener implements Listener
 		else
 		{
 			Joueur j = GameManager.getJoueur(p);
-			if (j != null && j.getEtat() == EtatJoueur.CREATION && j.worldEdit() != null && CPUtils.itemInHand(p) != null && CPUtils.itemInHand(p).getType() == Config.getWorldEditItem())
+			if (j != null && j.getEtat() == EtatJoueur.CREATION && j.worldEdit() != null && CPUtils.itemInHand(p) != null && CPUtils.itemInHand(p).getType() == Config.getWorldEditItem().getType())
 			{
 				j.worldEdit().verifSelection(j);
 			}
