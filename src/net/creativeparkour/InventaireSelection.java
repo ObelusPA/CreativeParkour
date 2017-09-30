@@ -382,8 +382,10 @@ class InventaireSelection
 
 	void clic(int slot, ClickType clickType) throws NoSuchMethodException, SecurityException
 	{
+		long nano = System.nanoTime();
 		CPMap m = elements.get(slot);
 		ActionInv action = speciaux.get(slot);
+		nano = CPUtils.debugNanoTime("INVSEL1", nano);
 		if (m != null)
 		{
 			if (m.getWebData() == null)
@@ -396,6 +398,7 @@ class InventaireSelection
 				else
 					GameManager.telechargerMap(p, (String) m.getWebData().get("id"));
 			}
+			nano = CPUtils.debugNanoTime("INVSEL2", nano);
 		}
 		else if (action != null)
 		{
@@ -500,6 +503,7 @@ class InventaireSelection
 				trier();
 				setPage(page);
 			}
+			nano = CPUtils.debugNanoTime("INVSEL3", nano);
 		}
 	}
 

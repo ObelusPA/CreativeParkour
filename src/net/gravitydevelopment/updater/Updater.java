@@ -419,6 +419,8 @@ public class Updater {
 		try {
 			URL fileUrl = followRedirects(this.versionLink);
 			final int fileLength = fileUrl.openConnection().getContentLength();
+			if (fileLength < 1000)
+				throw new Exception("Invalid file");
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			in = new DigestInputStream(new BufferedInputStream(fileUrl.openStream()), md);
 			fout = new FileOutputStream(new File(this.updateFolder, file.getName()));
