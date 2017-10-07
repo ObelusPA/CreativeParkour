@@ -76,6 +76,17 @@ class JoueurWorldEdit
 		this.listePerms.add("worldedit.clipboard.paste");
 		this.listePerms.add("worldedit.clipboard.flip");
 		this.listePerms.add("worldedit.clipboard.rotate");
+		this.listePerms.add("worldedit.brush.sphere");
+		this.listePerms.add("worldedit.brush.cylinder");
+		this.listePerms.add("worldedit.brush.clipboard");
+		this.listePerms.add("worldedit.brush.smooth");
+		this.listePerms.add("worldedit.brush.ex");
+		this.listePerms.add("worldedit.brush.gravity");
+		this.listePerms.add("worldedit.brush.butcher");
+		this.listePerms.add("worldedit.brush.options.material");
+		this.listePerms.add("worldedit.brush.options.range");
+		this.listePerms.add("worldedit.brush.options.size");
+		this.listePerms.add("worldedit.brush.options.mask");
 		WorldEditEvents.register();
 	}
 
