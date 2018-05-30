@@ -348,13 +348,13 @@ class Joueur
 
 						giveMontre();
 
-						YamlConfiguration conf = getConf();
+						/*YamlConfiguration conf = getConf();
 						if (m.getCreator().equals(uuid) && conf.getBoolean("sharing announcement") != true)
 						{
 							player.sendMessage(Config.prefix() + ChatColor.AQUA + Langues.getMessage("commands.share announcement"));
 							conf.set("sharing announcement", true);
 							saveConf();
-						}
+						}*/
 
 						choixFantomesPreferes();
 						majTeteFantomes();
@@ -855,13 +855,13 @@ class Joueur
 				// On lui donne l'objet pour mettre la scoreboard en mode ticks
 				giveMontre();
 
-				YamlConfiguration conf = getConf();
+				/*YamlConfiguration conf = getConf();
 				if (m.getState() == CPMapState.DOWNLOADED && Config.online() && player.hasPermission("creativeparkour.share") && Config.getConfig().getBoolean("game.sharing info in downloaded maps") && conf.getBoolean("sharing announcement 2") != true)
 				{
 					CPUtils.sendClickableMsg(player, Langues.getMessage("config.sharing.announcement 2"), null, "https://creativeparkour.net/doc/add-map.php", "%L", ChatColor.AQUA);
 					conf.set("sharing announcement 2", true);
 					Config.saveConfJoueur(uuid.toString());
-				}
+				}*/
 
 				if (Config.getConfig().getBoolean("game.enable map rating"))
 				{

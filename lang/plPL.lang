@@ -1,5 +1,5 @@
 leave=Opuściłeś CreativeParkour.
-ban=Masz zakaz używania CreativeParkour.
+ban=Nie masz pozwolenia na używanie CreativeParkour.
 pinned=Przypięte
 error=Przepraszamy, wystąpił błąd podczas wykonywania tego polecenia, zostanie ono zgłoszone.
 commands.help_info=Wpisz '/cp pomoc' po pełną pomoc.
@@ -104,7 +104,7 @@ creation.status=Status mapy
 creation.validated=Zweryfikowana
 creation.unvalidated=Niezweryfikowana
 creation.published=Twoja mapa została pomyślnie opublikowana, inni gracze mogą przyjść grać!
-creation.wand.error=Przepraszamy, coś poszło nie tak z WorldEdit. Może część Twojego wybranego obszaru jest poza maą (nie wyznaczaj warstwę skały macierzystej). Możesz użyć "//undo".
+creation.wand.error=Przepraszamy, coś poszło nie tak z WorldEdit. Może część wybranych bloków, które chcesz zmienić jest poza mapą lub jest częścią warstwy bloku macierzystej, albo blokiem ściany bariery. Możesz użyć "//undo".
 play.title=Wybierz mapę do gry
 play.page=Strona
 play.difficulty=Trudność

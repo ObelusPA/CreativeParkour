@@ -180,7 +180,7 @@ public class CPRequest implements Runnable
 					//connection.addRequestProperty("Accept", "application/json");
 					//connection.addRequestProperty("Connection", "close");
 					connection.setRequestProperty("charset", "utf-8");
-					connection.setRequestProperty("Transfer-Encoding","chunked");
+					connection.setRequestProperty("Transfer-Encoding", "chunked");
 
 					connection.setDoOutput(true);
 

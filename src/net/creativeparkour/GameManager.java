@@ -706,6 +706,7 @@ class GameManager implements Listener
 						}
 
 
+						/*
 						// Envoi des notes et des fantômes
 						Map<String, String> paramsPost = new HashMap<String, String>();
 						if (notesAEnvoyer.length() > 0)
@@ -743,6 +744,7 @@ class GameManager implements Listener
 								CreativeParkour.erreur("DATA", e, true);
 							}
 						}
+						*/
 
 						vidangeMemoire();
 					}
@@ -1152,7 +1154,7 @@ class GameManager implements Listener
 
 	static void telechargerMap(CommandSender sender, String arg) throws NoSuchMethodException, SecurityException
 	{
-		if (!Config.online())
+		if (false && !Config.online())
 			sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error disabled"));
 		else if (!NumberUtils.isNumber(arg) && !arg.toLowerCase().contains("?id=") /*&& !idMap.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")*/) // Si ce n'est ni un nombre, ni un URL, ni un UUID
 			sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("commands.download error ID"));
@@ -1174,7 +1176,7 @@ class GameManager implements Listener
 				HashMap<String, String> params = new HashMap<String, String>();
 				if (p != null)
 				{
-					params.put("ipJoueur", p.getAddress().getHostName());
+					//params.put("ipJoueur", p.getAddress().getHostName()); GDPR
 					params.put("uuidJoueur", p.getUniqueId().toString());
 				}
 				params.put("idMap", arg);
@@ -2792,6 +2794,18 @@ class GameManager implements Listener
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Removes all WorldEdit permissions given by CreativeParkour to players
+	 */
+	static void revertWEPermissions()
+	{
+		for (Joueur j : joueurs)
+		{
+			if (j.worldEdit() != null)
+				j.worldEdit().desactiver();
 		}
 	}
 }

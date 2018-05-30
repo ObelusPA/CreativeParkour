@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
@@ -81,12 +82,17 @@ class WorldEditLogger extends AbstractLoggingExtent {
 		// mean that the player could either be a ForgePlayer or a
 		// BukkitPlayer, or even maybe something else!
 		//System.out.println(actor.getName() + " set block @ " + position + " from " + oldBlock + " to " + newBlock);
-		final Joueur j = GameManager.getJoueur(Bukkit.getPlayer(actor.getName()));
+		
+		Player p = Bukkit.getPlayer(actor.getName());
+		final Joueur j = GameManager.getJoueur(p);
+		boolean revert = false;
+		boolean dansUneMap = false;
 		if (j != null)
 		{
 			final CPMap m = j.getMapObjet();
 			if (j.getEtat() == EtatJoueur.CREATION && m != null)
 			{
+				dansUneMap = true;
 				boolean maj = true;
 				if (WorldEditEvents.majMaps.containsKey(m) && WorldEditEvents.majMaps.get(m).getTime() + 1000 > new Date().getTime()) // Si la dernière mise à jour était il y a moins d'une seconde, pas de mise à jour
 					maj = false;
@@ -103,8 +109,7 @@ class WorldEditLogger extends AbstractLoggingExtent {
 				if (m.estEnTest() || position.getBlockX() < m.getMinLoc().getX() || position.getBlockY() < m.getMinLoc().getY() || position.getBlockZ() < m.getMinLoc().getZ() || 
 						position.getBlockX() > m.getMaxLoc().getX() || position.getBlockY() > m.getMaxLoc().getY() || position.getBlockZ() > m.getMaxLoc().getZ())
 				{
-
-					newBlock.setIdAndData(oldBlock.getId(), oldBlock.getData());
+					revert = true;
 					if (m.estEnTest())
 						j.avertissementWorldEdit(Langues.getMessage("creation.test build"));
 					else
@@ -117,6 +122,15 @@ class WorldEditLogger extends AbstractLoggingExtent {
 					j.avertissementWorldEdit(Langues.getMessage("creation.wand.error block"));
 				}
 			}
+		}
+		if (!dansUneMap && !p.hasPermission("creativeparkour.manage") && position.getBlockX() >= Config.getConfig().getInt("map storage.storage location x min") - 1 && position.getBlockY() >= Config.getConfig().getInt("map storage.storage location y min") - 1 && position.getBlockZ() >= Config.getConfig().getInt("map storage.storage location z min") - 1)
+		{
+			revert = true;
+		}
+		
+		if (revert)
+		{
+			newBlock.setIdAndData(oldBlock.getId(), oldBlock.getData());
 		}
 	}
 }

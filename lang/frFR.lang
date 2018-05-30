@@ -475,3 +475,4 @@ commands.noplates_enabled=Cette map n'utilisera pas de plaques de pression pour 
 commands.noplates_disabled=Cette map utilisera des plaques de pression pour ses blocs spéciaux si vous avez activé cette option dans la configuration de CreativeParkour.
 help.noplates=Ne pas utiliser de plaques de pression pour les blocs spéciaux d'une map.
 play.items.leave=Quitter
+error_deprecated=Désolé, cette fonctionnalité n'est plus disponible.

@@ -345,12 +345,15 @@ public class CPUtils
 	{
 		if (Config.online())
 		{
-			HashMap<String, String> params = new HashMap<String, String>();
+			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error deprecated"));
+			return;
+			
+			/*HashMap<String, String> params = new HashMap<String, String>();
 			params.put("ipJoueur", p.getAddress().getHostName());
 			params.put("uuidJoueur", p.getUniqueId().toString());
 			params.put("nomJoueur", p.getName());
 			CPRequest.effectuerRequete("register.php", params, null, CPUtils.class.getMethod("reponseRegister", JsonObject.class, String.class, Player.class), p);
-			p.sendMessage(CPRequest.messageAttente());
+			p.sendMessage(CPRequest.messageAttente());*/
 		}
 	}
 

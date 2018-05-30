@@ -120,6 +120,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 	{
 		try {
 			CPRequest.annulerRequetes();
+			GameManager.revertWEPermissions();
 		} catch (NoClassDefFoundError e) {
 			// Rien
 		}
@@ -218,7 +219,10 @@ public class CreativeParkour extends JavaPlugin implements Listener
 	 */
 	static void erreur(String code, Throwable e, boolean envoyer)
 	{
-		String err = exceptionToString(e);
+		e.printStackTrace();
+		return;
+		
+		/*String err = exceptionToString(e);
 		Bukkit.getLogger().warning(Config.prefix(false) + "An error occurred, sending it to " + lienSiteCourt() + "...\nError: " + err);
 
 		if (Config.getConfig().getBoolean("enable data collection") && envoyer)
@@ -236,7 +240,7 @@ public class CreativeParkour extends JavaPlugin implements Listener
 		else
 		{
 			Bukkit.getLogger().warning(Config.prefix(false) + "The last error (error " + code + ") can not be reported, please send it to obelus@creativeparkour.net");
-		}
+		}*/
 	}
 
 	static boolean erreurRequete(JsonObject json, CommandSender sender)

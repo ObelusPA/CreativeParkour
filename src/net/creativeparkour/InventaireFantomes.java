@@ -171,7 +171,7 @@ class InventaireFantomes
 		itemsAMettre.put(tailleInv - 5, item);
 		speciaux.put(tailleInv - 5, ActionInv.AFFICHER_AIDE);
 
-		if (fantomesTelecharges && Config.online())
+		/*if (fantomesTelecharges && Config.online())
 		{
 			item = new ItemStack(Material.INK_SACK, 1, (short) 1);
 			meta = item.getItemMeta();
@@ -183,7 +183,7 @@ class InventaireFantomes
 			itemsAMettre.put(tailleInv - 2, item);
 			ActionInv a = ActionInv.SIGNALER;
 			speciaux.put(tailleInv - 2, a);
-		}
+		}*/
 
 
 		// Objets d'options
@@ -365,13 +365,16 @@ class InventaireFantomes
 	{
 		if (Config.online())
 		{
-			HashMap<String, String> params = new HashMap<String, String>();
+			j.getPlayer().sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error deprecated"));
+			return;
+			
+			/*HashMap<String, String> params = new HashMap<String, String>();
 			params.put("ipJoueur", j.getPlayer().getAddress().getHostName());
 			params.put("uuidJoueur", j.getPlayer().getUniqueId().toString());
 			params.put("nomJoueur", j.getPlayer().getName());
 			params.put("uuidMap", j.getMapObjet().getUUID().toString());
 			CPRequest.effectuerRequete("report-ghost.php", params, this, this.getClass().getMethod("reponseSignalement", JsonObject.class, String.class, Player.class), j.getPlayer());
-			j.getPlayer().sendMessage(Config.prefix() + CPRequest.messageAttente());
+			j.getPlayer().sendMessage(Config.prefix() + CPRequest.messageAttente());*/
 		}
 		else
 			j.getPlayer().sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("feature disabled"));

@@ -522,10 +522,12 @@ class MainListener implements Listener
 					{
 						n = "unnamed";
 					}
-					if (Config.online() && m.getCreator().equals(p.getUniqueId()))
+					/*if (Config.online() && m.getCreator().equals(p.getUniqueId()))
+					{
 						p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.share message")).color(ChatColor.AQUA).bold(true)
 								.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(CPUtils.dividedTextToString(CPUtils.divideText(Langues.getMessage("commands.share info").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET), null))).create()))
 								.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour share")).create());
+					}*/
 					p.spigot().sendMessage(new ComponentBuilder(" ➥ ").color(ChatColor.YELLOW).append(Langues.getMessage("commands.edit message")).color(ChatColor.LIGHT_PURPLE).bold(true)
 							.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(CPUtils.dividedTextToString(CPUtils.divideText(Langues.getMessage("commands.edit info").replace("%map", ChatColor.ITALIC + n + ChatColor.RESET), null))).create()))
 							.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/creativeparkour edit")).create());
@@ -632,7 +634,13 @@ class MainListener implements Listener
 				// Sécurité pour NullPointerException
 				m = j.getMapObjet();
 			}
-			if (m == null && GameManager.estDansUneMap(l.getBlock()))
+			if (m == null && !p.hasPermission("creativeparkour.manage") && l.getX() >= Config.getConfig().getInt("map storage.storage location x min") - 1 && l.getY() >= Config.getConfig().getInt("map storage.storage location y min") - 1 && l.getZ() >= Config.getConfig().getInt("map storage.storage location z min") - 1)
+			{
+				// Si un joueur tente se balade autour des maps sans raison
+				p.teleport(Config.getExitLocation());
+				p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("not allowed"));
+			}
+			else if (m == null && GameManager.estDansUneMap(l.getBlock()))
 			{
 				// Si un joueur tente d'entrer dans une map
 				p.teleport(e.getFrom());
@@ -921,7 +929,7 @@ class MainListener implements Listener
 
 
 	@EventHandler
-	void onVehicleMove(VehicleCreateEvent e)
+	void onVehicleCreate(VehicleCreateEvent e)
 	{
 		if (GameManager.estDansUneMap(e.getVehicle().getLocation().getBlock()))
 		{

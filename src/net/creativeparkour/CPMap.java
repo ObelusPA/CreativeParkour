@@ -1616,7 +1616,10 @@ public class CPMap
 	{
 		if (Config.online())
 		{
-			if (!j.getUUID().equals(createur))
+			j.getPlayer().sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error deprecated"));
+			return;
+			
+			/*if (!j.getUUID().equals(createur))
 			{
 				String nomCreateur = "unknown";
 				if (createur != null)
@@ -1655,7 +1658,7 @@ public class CPMap
 					CPRequest.effectuerRequete("maps.php", params, this, this.getClass().getMethod("reponsePartage", JsonObject.class, String.class, Player.class), j.getPlayer());
 					j.getPlayer().sendMessage(Config.prefix() + ChatColor.ITALIC + Langues.getMessage("commands.share wait"));
 				}
-			}
+			}*/
 		}
 	}
 

@@ -512,9 +512,12 @@ class Commandes implements CommandExecutor, Listener
 										{
 											if (commandeAutorisee(sender, "share", true))
 											{
-												sender.sendMessage(Config.prefix() + ChatColor.GOLD + ChatColor.BOLD + Langues.getMessage("commands.share question"));
+												sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error deprecated"));
+												return true;
+												
+												/*sender.sendMessage(Config.prefix() + ChatColor.GOLD + ChatColor.BOLD + Langues.getMessage("commands.share question"));
 												sender.sendMessage(Langues.getMessage("commands.share info"));
-												question(j.getPlayer(), null, "partager map");
+												question(j.getPlayer(), null, "partager map");*/
 											}
 											return true;
 										}
@@ -689,14 +692,17 @@ class Commandes implements CommandExecutor, Listener
 						{
 							if (commandeAutorisee(sender, "register"))
 							{
-								if (Config.online())
+								sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error deprecated"));
+								return true;
+								
+								/*if (Config.online())
 								{
 									CPUtils.registerOnline(getPlayer(sender));
 								}
 								else
 								{
 									sender.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("online disabled"));
-								}
+								}*/
 							}
 							return true;
 						}

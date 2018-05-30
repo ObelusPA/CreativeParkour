@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -148,7 +149,7 @@ class Config implements Listener
 		path = "game.fetch ghosts skins"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "game.sharing info in downloaded maps"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 
-		path = "online.enabled"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
+		path = "online.enabled"; if(!configGenerale.contains(path)) { configGenerale.set(path, false); }
 		path = "online.server uuid"; if(!configGenerale.contains(path)) { configGenerale.set(path, UUID.randomUUID().toString()); }
 		path = "online.show downloadable maps"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
 		path = "online.upload ghosts"; if(!configGenerale.contains(path)) { configGenerale.set(path, true); }
@@ -187,6 +188,14 @@ class Config implements Listener
 
 		// Mise à jour des anciens types de langues
 		configGenerale.set(path, Langues.transformerCodeLangue(configGenerale.getString(path)));
+		
+		// Online features disabled in 2019
+		Date date = new Date();
+		Date date2019 = new GregorianCalendar(2019, 1, 1).getTime();
+		if (date.after(date2019))
+		{
+			configGenerale.set("online.enabled", false);
+		}
 
 
 		// Config joueurs
@@ -509,13 +518,16 @@ class Config implements Listener
 
 			p.sendMessage(head);
 			p.sendMessage(Langues.getMessage("config.permissions"));
-			p.spigot().sendMessage(boutonNext(EtapeConfig.SHARING));
+			p.spigot().sendMessage(boutonNext(EtapeConfig.END));
 		}
 		else if (etape == EtapeConfig.SHARING)
 		{
-			p.sendMessage(head);
+			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error deprecated"));
+			return;
+			
+			/*p.sendMessage(head);
 			p.sendMessage(Langues.getMessage("config.sharing.text"));
-			Commandes.question(p, null, "config partage");
+			Commandes.question(p, null, "config partage");*/
 		}
 		else if (etape == EtapeConfig.END)
 		{
@@ -592,7 +604,7 @@ class Config implements Listener
 
 			p.spigot().sendMessage(cb.create());
 
-			p.sendMessage(ChatColor.GRAY + "Some languages are translated by the community, you can help them by reviewing translations, translating missing phrases, or translating the plugin to another language at https://dev.bukkit.org/projects/creativeparkour/localization");
+			//p.sendMessage(ChatColor.GRAY + "Some languages are translated by the community, you can help them by reviewing translations, translating missing phrases, or translating the plugin to another language at https://dev.bukkit.org/projects/creativeparkour/localization");
 		}
 	}
 
@@ -652,7 +664,10 @@ class Config implements Listener
 	{
 		if (reponse == true)
 		{
-			configGenerale.set("online.enabled", true);
+			p.sendMessage(Config.prefix() + ChatColor.RED + Langues.getMessage("error deprecated"));
+			return;
+			
+			/*configGenerale.set("online.enabled", true);
 			p.sendMessage(ChatColor.GREEN + Langues.getMessage("config.sharing.enabled"));
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("ipServ", Bukkit.getServer().getIp());
@@ -661,7 +676,7 @@ class Config implements Listener
 			params.put("uuidJoueur", p.getUniqueId().toString());
 			params.put("nomJoueur", p.getName());
 			CPRequest.effectuerRequete("servers.php", params, null, Config.class.getMethod("reponseServeurPartage", JsonObject.class, String.class, Player.class), p);
-			p.sendMessage(CPRequest.messageAttente());
+			p.sendMessage(CPRequest.messageAttente());*/
 		}
 		else
 		{
