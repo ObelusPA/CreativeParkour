@@ -1,6 +1,8 @@
 ![CreativeParkour](https://media-elerium.cursecdn.com/attachments/116/519/Image_principale.png)
 **This project is no longer maintained, sorry.**
 
+*A copy of the website is available at https://github.com/ObelusPA/CreativeParkour-website*
+
 CreativeParkour is a Bukkit parkour plugin that allows players to play and show their skills in fun parkour maps they build or download!
 Follow these links to get information about the plugin:
 * [Official website with documentation](https://creativeparkour.net)
